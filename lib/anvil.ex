@@ -45,11 +45,17 @@ defmodule Anvil do
     end
   end
 
+  use Application
+
+  def start(_type, _args), do: Anvil.Sequence.start_link
+
   defmacro __using__(_opts) do
     quote do
       @before_compile unquote(__MODULE__)
 
-      def assoc(opts, factory_name) do
+      import Anvil, only: [sequence: 2]
+
+      defp assoc(opts, factory_name) do
         Anvil.assoc(__MODULE__, opts, factory_name)
       end
 
@@ -70,6 +76,20 @@ defmodule Anvil do
       end
     end
   end
+
+  @doc """
+  Create sequences for generating unique values
+
+  ## Examples
+
+      def factory(:user) do
+        %{
+          # Will generate "me-0@example.com" then "me-1@example.com", etc.
+          email: sequence(:email, &"me-\#{&1}@foo.com")
+        }
+      end
+  """
+  def sequence(name, formatter), do: Anvil.Sequence.next(name, formatter)
 
   @doc """
   Gets a factory from the passed in opts, or creates if none is present

@@ -1,5 +1,5 @@
 defmodule AnvilTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   defmodule TestRepo do
     def insert!(record) do
@@ -43,23 +43,34 @@ defmodule AnvilTest do
       }
     end
 
+    def factory(:email) do
+      %{
+        email: sequence(:email, &"me-#{&1}@foo.com")
+      }
+    end
+
     def create_record(map) do
       TestRepo.insert!(map)
     end
+  end
+
+  test "sequence/2 sequences a value" do
+    assert "me-0@foo.com" == MyApp.Anvil.build(:email).email
+    assert "me-1@foo.com" == MyApp.Anvil.build(:email).email
   end
 
   test "assoc/2 returns the passed in key if it exists" do
     existing_account = %{id: 1, plan_type: "free"}
     opts = %{account: existing_account}
 
-    assert MyApp.Anvil.assoc(opts, :account) == existing_account
+    assert Anvil.assoc(MyApp.Anvil, opts, :account) == existing_account
     refute_received {:created, _}
   end
 
   test "assoc/2 creates and returns a factory if one was not in opts" do
     opts = %{}
 
-    account = MyApp.Anvil.assoc(opts, :account)
+    account = Anvil.assoc(MyApp.Anvil, opts, :account)
 
     newly_created_account = %{id: 100, plan_type: "enterprise"}
     assert account == newly_created_account
