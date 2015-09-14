@@ -55,3 +55,27 @@ defmodule MyApp.Anvil do
   end
 end
 ```
+
+## License
+
+Anvil is Copyright © 2015 thoughtbot. It is free software, and may be
+redistributed under the terms specified in the [LICENSE](/LICENSE) file.
+
+## About thoughtbot
+
+![thoughtbot](https://thoughtbot.com/logo.png)
+
+Anvil is maintained and funded by thoughtbot, inc.
+The names and logos for thoughtbot are trademarks of thoughtbot, inc.
+
+We love open source software!
+See [our other projects][community] or
+[hire us][hire] to design, develop, and grow your product.
+
+[community]: https://thoughtbot.com/community?utm_source=github
+[hire]: https://thoughtbot.com?utm_source=github
+
+## Inspiration
+
+* [Fixtures for Ecto](http://blog.danielberkompas.com/elixir/2015/07/16/fixtures-for-ecto.html)
+* [Factory Girl](https://github.com/thoughtbot/factory_girl)
