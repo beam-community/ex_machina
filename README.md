@@ -3,6 +3,28 @@
 Anvil makes it easy to create test data and associations. It works great with
 Ecto, but is configurable to work with any persistence library.
 
+## Installation
+
+In `mix.exs`, add the Anvil dependency:
+
+```elixir
+def deps do
+  [{:anvil, "~> 0.1"}]
+end
+```
+
+Add `:anvil` to your application list:
+
+```elixir
+def application do
+  [applications: app_list(Mix.env)]
+end
+
+defp app_list(:test), do: [:anvil | app_list]
+defp app_list(_),  do: app_list
+defp app_list,  do: [:logger]
+```
+
 ## Examples
 
 ```elixir
