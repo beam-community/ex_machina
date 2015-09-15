@@ -55,7 +55,7 @@ defmodule ExMachinaTest do
       %{foo: :bar}
     end
 
-    def save_function (record) do
+    def save_function(record) do
       send self, {:custom_save, record}
       record
     end

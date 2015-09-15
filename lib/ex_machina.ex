@@ -55,14 +55,6 @@ defmodule ExMachina do
     end
   end
 
-  def save_record(module, repo, record) do
-    if repo do
-      repo.insert!(record)
-    else
-      module.save_function(record)
-    end
-  end
-
   @doc """
   Create sequences for generating unique values
 
@@ -148,6 +140,50 @@ defmodule ExMachina do
   """
   def create(module, factory_name, attrs \\ %{}) do
     ExMachina.build(module, factory_name, attrs) |> module.save_record
+  end
+
+
+  @doc """
+  Saves a record when `create` is called. Uses Ecto if the `repo` option is set
+
+  If you include the `repo` option (`use ExMachina, repo: MyApp.Repo`) this
+  function will call `insert!` on the passed in repo. 
+
+  If you do not pass in the `repo` option, you *must* define a custom
+  save_function/1 for saving the record.
+
+  ## Examples
+
+      defmodule MyApp.Factories do
+        use ExMachina, repo: MyApp.Repo
+
+        def factory(:user), do: %User{name: "John"}
+      end
+
+      # Will build and save the record to the MyApp.Repo
+      MyApp.Factories.create(:user)
+
+      defmodule MyApp.JsonFactories do
+        # Note `repo` was not passed as an option
+        use ExMachina
+
+        def factory(:user), do: %User{name: "John"}
+
+        def save_function(record) do
+          # Poison is a library for working with JSON
+          Poison.encode!(record)
+        end
+      end
+
+      # Will build and then return a JSON encoded version of the map
+      MyApp.JsonFactories.create(:user)
+  """
+  def save_record(module, repo, record) do
+    if repo do
+      repo.insert!(record)
+    else
+      module.save_function(record)
+    end
   end
 
   @doc """
