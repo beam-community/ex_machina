@@ -18,6 +18,22 @@ defmodule ExMachina do
     end
   end
 
+  defmodule UndefinedSave do
+    @moduledoc """
+    Error raised when trying to call create and no repo or save_function is
+    defined.
+    """
+
+    defexception [:message]
+
+    def exception do
+      %UndefinedSave{
+        message: "Define save_function/1 or include the repo option. See docs
+        for ExMachina.save_record."
+      }
+    end
+  end
+
   use Application
 
   def start(_type, _args), do: ExMachina.Sequence.start_link
@@ -122,14 +138,10 @@ defmodule ExMachina do
 
   If you pass in repo when using ExMachina it will use the Ecto Repo to save the
   record automatically. If you do not pass the repo, you need to define a
-  `save_record/1` function in your module.
+  `save_record/1` function in your module. See `save_record` docs for more
+  information.
 
   ## Example
-
-      def create_record(record) do
-        # This example uses Ecto
-        MyApp.Repo.insert!(record)
-      end
 
       def factory(:user) do
         %{name: "John Doe", admin: false}
@@ -149,7 +161,7 @@ defmodule ExMachina do
   If you include the `repo` option (`use ExMachina, repo: MyApp.Repo`) this
   function will call `insert!` on the passed in repo. 
 
-  If you do not pass in the `repo` option, you *must* define a custom
+  If you do not pass in the `repo` option, you must define a custom
   save_function/1 for saving the record.
 
   ## Examples
@@ -228,6 +240,14 @@ defmodule ExMachina do
       """
       def factory(factory_name) do
         raise UndefinedFactory, factory_name
+      end
+
+      @doc """
+      Raises a helpful error if `create` is called and no save_function is
+      defined.
+      """
+      def save_function(record) do
+        raise UndefinedSave
       end
     end
   end

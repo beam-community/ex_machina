@@ -51,14 +51,18 @@ defmodule ExMachinaTest do
   defmodule MyApp.NonEctoFactories do
     use ExMachina
 
-    def factory(:foo) do
-      %{foo: :bar}
-    end
+    def factory(:foo), do: %{foo: :bar}
 
     def save_function(record) do
       send self, {:custom_save, record}
       record
     end
+  end
+
+  defmodule MyApp.NoSaveFunction do
+    use ExMachina
+
+    def factory(:foo), do: %{foo: :bar}
   end
 
   test "sequence/2 sequences a value" do
@@ -148,6 +152,12 @@ defmodule ExMachinaTest do
 
     assert record == %{foo: :bar}
     assert_received {:custom_save, %{foo: :bar}}
+  end
+
+  test "create/2 raises a helpful error if no repo and no custom function" do
+    assert_raise ExMachina.UndefinedSave, fn ->
+      MyApp.NoSaveFunction.create(:foo)
+    end
   end
 
   test "create_pair/2 creates the factory and saves it 2 times" do
