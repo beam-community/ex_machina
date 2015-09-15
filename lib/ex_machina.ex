@@ -49,6 +49,10 @@ defmodule ExMachina do
         ExMachina.assoc(__MODULE__, attrs, factory_name, opts)
       end
 
+      def fields_for(factory_name, attrs \\ %{}) do
+        ExMachina.fields_for(__MODULE__, factory_name, attrs)
+      end
+
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
       end
@@ -114,6 +118,38 @@ defmodule ExMachina do
   end
   defp create_assoc(module, factory_name, _opts) do
     ExMachina.create(module, factory_name)
+  end
+
+  @doc """
+  Builds a factory with the passed in factory_name and returns its fields
+
+  This is only for use with Ecto models.
+
+  Will return a map with the fields and virtual fields, but without the Ecto
+  metadata and associations.
+
+  ## Example
+
+      def factory(:user) do
+        %MyApp.User{name: "John Doe", admin: false}
+      end
+
+      # Returns %{name: "John Doe", admin: true}
+      fields_for(:user, admin: true)
+  """
+  def fields_for(module, factory_name, attrs \\ %{}) do
+    module.build(factory_name, attrs)
+    |> drop_ecto_fields
+  end
+
+  defp drop_ecto_fields(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
+    record
+    |> Map.from_struct
+    |> Map.delete(:__meta__)
+    |> Map.drop(struct.__schema__(:associations))
+  end
+  defp drop_ecto_fields(record) do
+    raise ArgumentError, "#{inspect record} is not an Ecto model. Use `build` instead."
   end
 
   @doc """

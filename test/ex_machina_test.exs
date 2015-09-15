@@ -8,8 +8,22 @@ defmodule ExMachinaTest do
     end
   end
 
+  defmodule MyApp.Book do
+    defstruct title: nil, publisher: nil, __meta__: %{__struct__: Ecto.Schema.Metadata}, publisher_id: 1
+
+    def __schema__(:associations) do
+      [:publisher]
+    end
+  end
+
   defmodule MyApp.ExMachina do
     use ExMachina, repo: TestRepo
+
+    def factory(:book) do
+      %MyApp.Book{
+        title: "Foo"
+      }
+    end
 
     def factory(:user) do
       %{
@@ -113,6 +127,19 @@ defmodule ExMachinaTest do
   test "raises a helpful error if the factory is not defined" do
     assert_raise ExMachina.UndefinedFactory, "No factory defined for :foo", fn ->
       MyApp.ExMachina.build(:foo)
+    end
+  end
+
+  test "fields_for/2 removes Ecto specific fields" do
+    assert MyApp.ExMachina.fields_for(:book) == %{
+      title: "Foo",
+      publisher_id: 1,
+    }
+  end
+
+  test "fields_for/2 raises when passed a map" do
+    assert_raise ArgumentError, fn ->
+      MyApp.ExMachina.fields_for(:user)
     end
   end
 
