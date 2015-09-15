@@ -1,10 +1,10 @@
-defmodule Anvil.SequenceTest do
+defmodule ExMachina.SequenceTest do
   use ExUnit.Case, async: true
 
-  alias Anvil.Sequence
+  alias ExMachina.Sequence
 
   setup do
-    Agent.update(Anvil.Sequence, fn(_) -> HashDict.new end)
+    Agent.update(ExMachina.Sequence, fn(_) -> HashDict.new end)
   end
 
   test "increments the sequence each time it is called" do

@@ -1,26 +1,26 @@
-# Anvil
+# ExMachina
 
-Anvil makes it easy to create test data and associations. It works great with
+ExMachina makes it easy to create test data and associations. It works great with
 Ecto, but is configurable to work with any persistence library.
 
 ## Installation
 
-In `mix.exs`, add the Anvil dependency:
+In `mix.exs`, add the ExMachina dependency:
 
 ```elixir
 def deps do
-  [{:anvil, "~> 0.1"}]
+  [{:ex_machina, "~> 0.1"}]
 end
 ```
 
-Add `:anvil` to your application list:
+Add `:ex_machina` to your application list:
 
 ```elixir
 def application do
   [applications: app_list(Mix.env)]
 end
 
-defp app_list(:test), do: [:anvil | app_list]
+defp app_list(:test), do: [:ex_machina | app_list]
 defp app_list(_),  do: app_list
 defp app_list,  do: [:logger]
 ```
@@ -28,8 +28,8 @@ defp app_list,  do: [:logger]
 ## Examples
 
 ```elixir
-defmodule MyApp.Anvil do
-  use Anvil
+defmodule MyApp.ExMachina do
+  use ExMachina
 
   def factory(:config) do
     # Factories can be plain maps
@@ -58,14 +58,14 @@ end
 
 ## License
 
-Anvil is Copyright © 2015 thoughtbot. It is free software, and may be
+ExMachina is Copyright © 2015 thoughtbot. It is free software, and may be
 redistributed under the terms specified in the [LICENSE](/LICENSE) file.
 
 ## About thoughtbot
 
 ![thoughtbot](https://thoughtbot.com/logo.png)
 
-Anvil is maintained and funded by thoughtbot, inc.
+ExMachina is maintained and funded by thoughtbot, inc.
 The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 
 We love open source software!

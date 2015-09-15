@@ -1,11 +1,11 @@
-defmodule Anvil.Mixfile do
+defmodule ExMachina.Mixfile do
   use Mix.Project
 
-  @project_url "https://github.com/thoughtbot/anvil" 
+  @project_url "https://github.com/thoughtbot/ex_machina"
 
   def project do
     [
-      app: :anvil,
+      app: :ex_machina,
       version: "0.0.1",
       elixir: "~> 1.0",
       description: "Easily create test data for Elixir applications",
@@ -22,7 +22,7 @@ defmodule Anvil.Mixfile do
   def application do
     [
       applications: [:logger],
-      mod: {Anvil, []}
+      mod: {ExMachina, []}
     ]
   end
 

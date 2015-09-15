@@ -1,11 +1,11 @@
-defmodule Anvil do
+defmodule ExMachina do
   @moduledoc """
   Defines functions for generating data
 
   ## Examples
 
-      defmodule MyApp.Anvil do
-        use Anvil
+      defmodule MyApp.ExMachina do
+        use ExMachina
 
         def factory(:config) do
           # Factories can be plain maps
@@ -47,32 +47,32 @@ defmodule Anvil do
 
   use Application
 
-  def start(_type, _args), do: Anvil.Sequence.start_link
+  def start(_type, _args), do: ExMachina.Sequence.start_link
 
   defmacro __using__(_opts) do
     quote do
       @before_compile unquote(__MODULE__)
 
-      import Anvil, only: [sequence: 2]
+      import ExMachina, only: [sequence: 2]
 
       defp assoc(opts, factory_name) do
-        Anvil.assoc(__MODULE__, opts, factory_name)
+        ExMachina.assoc(__MODULE__, opts, factory_name)
       end
 
       def build(factory_name, opts \\ %{}) do
-        Anvil.build(__MODULE__, factory_name, opts)
+        ExMachina.build(__MODULE__, factory_name, opts)
       end
 
       def create(factory_name, opts \\ %{}) do
-        Anvil.create(__MODULE__, factory_name, opts)
+        ExMachina.create(__MODULE__, factory_name, opts)
       end
 
       def create_pair(factory_name, opts \\ %{}) do
-        Anvil.create_pair(__MODULE__, factory_name, opts)
+        ExMachina.create_pair(__MODULE__, factory_name, opts)
       end
 
       def create_list(number_of_factorys, factory_name, opts \\ %{}) do
-        Anvil.create_list(__MODULE__, number_of_factorys, factory_name, opts)
+        ExMachina.create_list(__MODULE__, number_of_factorys, factory_name, opts)
       end
     end
   end
@@ -89,7 +89,7 @@ defmodule Anvil do
         }
       end
   """
-  def sequence(name, formatter), do: Anvil.Sequence.next(name, formatter)
+  def sequence(name, formatter), do: ExMachina.Sequence.next(name, formatter)
 
   @doc """
   Gets a factory from the passed in opts, or creates if none is present
@@ -108,7 +108,7 @@ defmodule Anvil do
     if Map.has_key?(opts, factory_name) do
       Map.get(opts, factory_name)
     else
-      Anvil.create(module, factory_name)
+      ExMachina.create(module, factory_name)
     end
   end
 
@@ -147,7 +147,7 @@ defmodule Anvil do
       create(:user, admin: true)
   """
   def create(module, factory_name, opts \\ %{}) do
-    Anvil.build(module, factory_name, opts) |> module.create_record
+    ExMachina.build(module, factory_name, opts) |> module.create_record
   end
 
   @doc """
@@ -159,7 +159,7 @@ defmodule Anvil do
       create_pair(:user)
   """
   def create_pair(module, factory_name, opts \\ %{}) do
-    Anvil.create_list(module, 2, factory_name, opts)
+    ExMachina.create_list(module, 2, factory_name, opts)
   end
 
   @doc """
@@ -172,7 +172,7 @@ defmodule Anvil do
   """
   def create_list(module, number_of_factories, factory_name, opts \\ %{}) do
     Enum.map(1..number_of_factories, fn(_) ->
-      Anvil.create(module, factory_name, opts)
+      ExMachina.create(module, factory_name, opts)
     end)
   end
 
