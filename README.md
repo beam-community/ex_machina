@@ -43,11 +43,11 @@ defmodule MyApp.Factories do
     }
   end
 
-  def factory(:comment, opts) do
+  def factory(:comment, attrs) do
     %Comment{
       body: "This is great!",
       author_email: sequence(:email, &"email-#{&1}@example.com"),
-      article_id: assoc(opts, :article).id
+      article_id: assoc(attrs, :article).id
     }
   end
 

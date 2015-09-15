@@ -11,35 +11,31 @@ defmodule ExMachinaTest do
   defmodule MyApp.ExMachina do
     use ExMachina
 
-    def factory(:without_opts) do
-      %{foo: :bar}
-    end
-
-    def factory(:user, _opts) do
+    def factory(:user) do
       %{
         name: "John Doe",
         admin: false
       }
     end
 
-    def factory(:account, _opts) do
+    def factory(:account) do
       %{
         id: 100,
         plan_type: "enterprise"
       }
     end
 
-    def factory(:article, _opts) do
+    def factory(:article) do
       %{
         id: 1,
         title: "My Awesome Article"
       }
     end
 
-    def factory(:comment, opts) do
+    def factory(:comment, attrs) do
       %{
         body: "This is great!",
-        article_id: assoc(opts, :article).id
+        article_id: assoc(attrs, :article).id
       }
     end
 
@@ -61,16 +57,16 @@ defmodule ExMachinaTest do
 
   test "assoc/2 returns the passed in key if it exists" do
     existing_account = %{id: 1, plan_type: "free"}
-    opts = %{account: existing_account}
+    attrs = %{account: existing_account}
 
-    assert ExMachina.assoc(MyApp.ExMachina, opts, :account) == existing_account
+    assert ExMachina.assoc(MyApp.ExMachina, attrs, :account) == existing_account
     refute_received {:created, _}
   end
 
-  test "assoc/2 creates and returns a factory if one was not in opts" do
-    opts = %{}
+  test "assoc/2 creates and returns a factory if one was not in attrs" do
+    attrs = %{}
 
-    account = ExMachina.assoc(MyApp.ExMachina, opts, :account)
+    account = ExMachina.assoc(MyApp.ExMachina, attrs, :account)
 
     newly_created_account = %{id: 100, plan_type: "enterprise"}
     assert account == newly_created_account
@@ -85,8 +81,8 @@ defmodule ExMachinaTest do
     assert comment.article == my_article
   end
 
-  test "factorys can be defined without the second options param" do
-    assert MyApp.ExMachina.build(:without_opts) == MyApp.ExMachina.factory(:without_opts)
+  test "factorys can be defined without the attrs param" do
+    assert MyApp.ExMachina.build(:user) == MyApp.ExMachina.factory(:user)
   end
 
   test "raises a helpful error if the factory is not defined" do

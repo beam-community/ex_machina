@@ -28,24 +28,24 @@ defmodule ExMachina do
 
       import ExMachina, only: [sequence: 2]
 
-      defp assoc(opts, factory_name) do
-        ExMachina.assoc(__MODULE__, opts, factory_name)
+      defp assoc(attrs, factory_name) do
+        ExMachina.assoc(__MODULE__, attrs, factory_name)
       end
 
-      def build(factory_name, opts \\ %{}) do
-        ExMachina.build(__MODULE__, factory_name, opts)
+      def build(factory_name, attrs \\ %{}) do
+        ExMachina.build(__MODULE__, factory_name, attrs)
       end
 
-      def create(factory_name, opts \\ %{}) do
-        ExMachina.create(__MODULE__, factory_name, opts)
+      def create(factory_name, attrs \\ %{}) do
+        ExMachina.create(__MODULE__, factory_name, attrs)
       end
 
-      def create_pair(factory_name, opts \\ %{}) do
-        ExMachina.create_pair(__MODULE__, factory_name, opts)
+      def create_pair(factory_name, attrs \\ %{}) do
+        ExMachina.create_pair(__MODULE__, factory_name, attrs)
       end
 
-      def create_list(number_of_factorys, factory_name, opts \\ %{}) do
-        ExMachina.create_list(__MODULE__, number_of_factorys, factory_name, opts)
+      def create_list(number_of_factorys, factory_name, attrs \\ %{}) do
+        ExMachina.create_list(__MODULE__, number_of_factorys, factory_name, attrs)
       end
     end
   end
@@ -65,21 +65,21 @@ defmodule ExMachina do
   def sequence(name, formatter), do: ExMachina.Sequence.next(name, formatter)
 
   @doc """
-  Gets a factory from the passed in opts, or creates if none is present
+  Gets a factory from the passed in attrs, or creates if none is present
 
   ## Examples
 
-      opts = %{user: %{name: "Someone"}}
-      # Returns opts.user
-      assoc(opts, :user)
+      attrs = %{user: %{name: "Someone"}}
+      # Returns attrs.user
+      assoc(attrs, :user)
 
-      opts = %{}
+      attrs = %{}
       # Creates and returns new instance based on :user factory
-      assoc(opts, :user)
+      assoc(attrs, :user)
   """
-  def assoc(module, opts, factory_name) do
-    if Map.has_key?(opts, factory_name) do
-      Map.get(opts, factory_name)
+  def assoc(module, attrs, factory_name) do
+    if Map.has_key?(attrs, factory_name) do
+      Map.get(attrs, factory_name)
     else
       ExMachina.create(module, factory_name)
     end
@@ -97,9 +97,9 @@ defmodule ExMachina do
       # Returns %{name: "John Doe", admin: true}
       build(:user, admin: true)
   """
-  def build(module, factory_name, opts \\ %{}) do
-    opts = Enum.into(opts, %{})
-    module.factory(factory_name, opts) |> Map.merge(opts)
+  def build(module, factory_name, attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{})
+    module.factory(factory_name, attrs) |> Map.merge(attrs)
   end
 
   @doc """
@@ -119,33 +119,33 @@ defmodule ExMachina do
       # Saves and returns %{name: "John Doe", admin: true}
       create(:user, admin: true)
   """
-  def create(module, factory_name, opts \\ %{}) do
-    ExMachina.build(module, factory_name, opts) |> module.create_record
+  def create(module, factory_name, attrs \\ %{}) do
+    ExMachina.build(module, factory_name, attrs) |> module.create_record
   end
 
   @doc """
-  Creates and returns 2 records with the passed in factory_name and opts
+  Creates and returns 2 records with the passed in factory_name and attrs
 
   ## Example
 
       # Returns a list of 2 users
       create_pair(:user)
   """
-  def create_pair(module, factory_name, opts \\ %{}) do
-    ExMachina.create_list(module, 2, factory_name, opts)
+  def create_pair(module, factory_name, attrs \\ %{}) do
+    ExMachina.create_list(module, 2, factory_name, attrs)
   end
 
   @doc """
-  Creates and returns X records with the passed in factory_name and opts
+  Creates and returns X records with the passed in factory_name and attrs
 
   ## Example
 
       # Returns a list of 3 users
       create_pair(3, :user)
   """
-  def create_list(module, number_of_factories, factory_name, opts \\ %{}) do
+  def create_list(module, number_of_factories, factory_name, attrs \\ %{}) do
     Enum.map(1..number_of_factories, fn(_) ->
-      ExMachina.create(module, factory_name, opts)
+      ExMachina.create(module, factory_name, attrs)
     end)
   end
 
@@ -154,9 +154,9 @@ defmodule ExMachina do
       @doc """
       Calls factory/1 with the passed in factory name
 
-      This allows you to define factorys without the second `opts` param.
+      This allows you to define factories without the `attrs` param.
       """
-      def factory(factory_name, _opts) do
+      def factory(factory_name, _attrs) do
         __MODULE__.factory(factory_name)
       end
 
