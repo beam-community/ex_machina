@@ -13,6 +13,7 @@ defmodule ExMachinaTest do
 
     def factory(:user) do
       %{
+        id: 3,
         name: "John Doe",
         admin: false
       }
@@ -25,10 +26,17 @@ defmodule ExMachinaTest do
       }
     end
 
-    def factory(:article) do
+    def factory(:email) do
+      %{
+        email: sequence(:email, &"me-#{&1}@foo.com")
+      }
+    end
+
+    def factory(:article, attrs) do
       %{
         id: 1,
-        title: "My Awesome Article"
+        title: "My Awesome Article",
+        author_id: assoc(attrs, :author, factory: :user).id
       }
     end
 
@@ -36,12 +44,6 @@ defmodule ExMachinaTest do
       %{
         body: "This is great!",
         article_id: assoc(attrs, :article).id
-      }
-    end
-
-    def factory(:email) do
-      %{
-        email: sequence(:email, &"me-#{&1}@foo.com")
       }
     end
 
@@ -55,7 +57,7 @@ defmodule ExMachinaTest do
     assert "me-1@foo.com" == MyApp.ExMachina.build(:email).email
   end
 
-  test "assoc/2 returns the passed in key if it exists" do
+  test "assoc/3 returns the passed in key if it exists" do
     existing_account = %{id: 1, plan_type: "free"}
     attrs = %{account: existing_account}
 
@@ -63,7 +65,7 @@ defmodule ExMachinaTest do
     refute_received {:created, _}
   end
 
-  test "assoc/2 creates and returns a factory if one was not in attrs" do
+  test "assoc/3 creates and returns a factory if one was not in attrs" do
     attrs = %{}
 
     account = ExMachina.assoc(MyApp.ExMachina, attrs, :account)
@@ -73,7 +75,17 @@ defmodule ExMachinaTest do
     assert_received {:created, ^newly_created_account}
   end
 
-  test "can use assoc/2 in a factory to override associations" do
+  test "assoc/3 can specify a factory for the association" do
+    attrs = %{}
+
+    account = ExMachina.assoc(MyApp.ExMachina, attrs, :account, factory: :user)
+
+    newly_created_account = %{id: 3, admin: false, name: "John Doe"}
+    assert account == newly_created_account
+    assert_received {:created, ^newly_created_account}
+  end
+
+  test "can use assoc/3 in a factory to override associations" do
     my_article = MyApp.ExMachina.create(:article, title: "So Deep")
 
     comment = MyApp.ExMachina.create(:comment, article: my_article)
@@ -81,7 +93,7 @@ defmodule ExMachinaTest do
     assert comment.article == my_article
   end
 
-  test "factorys can be defined without the attrs param" do
+  test "factories can be defined without the attrs param" do
     assert MyApp.ExMachina.build(:user) == MyApp.ExMachina.factory(:user)
   end
 
@@ -93,6 +105,7 @@ defmodule ExMachinaTest do
 
   test "build/2 returns the matching factory" do
     assert MyApp.ExMachina.build(:user) == %{
+      id: 3,
       name: "John Doe",
       admin: false
     }
@@ -100,6 +113,7 @@ defmodule ExMachinaTest do
 
   test "build/2 merges passed in options as keyword list" do
     assert MyApp.ExMachina.build(:user, admin: true) == %{
+      id: 3,
       name: "John Doe",
       admin: true
     }
@@ -107,6 +121,7 @@ defmodule ExMachinaTest do
 
   test "build/2 merges passed in options as a map" do
     assert MyApp.ExMachina.build(:user, admin: true) == %{
+      id: 3,
       name: "John Doe",
       admin: true
     }
@@ -115,14 +130,14 @@ defmodule ExMachinaTest do
   test "create/2 builds the factory and saves it in the repo" do
     user = MyApp.ExMachina.create(:user, admin: true)
 
-    assert user == %{name: "John Doe", admin: true}
+    assert user == %{id: 3, name: "John Doe", admin: true}
     assert_received {:created, %{name: "John Doe", admin: true}}
   end
 
   test "create_pair/2 creates the factory and saves it 2 times" do
     users = MyApp.ExMachina.create_pair(:user, admin: true)
 
-    created_user = %{name: "John Doe", admin: true}
+    created_user = %{id: 3, name: "John Doe", admin: true}
     assert users == [created_user, created_user]
     assert_received {:created, ^created_user}
     assert_received {:created, ^created_user}
@@ -132,7 +147,7 @@ defmodule ExMachinaTest do
   test "create_list/3 creates factory and saves it passed in number of times" do
     users = MyApp.ExMachina.create_list(3, :user, admin: true)
 
-    created_user = %{name: "John Doe", admin: true}
+    created_user = %{id: 3, name: "John Doe", admin: true}
     assert users == [created_user, created_user, created_user]
     assert_received {:created, ^created_user}
     assert_received {:created, ^created_user}

@@ -28,8 +28,8 @@ defmodule ExMachina do
 
       import ExMachina, only: [sequence: 2]
 
-      defp assoc(attrs, factory_name) do
-        ExMachina.assoc(__MODULE__, attrs, factory_name)
+      defp assoc(attrs, factory_name, opts \\ []) do
+        ExMachina.assoc(__MODULE__, attrs, factory_name, opts)
       end
 
       def build(factory_name, attrs \\ %{}) do
@@ -44,8 +44,8 @@ defmodule ExMachina do
         ExMachina.create_pair(__MODULE__, factory_name, attrs)
       end
 
-      def create_list(number_of_factorys, factory_name, attrs \\ %{}) do
-        ExMachina.create_list(__MODULE__, number_of_factorys, factory_name, attrs)
+      def create_list(number_of_factories, factory_name, attrs \\ %{}) do
+        ExMachina.create_list(__MODULE__, number_of_factories, factory_name, attrs)
       end
     end
   end
@@ -76,13 +76,23 @@ defmodule ExMachina do
       attrs = %{}
       # Creates and returns new instance based on :user factory
       assoc(attrs, :user)
+
+      attrs = %{}
+      # Creates and returns new instance based on :user factory
+      assoc(attrs, :author, factory: :user)
   """
-  def assoc(module, attrs, factory_name) do
-    if Map.has_key?(attrs, factory_name) do
-      Map.get(attrs, factory_name)
-    else
-      ExMachina.create(module, factory_name)
+  def assoc(module, attrs, factory_name, opts \\ []) do
+    case Map.get(attrs, factory_name) do
+      nil -> create_assoc(module, factory_name, opts)
+      record -> record
     end
+  end
+
+  defp create_assoc(module, _factory_name, factory: factory_name) do
+    ExMachina.create(module, factory_name)
+  end
+  defp create_assoc(module, factory_name, _opts) do
+    ExMachina.create(module, factory_name)
   end
 
   @doc """
