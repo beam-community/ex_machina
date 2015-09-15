@@ -2,11 +2,12 @@ defmodule ExMachina.Mixfile do
   use Mix.Project
 
   @project_url "https://github.com/thoughtbot/ex_machina"
+  @version "0.0.1"
 
   def project do
     [
       app: :ex_machina,
-      version: "0.0.1",
+      version: @version,
       elixir: "~> 1.0",
       description: "Easily create test data for Elixir applications",
       source_url: @project_url,
@@ -14,7 +15,7 @@ defmodule ExMachina.Mixfile do
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       package: package,
-      docs: [extras: ["README.md"]],
+      docs: [main: "README", extras: ["README.md"]],
       deps: deps
     ]
   end

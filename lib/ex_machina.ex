@@ -2,54 +2,7 @@ defmodule ExMachina do
   @moduledoc """
   Defines functions for generating data
 
-  ## Examples
-
-      # test/factories.ex
-      defmodule MyApp.Factories do
-        use ExMachina
-
-        def factory(:config) do
-          # Factories can be plain maps
-          %{url: "http://example.com"}
-        end
-
-        def factory(:article) do
-          %Article{
-            title: "My Awesome Article"
-          }
-        end
-
-        def factory(:comment, opts) do
-          %Comment{
-            body: "This is great!",
-            article_id: assoc(opts, :article).id
-          }
-        end
-
-        def create_record(map) do
-          # This example uses Ecto to save records
-          MyApp.Repo.insert!(map)
-        end
-      end
-
-  Then use it in your tests. This is an example with Phoenix.
-
-      defmodule MyApp.MyModuleTest do
-        use MyApp.ConnCase
-        # You can add this to your MyApp.ConnCase when using Phoenix
-        import MyApp.Factories
-
-        test "shows comments for an article" do
-          conn = conn()
-          article = create(:article)
-          comment = create(:comment, article: article)
-
-          conn = get conn, article_path(conn, :show, article.id)
-
-          assert html_response(conn, 200) =~ article.title
-          assert html_response(conn, 200) =~ comment.body
-        end
-      end
+  In depth examples are in the [README](README.html)
   """
 
   defmodule UndefinedFactory do
