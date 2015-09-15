@@ -4,7 +4,8 @@ defmodule ExMachina do
 
   ## Examples
 
-      defmodule MyApp.ExMachina do
+      # test/factories.ex
+      defmodule MyApp.Factories do
         use ExMachina
 
         def factory(:config) do
@@ -28,6 +29,25 @@ defmodule ExMachina do
         def create_record(map) do
           # This example uses Ecto to save records
           MyApp.Repo.insert!(map)
+        end
+      end
+
+  Then use it in your tests. This is an example with Phoenix.
+
+      defmodule MyApp.MyModuleTest do
+        use MyApp.ConnCase
+        # You can add this to your MyApp.ConnCase when using Phoenix
+        import MyApp.Factories
+
+        test "shows comments for an article" do
+          conn = conn()
+          article = create(:article)
+          comment = create(:comment, article: article)
+
+          conn = get conn, article_path(conn, :show, article.id)
+
+          assert html_response(conn, 200) =~ article.title
+          assert html_response(conn, 200) =~ comment.body
         end
       end
   """
@@ -98,7 +118,7 @@ defmodule ExMachina do
 
       opts = %{user: %{name: "Someone"}}
       # Returns opts.user
-      assoc(opts, :user) 
+      assoc(opts, :user)
 
       opts = %{}
       # Creates and returns new instance based on :user factory
