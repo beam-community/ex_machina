@@ -25,12 +25,14 @@ defp app_list(_),  do: app_list
 defp app_list,  do: [:logger]
 ```
 
-## Examples
+## Using with Ecto
 
 ```elixir
 # test/factories.ex
 defmodule MyApp.Factories do
-  use ExMachina
+  # MyApp.Repo is an Ecto Repo.
+  # It will automatically be used when calling `create`
+  use ExMachina, repo: MyApp.Repo
 
   def factory(:config) do
     # Factories can be plain maps
@@ -50,18 +52,12 @@ defmodule MyApp.Factories do
       article_id: assoc(attrs, :article).id
     }
   end
-
-  def create_record(map) do
-    # This example uses Ecto to save records
-    MyApp.Repo.insert!(map)
-  end
 end
 ```
 
 Then use it in your tests. This is an example with Phoenix.
 
 ```elixir
-
 defmodule MyApp.MyModuleTest do
   use MyApp.ConnCase
   # You can also import this in your MyApp.ConnCase if using Phoenix
@@ -76,6 +72,50 @@ defmodule MyApp.MyModuleTest do
 
     assert html_response(conn, 200) =~ article.title
     assert html_response(conn, 200) =~ comment.body
+  end
+end
+```
+
+## Using without Ecto
+
+You can use ExMachina without Ecto, by using just the `build` function, or by
+defining `save_function/1` in your module.
+
+```elixir
+defmodule MyApp.JsonFactories do
+  # Note `repo` was not passed as an option
+  use ExMachina
+
+  def factory(:user), do: %User{name: "John"}
+
+  def save_function(record) do
+    # Poison is a library for working with JSON
+    Poison.encode!(record)
+  end
+end
+
+# Will build and then return a JSON encoded version of the map
+MyApp.JsonFactories.create(:user)
+```
+
+You can do something similar while also using Ecto by defining a new function.
+This gives you the power to call `create` and save to Ecto, or call `build_json`
+or `create_json` to return encoded JSON objects.
+
+```elixir
+defmodule MyApp.Factories do
+  use ExMachina, repo: MyApp.Repo
+
+  def factory(:user), do: %User{name: "John"}
+
+  # builds the object and then encodes it as JSON
+  def build_json(factory_name, attrs) do
+    build(factory_name, attrs) |> Poison.encode!
+  end
+
+  # builds the object, saves it to Ecto and then encodes it
+  def create_json(factory_name, attrs) do
+    create(factory_name, attrs) |> Poison.encode!
   end
 end
 ```
