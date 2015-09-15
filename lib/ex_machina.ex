@@ -22,9 +22,10 @@ defmodule ExMachina do
 
   def start(_type, _args), do: ExMachina.Sequence.start_link
 
-  defmacro __using__(_opts) do
+  defmacro __using__(opts) do
     quote do
       @before_compile unquote(__MODULE__)
+      @repo Dict.get(unquote(opts), :repo)
 
       import ExMachina, only: [sequence: 2]
 
@@ -47,6 +48,18 @@ defmodule ExMachina do
       def create_list(number_of_factories, factory_name, attrs \\ %{}) do
         ExMachina.create_list(__MODULE__, number_of_factories, factory_name, attrs)
       end
+
+      def save_record(record) do
+        ExMachina.save_record(__MODULE__, @repo, record)
+      end
+    end
+  end
+
+  def save_record(module, repo, record) do
+    if repo do
+      repo.insert!(record)
+    else
+      module.save_function(record)
     end
   end
 
@@ -113,7 +126,11 @@ defmodule ExMachina do
   end
 
   @doc """
-  Builds a factory with the passed in factory_name and saves with create_record
+  Builds and saves a factory with the passed in factory_name
+
+  If you pass in repo when using ExMachina it will use the Ecto Repo to save the
+  record automatically. If you do not pass the repo, you need to define a
+  `save_record/1` function in your module.
 
   ## Example
 
@@ -130,7 +147,7 @@ defmodule ExMachina do
       create(:user, admin: true)
   """
   def create(module, factory_name, attrs \\ %{}) do
-    ExMachina.build(module, factory_name, attrs) |> module.create_record
+    ExMachina.build(module, factory_name, attrs) |> module.save_record
   end
 
   @doc """

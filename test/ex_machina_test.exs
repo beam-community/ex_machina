@@ -9,7 +9,7 @@ defmodule ExMachinaTest do
   end
 
   defmodule MyApp.ExMachina do
-    use ExMachina
+    use ExMachina, repo: TestRepo
 
     def factory(:user) do
       %{
@@ -46,9 +46,18 @@ defmodule ExMachinaTest do
         article_id: assoc(attrs, :article).id
       }
     end
+  end
 
-    def create_record(map) do
-      TestRepo.insert!(map)
+  defmodule MyApp.NonEctoFactories do
+    use ExMachina
+
+    def factory(:foo) do
+      %{foo: :bar}
+    end
+
+    def save_function (record) do
+      send self, {:custom_save, record}
+      record
     end
   end
 
@@ -132,6 +141,13 @@ defmodule ExMachinaTest do
 
     assert user == %{id: 3, name: "John Doe", admin: true}
     assert_received {:created, %{name: "John Doe", admin: true}}
+  end
+
+  test "create/2 builds factory and performs custom save if repo is not set" do
+    record = MyApp.NonEctoFactories.create(:foo)
+
+    assert record == %{foo: :bar}
+    assert_received {:custom_save, %{foo: :bar}}
   end
 
   test "create_pair/2 creates the factory and saves it 2 times" do
