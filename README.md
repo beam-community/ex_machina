@@ -32,7 +32,7 @@ defp app_list,  do: [:logger]
 defmodule MyApp.Factories do
   # MyApp.Repo is an Ecto Repo.
   # It will automatically be used when calling `create`
-  use ExMachina, repo: MyApp.Repo
+  use ExMachina.Ecto, repo: MyApp.Repo
 
   def factory(:config) do
     # Factories can be plain maps
@@ -83,7 +83,6 @@ defining `save_function/1` in your module.
 
 ```elixir
 defmodule MyApp.JsonFactories do
-  # Note `repo` was not passed as an option
   use ExMachina
 
   def factory(:user), do: %User{name: "John"}
@@ -104,7 +103,7 @@ or `create_json` to return encoded JSON objects.
 
 ```elixir
 defmodule MyApp.Factories do
-  use ExMachina, repo: MyApp.Repo
+  use ExMachina.Ecto, repo: MyApp.Repo
 
   def factory(:user), do: %User{name: "John"}
 
