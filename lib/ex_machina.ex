@@ -12,8 +12,8 @@ defmodule ExMachina do
 
     defexception [:message]
 
-    def exception(factory_name) do
-      message = "No factory defined for #{inspect factory_name}"
+    def exception(module: module, factory_name: factory_name) do
+      message = "No factory defined for #{inspect factory_name}. Define a #{module}.#{factory_name}/1 function"
       %UndefinedFactory{message: message}
     end
   end
@@ -155,6 +155,8 @@ defmodule ExMachina do
   @doc """
   Builds a factory with the passed in factory_name
 
+  Raises ExMachina.UndefinedFactory error if the factory function is undefined.
+
   ## Example
 
       def factory(:user) do
@@ -166,7 +168,11 @@ defmodule ExMachina do
   """
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
-    module.factory(factory_name, attrs) |> Map.merge(attrs)
+    if function_exported?(module, factory_name, 1) do
+      apply(module, factory_name, [attrs]) |> Map.merge(attrs)
+    else
+      raise UndefinedFactory, module: module, factory_name: factory_name
+    end
   end
 
   @doc """
@@ -195,7 +201,7 @@ defmodule ExMachina do
   Saves a record when `create` is called. Uses Ecto if the `repo` option is set
 
   If you include the `repo` option (`use ExMachina, repo: MyApp.Repo`) this
-  function will call `insert!` on the passed in repo. 
+  function will call `insert!` on the passed in repo.
 
   If you do not pass in the `repo` option, you must define a custom
   save_function/1 for saving the record.
@@ -262,22 +268,6 @@ defmodule ExMachina do
 
   defmacro __before_compile__(_env) do
     quote do
-      @doc """
-      Calls factory/1 with the passed in factory name
-
-      This allows you to define factories without the `attrs` param.
-      """
-      def factory(factory_name, _attrs) do
-        __MODULE__.factory(factory_name)
-      end
-
-      @doc """
-      Raises a helpful error if no factory is defined.
-      """
-      def factory(factory_name) do
-        raise UndefinedFactory, factory_name
-      end
-
       @doc """
       Raises a helpful error if `create` is called and no save_function is
       defined.
