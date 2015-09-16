@@ -19,13 +19,13 @@ defmodule ExMachinaTest do
   defmodule MyApp.ExMachina do
     use ExMachina, repo: TestRepo
 
-    def factory(:book) do
+    def book(_attrs) do
       %MyApp.Book{
         title: "Foo"
       }
     end
 
-    def factory(:user) do
+    def user(_attrs) do
       %{
         id: 3,
         name: "John Doe",
@@ -33,20 +33,20 @@ defmodule ExMachinaTest do
       }
     end
 
-    def factory(:account) do
+    def account(_attrs) do
       %{
         id: 100,
         plan_type: "enterprise"
       }
     end
 
-    def factory(:email) do
+    def email(_attrs) do
       %{
         email: sequence(:email, &"me-#{&1}@foo.com")
       }
     end
 
-    def factory(:article, attrs) do
+    def article(attrs) do
       %{
         id: 1,
         title: "My Awesome Article",
@@ -54,7 +54,7 @@ defmodule ExMachinaTest do
       }
     end
 
-    def factory(:comment, attrs) do
+    def comment(attrs) do
       %{
         body: "This is great!",
         article_id: assoc(attrs, :article).id
@@ -65,7 +65,7 @@ defmodule ExMachinaTest do
   defmodule MyApp.NonEctoFactories do
     use ExMachina
 
-    def factory(:foo), do: %{foo: :bar}
+    def foo(_attrs), do: %{foo: :bar}
 
     def save_function(record) do
       send self, {:custom_save, record}
@@ -76,7 +76,7 @@ defmodule ExMachinaTest do
   defmodule MyApp.NoSaveFunction do
     use ExMachina
 
-    def factory(:foo), do: %{foo: :bar}
+    def foo(_attrs), do: %{foo: :bar}
   end
 
   test "sequence/2 sequences a value" do
@@ -120,12 +120,8 @@ defmodule ExMachinaTest do
     assert comment.article == my_article
   end
 
-  test "factories can be defined without the attrs param" do
-    assert MyApp.ExMachina.build(:user) == MyApp.ExMachina.factory(:user)
-  end
-
   test "raises a helpful error if the factory is not defined" do
-    assert_raise ExMachina.UndefinedFactory, "No factory defined for :foo", fn ->
+    assert_raise ExMachina.UndefinedFactory, fn ->
       MyApp.ExMachina.build(:foo)
     end
   end
