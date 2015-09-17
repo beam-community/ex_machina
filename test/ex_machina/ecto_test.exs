@@ -71,38 +71,38 @@ defmodule ExMachina.EctoTest do
   end
 
   test "save_record/1 passes the data to @repo.insert!" do
-    user = MyApp.EctoFactories.save_record(:user, admin: true)
+    record = MyApp.EctoFactories.save_record(%{foo: "bar"})
 
-    assert user == %{id: 3, name: "John Doe", admin: true}
-    assert_received {:created, %{name: "John Doe", admin: true}}
+    assert record == %{foo: "bar"}
+    assert_received {:created, %{foo: "bar"}}
   end
 
   test "assoc/3 returns the passed in key if it exists" do
     existing_account = %{id: 1, plan_type: "free"}
     attrs = %{account: existing_account}
 
-    assert MyApp.EctoFactories.assoc(MyApp.EctoFactories, attrs, :account) == existing_account
-    refute_received {:custom_save, _}
+    assert ExMachina.Ecto.assoc(MyApp.EctoFactories, attrs, :account) == existing_account
+    refute_received {:created, _}
   end
 
   test "assoc/3 creates and returns a factory if one was not in attrs" do
     attrs = %{}
 
-    user = MyApp.EctoFactories.assoc(MyApp.EctoFactories, attrs, :user)
+    user = ExMachina.Ecto.assoc(MyApp.EctoFactories, attrs, :user)
 
-    created_user = %{id: 3, name: "John Doe", admin: true}
+    created_user = %{id: 3, name: "John Doe", admin: false}
     assert user == created_user
-    assert_received {:custom_save, ^created_user}
+    assert_received {:created, ^created_user}
   end
 
   test "assoc/3 can specify a factory for the association" do
     attrs = %{}
 
-    account = MyApp.EctoFactories.assoc(MyApp.EctoFactories, attrs, :account, factory: :user)
+    account = ExMachina.Ecto.assoc(MyApp.EctoFactories, attrs, :account, factory: :user)
 
     newly_created_account = %{id: 3, admin: false, name: "John Doe"}
     assert account == newly_created_account
-    assert_received {:custom_save, ^newly_created_account}
+    assert_received {:created, ^newly_created_account}
   end
 
   test "can use assoc/3 in a factory to override associations" do
