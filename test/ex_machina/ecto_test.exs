@@ -105,6 +105,14 @@ defmodule ExMachina.EctoTest do
     assert_received {:created, ^newly_created_account}
   end
 
+  test "assoc/3 raises helpful error if setting the id directly" do
+    message = "Set association with :article instead of :article_id"
+    assert_raise ArgumentError, message, fn ->
+      MyApp.EctoFactories.create(:comment, article_id: 1)
+    end
+    refute_received {:custom_save, _}
+  end
+
   test "can use assoc/3 in a factory to override associations" do
     my_article = MyApp.EctoFactories.create(:article, title: "So Deep")
 

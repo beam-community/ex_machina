@@ -69,9 +69,14 @@ defmodule ExMachina.Ecto do
       assoc(attrs, :author, factory: :user)
   """
   def assoc(module, attrs, factory_name, opts \\ []) do
-    case Map.get(attrs, factory_name) do
-      nil -> create_assoc(module, factory_name, opts)
-      record -> record
+    assoc_id = "#{factory_name}_id" |> String.to_atom
+    if Map.has_key?(attrs, assoc_id) do
+      raise ArgumentError, "Set association with :#{factory_name} instead of :#{assoc_id}"
+    else
+      case Map.get(attrs, factory_name) do
+        nil -> create_assoc(module, factory_name, opts)
+        record -> record
+      end
     end
   end
 
