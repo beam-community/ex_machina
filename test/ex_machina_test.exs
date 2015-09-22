@@ -4,7 +4,7 @@ defmodule ExMachinaTest do
   defmodule MyApp.Factories do
     use ExMachina
 
-    def factory(:user) do
+    factory :user do
       %{
         id: 3,
         name: "John Doe",
@@ -12,7 +12,7 @@ defmodule ExMachinaTest do
       }
     end
 
-    def factory(:email) do
+    factory :email do
       %{
         email: sequence(:email, &"me-#{&1}@foo.com")
       }
@@ -27,16 +27,14 @@ defmodule ExMachinaTest do
   defmodule MyApp.NoSaveFunction do
     use ExMachina
 
-    def factory(:foo), do: %{foo: :bar}
+    factory(:foo) do
+      %{foo: :bar}
+    end
   end
 
   test "sequence/2 sequences a value" do
     assert "me-0@foo.com" == MyApp.Factories.build(:email).email
     assert "me-1@foo.com" == MyApp.Factories.build(:email).email
-  end
-
-  test "factories can be defined without the attrs param" do
-    assert MyApp.Factories.build(:user) == MyApp.Factories.factory(:user)
   end
 
   test "raises a helpful error if the factory is not defined" do
