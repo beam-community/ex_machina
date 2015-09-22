@@ -87,7 +87,7 @@ defmodule MyApp.JsonFactories do
 
   def factory(:user), do: %User{name: "John"}
 
-  def save_function(record) do
+  def save_record(record) do
     # Poison is a library for working with JSON
     Poison.encode!(record)
   end
