@@ -69,6 +69,28 @@ defmodule ExMachinaTest do
     }
   end
 
+  test "build_pair/2 builds 2 factories" do
+    records = MyApp.Factories.build_pair(:user, admin: true)
+
+    expected_record = %{
+      id: 3,
+      name: "John Doe",
+      admin: true
+    }
+    assert records == [expected_record, expected_record]
+  end
+
+  test "build_list/3 builds the factory the passed in number of times" do
+    records = MyApp.Factories.build_list(3, :user, admin: true)
+
+    expected_record = %{
+      id: 3,
+      name: "John Doe",
+      admin: true
+    }
+    assert records == [expected_record, expected_record, expected_record]
+  end
+
   test "create/2 builds factory and performs save with user defined save_record/1" do
     record = MyApp.Factories.create(:user)
 

@@ -47,6 +47,14 @@ defmodule ExMachina do
         ExMachina.build(__MODULE__, factory_name, attrs)
       end
 
+      def build_pair(factory_name, attrs \\ %{}) do
+        ExMachina.build_pair(__MODULE__, factory_name, attrs)
+      end
+
+      def build_list(number_of_factories, factory_name, attrs \\ %{}) do
+        ExMachina.build_list(__MODULE__, number_of_factories, factory_name, attrs)
+      end
+
       def create(factory_name, attrs \\ %{}) do
         ExMachina.create(__MODULE__, factory_name, attrs)
       end
@@ -76,7 +84,7 @@ defmodule ExMachina do
   def sequence(name, formatter), do: ExMachina.Sequence.next(name, formatter)
 
   @doc """
-  Builds a factory with the passed in factory_name
+  Builds a factory with the passed in factory_name and attrs
 
   ## Example
 
@@ -90,6 +98,32 @@ defmodule ExMachina do
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
     module.factory(factory_name, attrs) |> Map.merge(attrs)
+  end
+
+  @doc """
+  Builds and returns 2 records with the passed in factory_name and attrs
+
+  ## Example
+
+      # Returns a list of 2 users
+      build_pair(:user)
+  """
+  def build_pair(module, factory_name, attrs \\ %{}) do
+    ExMachina.build_list(module, 2, factory_name, attrs)
+  end
+
+  @doc """
+  Builds and returns X records with the passed in factory_name and attrs
+
+  ## Example
+
+      # Returns a list of 3 users
+      build_list(3, :user)
+  """
+  def build_list(module, number_of_factories, factory_name, attrs \\ %{}) do
+    Enum.map(1..number_of_factories, fn(_) ->
+      ExMachina.build(module, factory_name, attrs)
+    end)
   end
 
   @doc """
@@ -119,7 +153,7 @@ defmodule ExMachina do
 
   ## Example
 
-      # Returns a list of 2 users
+      # Returns a list of 2 saved users
       create_pair(:user)
   """
   def create_pair(module, factory_name, attrs \\ %{}) do
@@ -131,8 +165,8 @@ defmodule ExMachina do
 
   ## Example
 
-      # Returns a list of 3 users
-      create_pair(3, :user)
+      # Returns a list of 3 saved users
+      create_list(3, :user)
   """
   def create_list(module, number_of_factories, factory_name, attrs \\ %{}) do
     Enum.map(1..number_of_factories, fn(_) ->
