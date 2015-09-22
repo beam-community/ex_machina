@@ -89,7 +89,7 @@ defmodule MyApp.JsonFactories do
     %User{name: "John"}
   end
 
-  def save_function(record) do
+  def save_record(record) do
     # Poison is a library for working with JSON
     Poison.encode!(record)
   end
