@@ -3,19 +3,23 @@ defmodule ExMachina.Ecto do
     quote do
       use ExMachina
 
+      import ExMachina.Ecto, only: [assoc: 1, assoc: 2]
+
       @repo Dict.fetch!(unquote(opts), :repo)
 
       def fields_for(factory_name, attrs \\ %{}) do
         ExMachina.Ecto.fields_for(__MODULE__, factory_name, attrs)
       end
 
-      defp assoc(attrs, factory_name, opts \\ []) do
-        ExMachina.Ecto.assoc(__MODULE__, attrs, factory_name, opts)
-      end
-
       def save_record(record) do
         ExMachina.Ecto.save_record(__MODULE__, @repo, record)
       end
+    end
+  end
+
+  defmacro assoc(factory_name, opts \\ []) do
+    quote do
+      ExMachina.Ecto.assoc(__MODULE__, var!(attrs), unquote(factory_name), unquote(opts))
     end
   end
 
@@ -29,7 +33,7 @@ defmodule ExMachina.Ecto do
 
   ## Example
 
-      def factory(:user) do
+      factory :user do
         %MyApp.User{name: "John Doe", admin: false}
       end
 
@@ -58,15 +62,15 @@ defmodule ExMachina.Ecto do
 
       attrs = %{user: %{name: "Someone"}}
       # Returns attrs.user
-      assoc(attrs, :user)
+      assoc(:user)
 
       attrs = %{}
       # Creates and returns new instance based on :user factory
-      assoc(attrs, :user)
+      assoc(:user)
 
       attrs = %{}
       # Creates and returns new instance based on :user factory
-      assoc(attrs, :author, factory: :user)
+      assoc(:author, factory: :user)
   """
   def assoc(module, attrs, factory_name, opts \\ []) do
     case Map.get(attrs, factory_name) do

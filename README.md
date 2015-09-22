@@ -34,22 +34,22 @@ defmodule MyApp.Factories do
   # It will automatically be used when calling `create`
   use ExMachina.Ecto, repo: MyApp.Repo
 
-  def factory(:config) do
+  factory :config do
     # Factories can be plain maps
     %{url: "http://example.com"}
   end
 
-  def factory(:article) do
+  factory :article do
     %Article{
       title: "My Awesome Article"
     }
   end
 
-  def factory(:comment, attrs) do
+  factory :comment do
     %Comment{
       body: "This is great!",
       author_email: sequence(:email, &"email-#{&1}@example.com"),
-      article_id: assoc(attrs, :article).id
+      article_id: assoc(:article).id
     }
   end
 end
@@ -85,7 +85,9 @@ defining `save_function/1` in your module.
 defmodule MyApp.JsonFactories do
   use ExMachina
 
-  def factory(:user), do: %User{name: "John"}
+  factory :user do
+    %User{name: "John"}
+  end
 
   def save_function(record) do
     # Poison is a library for working with JSON
@@ -105,7 +107,9 @@ or `create_json` to return encoded JSON objects.
 defmodule MyApp.Factories do
   use ExMachina.Ecto, repo: MyApp.Repo
 
-  def factory(:user), do: %User{name: "John"}
+  factory :user do
+    %User{name: "John"}
+  end
 
   # builds the object and then encodes it as JSON
   def build_json(factory_name, attrs) do

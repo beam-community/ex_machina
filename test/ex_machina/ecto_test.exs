@@ -19,13 +19,13 @@ defmodule ExMachina.EctoTest do
   defmodule MyApp.EctoFactories do
     use ExMachina.Ecto, repo: TestRepo
 
-    def factory(:book) do
+    factory :book do
       %MyApp.Book{
         title: "Foo"
       }
     end
 
-    def factory(:user) do
+    factory :user do
       %{
         id: 3,
         name: "John Doe",
@@ -33,18 +33,18 @@ defmodule ExMachina.EctoTest do
       }
     end
 
-    def factory(:article, attrs) do
+    factory :article do
       %{
         id: 1,
         title: "My Awesome Article",
-        author_id: assoc(attrs, :author, factory: :user).id
+        author_id: assoc(:author, factory: :user).id
       }
     end
 
-    def factory(:comment, attrs) do
+    factory :comment do
       %{
         body: "This is great!",
-        article_id: assoc(attrs, :article).id
+        article_id: assoc(:article).id
       }
     end
   end
