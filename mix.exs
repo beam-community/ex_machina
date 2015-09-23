@@ -30,7 +30,8 @@ defmodule ExMachina.Mixfile do
   defp deps do
     [
       {:ex_doc, "~> 0.9", only: :dev},
-      {:earmark, ">= 0.0.0", only: :dev}
+      {:earmark, ">= 0.0.0", only: :dev},
+      {:ecto, "~> 1.0", only: :test}
     ]
   end
 

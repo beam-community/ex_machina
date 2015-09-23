@@ -1,2 +1,5 @@
-%{"earmark": {:hex, :earmark, "0.1.17"},
-  "ex_doc": {:hex, :ex_doc, "0.9.0"}}
+%{"decimal": {:hex, :decimal, "1.1.0"},
+  "earmark": {:hex, :earmark, "0.1.17"},
+  "ecto": {:hex, :ecto, "1.0.3"},
+  "ex_doc": {:hex, :ex_doc, "0.9.0"},
+  "poolboy": {:hex, :poolboy, "1.5.1"}}
