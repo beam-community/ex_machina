@@ -2,17 +2,51 @@ defmodule ExMachina.EctoTest do
   use ExUnit.Case, async: true
 
   defmodule TestRepo do
-    def insert!(record) do
-      send self, {:created, record}
-      record
+    def insert!(model) do
+      # simulate saving of model by adding id
+      model = %{model | id: 1}
+      send self, {:created, model}
+      model
     end
   end
 
   defmodule MyApp.Book do
-    defstruct title: nil, publisher: nil, __meta__: %{__struct__: Ecto.Schema.Metadata}, publisher_id: 1
+    use Ecto.Model
+    schema "books" do
+      field :title, :string
+      belongs_to :publisher, MyApp.Publisher
+    end
+  end
 
-    def __schema__(:associations) do
-      [:publisher]
+  defmodule MyApp.Publisher do
+    use Ecto.Model
+    schema "publishers" do
+      field :title, :string
+    end
+  end
+
+  defmodule MyApp.User do
+    use Ecto.Model
+    schema "users" do
+      field :name, :string
+      field :admin, :boolean
+    end
+  end
+
+  defmodule MyApp.Article do
+    use Ecto.Model
+    schema "articles" do
+      field :title, :string
+      belongs_to :author, MyApp.User
+      has_many :comments, MyApp.Comment
+    end
+  end
+
+  defmodule MyApp.Comment do
+    use Ecto.Model
+    schema "comments" do
+      field :body, :string
+      belongs_to :article, MyApp.Article
     end
   end
 
@@ -21,11 +55,19 @@ defmodule ExMachina.EctoTest do
 
     def factory(:book) do
       %MyApp.Book{
-        title: "Foo"
+        title: "Foo",
+        publisher_id: 1
       }
     end
 
     def factory(:user) do
+      %MyApp.User{
+        name: "John Doe",
+        admin: false
+      }
+    end
+
+    def factory(:user_map) do
       %{
         id: 3,
         name: "John Doe",
@@ -34,15 +76,14 @@ defmodule ExMachina.EctoTest do
     end
 
     def factory(:article, attrs) do
-      %{
-        id: 1,
+      %MyApp.Article{
         title: "My Awesome Article",
         author_id: assoc(attrs, :author, factory: :user).id
       }
     end
 
     def factory(:comment, attrs) do
-      %{
+      %MyApp.Comment{
         body: "This is great!",
         article_id: assoc(attrs, :article).id
       }
@@ -59,22 +100,23 @@ defmodule ExMachina.EctoTest do
 
   test "fields_for/2 removes Ecto specific fields" do
     assert MyApp.EctoFactories.fields_for(:book) == %{
+      id: nil,
       title: "Foo",
-      publisher_id: 1,
+      publisher_id: 1
     }
   end
 
   test "fields_for/2 raises when passed a map" do
     assert_raise ArgumentError, fn ->
-      MyApp.EctoFactories.fields_for(:user)
+      MyApp.EctoFactories.fields_for(:user_map)
     end
   end
 
-  test "save_record/1 passes the data to @repo.insert!" do
-    record = MyApp.EctoFactories.save_record(%{foo: "bar"})
+  test "save_record/1 passes the model to @repo.insert!" do
+    model = MyApp.EctoFactories.save_record(%MyApp.User{name: "John"})
 
-    assert record == %{foo: "bar"}
-    assert_received {:created, %{foo: "bar"}}
+    assert_received {:created, %{name: "John"}}
+    assert model == %MyApp.User{id: 1, name: "John"}
   end
 
   test "assoc/3 returns the passed in key if it exists" do
@@ -90,9 +132,9 @@ defmodule ExMachina.EctoTest do
 
     user = ExMachina.Ecto.assoc(MyApp.EctoFactories, attrs, :user)
 
-    created_user = %{id: 3, name: "John Doe", admin: false}
-    assert user == created_user
-    assert_received {:created, ^created_user}
+    newly_created_user = %MyApp.User{id: 1, name: "John Doe", admin: false}
+    assert user == newly_created_user
+    assert_received {:created, ^newly_created_user}
   end
 
   test "assoc/3 can specify a factory for the association" do
@@ -100,7 +142,7 @@ defmodule ExMachina.EctoTest do
 
     account = ExMachina.Ecto.assoc(MyApp.EctoFactories, attrs, :account, factory: :user)
 
-    newly_created_account = %{id: 3, admin: false, name: "John Doe"}
+    newly_created_account = %MyApp.User{id: 1, name: "John Doe", admin: false}
     assert account == newly_created_account
     assert_received {:created, ^newly_created_account}
   end
