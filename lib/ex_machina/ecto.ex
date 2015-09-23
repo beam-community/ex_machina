@@ -1,5 +1,7 @@
 defmodule ExMachina.Ecto do
   defmacro __using__(opts) do
+    verify_ecto_dep
+
     quote do
       use ExMachina
 
@@ -20,6 +22,13 @@ defmodule ExMachina.Ecto do
   defmacro assoc(factory_name, opts \\ []) do
     quote do
       ExMachina.Ecto.assoc(__MODULE__, var!(attrs), unquote(factory_name), unquote(opts))
+    end
+  end
+
+  defp verify_ecto_dep do
+    unless Code.ensure_loaded?(Ecto) do
+      raise "You tried to use ExMachina.Ecto, but the Ecto module is not loaded. " <>
+        "Please add ecto to your dependencies."
     end
   end
 
@@ -89,7 +98,7 @@ defmodule ExMachina.Ecto do
   @doc """
   Saves a record using `Repo.insert!` when `create` is called.
   """
-  def save_record(module, repo, record) do
+  def save_record(_module, repo, record) do
     if repo do
       repo.insert!(record)
     end
