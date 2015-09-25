@@ -55,6 +55,10 @@ defmodule ExMachina do
         ExMachina.build_list(__MODULE__, number_of_factories, factory_name, attrs)
       end
 
+      def create(built_record) when is_map(built_record) do
+        __MODULE__.save_record(built_record)
+      end
+
       def create(factory_name, attrs \\ %{}) do
         ExMachina.create(__MODULE__, factory_name, attrs)
       end
