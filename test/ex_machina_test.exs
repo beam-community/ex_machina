@@ -97,6 +97,15 @@ defmodule ExMachinaTest do
     assert_received {:custom_save, ^created_record}
   end
 
+  test "create/2 saves built records" do
+    record = MyApp.Factories.build(:user) |> MyApp.Factories.create
+
+    created_record = %{admin: false, id: 3, name: "John Doe"}
+    assert record == created_record
+    assert_received {:custom_save, ^created_record}
+    refute_received {:custom_save}
+  end
+
   test "create/2 raises a helpful error if save_record/1 is not defined" do
     assert_raise ExMachina.UndefinedSave, fn ->
       MyApp.NoSaveFunction.create(:foo)
