@@ -1,7 +1,7 @@
 defmodule ExMachinaTest do
   use ExUnit.Case, async: true
 
-  defmodule MyApp.Factories do
+  defmodule MyApp.Factory do
     use ExMachina
 
     factory :user do
@@ -33,18 +33,18 @@ defmodule ExMachinaTest do
   end
 
   test "sequence/2 sequences a value" do
-    assert "me-0@foo.com" == MyApp.Factories.build(:email).email
-    assert "me-1@foo.com" == MyApp.Factories.build(:email).email
+    assert "me-0@foo.com" == MyApp.Factory.build(:email).email
+    assert "me-1@foo.com" == MyApp.Factory.build(:email).email
   end
 
   test "raises a helpful error if the factory is not defined" do
     assert_raise ExMachina.UndefinedFactory, "No factory defined for :foo", fn ->
-      MyApp.Factories.build(:foo)
+      MyApp.Factory.build(:foo)
     end
   end
 
   test "build/2 returns the matching factory" do
-    assert MyApp.Factories.build(:user) == %{
+    assert MyApp.Factory.build(:user) == %{
       id: 3,
       name: "John Doe",
       admin: false
@@ -52,7 +52,7 @@ defmodule ExMachinaTest do
   end
 
   test "build/2 merges passed in options as keyword list" do
-    assert MyApp.Factories.build(:user, admin: true) == %{
+    assert MyApp.Factory.build(:user, admin: true) == %{
       id: 3,
       name: "John Doe",
       admin: true
@@ -60,7 +60,7 @@ defmodule ExMachinaTest do
   end
 
   test "build/2 merges passed in options as a map" do
-    assert MyApp.Factories.build(:user, admin: true) == %{
+    assert MyApp.Factory.build(:user, admin: true) == %{
       id: 3,
       name: "John Doe",
       admin: true
@@ -68,7 +68,7 @@ defmodule ExMachinaTest do
   end
 
   test "build_pair/2 builds 2 factories" do
-    records = MyApp.Factories.build_pair(:user, admin: true)
+    records = MyApp.Factory.build_pair(:user, admin: true)
 
     expected_record = %{
       id: 3,
@@ -79,7 +79,7 @@ defmodule ExMachinaTest do
   end
 
   test "build_list/3 builds the factory the passed in number of times" do
-    records = MyApp.Factories.build_list(3, :user, admin: true)
+    records = MyApp.Factory.build_list(3, :user, admin: true)
 
     expected_record = %{
       id: 3,
@@ -90,7 +90,7 @@ defmodule ExMachinaTest do
   end
 
   test "create/2 builds factory and performs save with user defined save_record/1" do
-    record = MyApp.Factories.create(:user)
+    record = MyApp.Factory.create(:user)
 
     created_record = %{admin: false, id: 3, name: "John Doe"}
     assert record == created_record
@@ -98,7 +98,7 @@ defmodule ExMachinaTest do
   end
 
   test "create/2 saves built records" do
-    record = MyApp.Factories.build(:user) |> MyApp.Factories.create
+    record = MyApp.Factory.build(:user) |> MyApp.Factory.create
 
     created_record = %{admin: false, id: 3, name: "John Doe"}
     assert record == created_record
@@ -113,7 +113,7 @@ defmodule ExMachinaTest do
   end
 
   test "create_pair/2 creates the factory and saves it 2 times" do
-    records = MyApp.Factories.create_pair(:user)
+    records = MyApp.Factory.create_pair(:user)
 
     created_record = %{admin: false, id: 3, name: "John Doe"}
     assert records == [created_record, created_record]
@@ -123,7 +123,7 @@ defmodule ExMachinaTest do
   end
 
   test "create_list/3 creates factory and saves it passed in number of times" do
-    records = MyApp.Factories.create_list(3, :user)
+    records = MyApp.Factory.create_list(3, :user)
 
     created_record = %{admin: false, id: 3, name: "John Doe"}
     assert records == [created_record, created_record, created_record]

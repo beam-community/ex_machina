@@ -185,7 +185,7 @@ defmodule ExMachina do
 
       ## Examples
 
-          defmodule MyApp.Factories do
+          defmodule MyApp.Factory do
             use ExMachina.Ecto, repo: MyApp.Repo
 
             factory :user do
@@ -194,7 +194,7 @@ defmodule ExMachina do
           end
 
           # Will build and save the record to the MyApp.Repo
-          MyApp.Factories.create(:user)
+          MyApp.Factory.create(:user)
 
           defmodule MyApp.JsonFactories do
             # Note, we are not using ExMachina.Ecto

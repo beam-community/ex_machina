@@ -46,7 +46,7 @@ import Ecto.Model, except: [build: 2]
 
 ```elixir
 # test/factories.ex
-defmodule MyApp.Factories do
+defmodule MyApp.Factory do
   # MyApp.Repo is an Ecto Repo.
   # It will automatically be used when calling `create`
   use ExMachina.Ecto, repo: MyApp.Repo
@@ -78,7 +78,7 @@ Then use it in your tests. This is an example with Phoenix.
 defmodule MyApp.MyModuleTest do
   use MyApp.ConnCase
   # You can also import this in your MyApp.ConnCase if using Phoenix
-  import MyApp.Factories
+  import MyApp.Factory
 
   test "shows comments for an article" do
     conn = conn()
@@ -121,7 +121,7 @@ This gives you the power to call `create` and save to Ecto, or call `build_json`
 or `create_json` to return encoded JSON objects.
 
 ```elixir
-defmodule MyApp.Factories do
+defmodule MyApp.Factory do
   use ExMachina.Ecto, repo: MyApp.Repo
 
   factory :user do
