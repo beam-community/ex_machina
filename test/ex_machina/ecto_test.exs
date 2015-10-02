@@ -123,15 +123,14 @@ defmodule ExMachina.EctoTest do
     TestRepo.all(User) == []
   end
 
-  test "assoc/3 creates and returns a factory if one was not in attrs" do
+  test "assoc/3 builds and returns a factory if one was not in attrs" do
     attrs = %{}
 
     user = ExMachina.Ecto.assoc(EctoFactories, attrs, :user)
 
-    newly_created_user = TestRepo.one!(User)
-    assert newly_created_user.name == "John Doe"
-    refute newly_created_user.admin
-    assert user == newly_created_user
+    refute TestRepo.one(User)
+    assert user.name == "John Doe"
+    refute user.admin
   end
 
   test "assoc/3 can specify a factory for the association" do
@@ -139,8 +138,8 @@ defmodule ExMachina.EctoTest do
 
     account = ExMachina.Ecto.assoc(EctoFactories, attrs, :account, factory: :user)
 
-    new_user = TestRepo.one!(User)
-    assert account == new_user
+    assert account == EctoFactories.build(:user)
+    refute TestRepo.one(User)
   end
 
   test "can use assoc/3 in a factory to override associations" do

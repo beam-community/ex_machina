@@ -73,7 +73,7 @@ defmodule ExMachina.Ecto do
   end
 
   @doc """
-  Gets a factory from the passed in attrs, or creates if none is present
+  Gets a factory from the passed in attrs, or builds if none is present
 
   ## Examples
 
@@ -82,25 +82,25 @@ defmodule ExMachina.Ecto do
       assoc(:user)
 
       attrs = %{}
-      # Creates and returns new instance based on :user factory
+      # Builds and returns new instance based on :user factory
       assoc(:user)
 
       attrs = %{}
-      # Creates and returns new instance based on :user factory
+      # Builds and returns new instance based on :user factory
       assoc(:author, factory: :user)
   """
   def assoc(module, attrs, factory_name, opts \\ []) do
     case Map.get(attrs, factory_name) do
-      nil -> create_assoc(module, factory_name, opts)
+      nil -> build_assoc(module, factory_name, opts)
       record -> record
     end
   end
 
-  defp create_assoc(module, _factory_name, factory: factory_name) do
-    ExMachina.create(module, factory_name)
+  defp build_assoc(module, _factory_name, factory: factory_name) do
+    ExMachina.build(module, factory_name)
   end
-  defp create_assoc(module, factory_name, _opts) do
-    ExMachina.create(module, factory_name)
+  defp build_assoc(module, factory_name, _opts) do
+    ExMachina.build(module, factory_name)
   end
 
   @doc """
