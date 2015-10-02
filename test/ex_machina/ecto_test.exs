@@ -1,31 +1,19 @@
 defmodule ExMachina.EctoTest do
   use ExUnit.Case, async: true
+  alias ExMachina.TestRepo
 
-  defmodule TestRepo do
-    def insert!(model) do
-      # simulate saving of model by adding id
-      model = %{model | id: 1}
-      send self, {:created, model}
-      model
-    end
+  setup_all do
+    Ecto.Adapters.SQL.begin_test_transaction(TestRepo, [])
+    on_exit fn -> Ecto.Adapters.SQL.rollback_test_transaction(TestRepo, []) end
+    :ok
   end
 
-  defmodule MyApp.Book do
-    use Ecto.Model
-    schema "books" do
-      field :title, :string
-      belongs_to :publisher, MyApp.Publisher
-    end
+  setup do
+    Ecto.Adapters.SQL.restart_test_transaction(TestRepo, [])
+    :ok
   end
 
-  defmodule MyApp.Publisher do
-    use Ecto.Model
-    schema "publishers" do
-      field :title, :string
-    end
-  end
-
-  defmodule MyApp.User do
+  defmodule User do
     use Ecto.Model
     schema "users" do
       field :name, :string
@@ -33,35 +21,28 @@ defmodule ExMachina.EctoTest do
     end
   end
 
-  defmodule MyApp.Article do
+  defmodule Article do
     use Ecto.Model
     schema "articles" do
       field :title, :string
-      belongs_to :author, MyApp.User
-      has_many :comments, MyApp.Comment
+      belongs_to :author, User
     end
   end
 
-  defmodule MyApp.Comment do
+  defmodule Comment do
     use Ecto.Model
     schema "comments" do
       field :body, :string
-      belongs_to :article, MyApp.Article
+      belongs_to :article, Article
+      belongs_to :user, User
     end
   end
 
-  defmodule MyApp.EctoFactories do
+  defmodule EctoFactories do
     use ExMachina.Ecto, repo: TestRepo
 
-    factory :book do
-      %MyApp.Book{
-        title: "Foo",
-        publisher_id: 1
-      }
-    end
-
     factory :user do
-      %MyApp.User{
+      %User{
         name: "John Doe",
         admin: false
       }
@@ -76,16 +57,17 @@ defmodule ExMachina.EctoTest do
     end
 
     factory :article do
-      %MyApp.Article{
+      %Article{
         title: "My Awesome Article",
         author_id: assoc(:author, factory: :user).id
       }
     end
 
     factory :comment do
-      %MyApp.Comment{
-        body: "This is great!",
-        article_id: assoc(:article).id
+      %Comment{
+        body: "Great article!",
+        article_id: assoc(:article).id,
+        user_id: assoc(:user).id
       }
     end
   end
@@ -98,65 +80,73 @@ defmodule ExMachina.EctoTest do
       use ExMachina.Ecto, repo: MyApp.Repo
       """
     assert_raise ArgumentError, message, fn ->
-      defmodule MyApp.EctoWithNoRepo do
+      defmodule EctoWithNoRepo do
         use ExMachina.Ecto
       end
     end
   end
 
   test "fields_for/2 removes Ecto specific fields" do
-    assert MyApp.EctoFactories.fields_for(:book) == %{
+    assert EctoFactories.fields_for(:user) == %{
       id: nil,
-      title: "Foo",
-      publisher_id: 1
+      name: "John Doe",
+      admin: false
     }
   end
 
   test "fields_for/2 raises when passed a map" do
     assert_raise ArgumentError, fn ->
-      MyApp.EctoFactories.fields_for(:user_map)
+      EctoFactories.fields_for(:user_map)
     end
   end
 
-  test "save_record/1 passes the model to @repo.insert!" do
-    model = MyApp.EctoFactories.save_record(%MyApp.User{name: "John"})
+  test "save_record/1 inserts the record into @repo" do
+    model = EctoFactories.save_record(%User{name: "John"})
 
-    assert_received {:created, %{name: "John"}}
-    assert model == %MyApp.User{id: 1, name: "John"}
+    new_user = TestRepo.one!(User)
+    assert model == new_user
   end
 
   test "assoc/3 returns the passed in key if it exists" do
     existing_account = %{id: 1, plan_type: "free"}
     attrs = %{account: existing_account}
 
-    assert ExMachina.Ecto.assoc(MyApp.EctoFactories, attrs, :account) == existing_account
-    refute_received {:created, _}
+    assert ExMachina.Ecto.assoc(EctoFactories, attrs, :account) == existing_account
+  end
+
+  test "assoc/3 does not insert a record if it exists" do
+    existing_account = %{id: 1, plan_type: "free"}
+    attrs = %{account: existing_account}
+
+    ExMachina.Ecto.assoc(EctoFactories, attrs, :account)
+
+    TestRepo.all(User) == []
   end
 
   test "assoc/3 creates and returns a factory if one was not in attrs" do
     attrs = %{}
 
-    user = ExMachina.Ecto.assoc(MyApp.EctoFactories, attrs, :user)
+    user = ExMachina.Ecto.assoc(EctoFactories, attrs, :user)
 
-    newly_created_user = %MyApp.User{id: 1, name: "John Doe", admin: false}
+    newly_created_user = TestRepo.one!(User)
+    assert newly_created_user.name == "John Doe"
+    refute newly_created_user.admin
     assert user == newly_created_user
-    assert_received {:created, ^newly_created_user}
   end
 
   test "assoc/3 can specify a factory for the association" do
     attrs = %{}
 
-    account = ExMachina.Ecto.assoc(MyApp.EctoFactories, attrs, :account, factory: :user)
+    account = ExMachina.Ecto.assoc(EctoFactories, attrs, :account, factory: :user)
 
-    newly_created_account = %MyApp.User{id: 1, name: "John Doe", admin: false}
-    assert account == newly_created_account
-    assert_received {:created, ^newly_created_account}
+    new_user = TestRepo.one!(User)
+    assert account == new_user
   end
 
   test "can use assoc/3 in a factory to override associations" do
-    my_article = MyApp.EctoFactories.create(:article, title: "So Deep")
+    my_article = EctoFactories.create(:article, title: "So Deep")
 
-    comment = MyApp.EctoFactories.create(:comment, article: my_article)
+    comment = EctoFactories.create(:comment, article: my_article)
 
     assert comment.article == my_article
   end
