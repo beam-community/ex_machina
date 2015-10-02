@@ -56,7 +56,7 @@ defmodule ExMachina do
       end
 
       def create(built_record) when is_map(built_record) do
-        __MODULE__.save_record(built_record)
+        ExMachina.create(__MODULE__, built_record)
       end
 
       def create(factory_name, attrs \\ %{}) do
@@ -157,6 +157,11 @@ defmodule ExMachina do
       # Saves and returns %{name: "John Doe", admin: true}
       create(:user, admin: true)
   """
+
+  def create(module, built_record) when is_map(built_record) do
+    module.save_record(built_record)
+  end
+
   def create(module, factory_name, attrs \\ %{}) do
     ExMachina.build(module, factory_name, attrs) |> module.save_record
   end
