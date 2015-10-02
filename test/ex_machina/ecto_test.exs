@@ -90,8 +90,14 @@ defmodule ExMachina.EctoTest do
     end
   end
 
-  test "raises error if no repo is provided" do
-    assert_raise KeyError, "key :repo not found in: []", fn ->
+  test "raises helpful error message if no repo is provided" do
+    message =
+      """
+      expected :repo to be given as an option. Example:
+
+      use ExMachina.Ecto, repo: MyApp.Repo
+      """
+    assert_raise ArgumentError, message, fn ->
       defmodule MyApp.EctoWithNoRepo do
         use ExMachina.Ecto
       end
