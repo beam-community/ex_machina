@@ -97,10 +97,10 @@ defmodule ExMachina.Ecto do
   end
 
   defp create_assoc(module, _factory_name, factory: factory_name) do
-    ExMachina.create(module, factory_name)
+    module.create(factory_name)
   end
   defp create_assoc(module, factory_name, _opts) do
-    ExMachina.create(module, factory_name)
+    module.create(factory_name)
   end
 
   @doc """
