@@ -14,7 +14,7 @@ defmodule ExMachina.Ecto do
         end
 
         def save_record(record) do
-          ExMachina.Ecto.save_record(@repo, record)
+          ExMachina.Ecto.save_record(__MODULE__, @repo, record)
         end
       end
     else
@@ -104,11 +104,33 @@ defmodule ExMachina.Ecto do
   end
 
   @doc """
-  Saves a record using `Repo.insert!` when `create` is called.
+  Saves a record and all associated records using `Repo.insert!`
   """
-  def save_record(repo, record) do
+  def save_record(module, repo, record) do
     if repo do
-      repo.insert!(record)
+      record
+      |> associate_records(module)
+      |> repo.insert!
     end
+  end
+
+  defp associate_records(built_record = %{__struct__: struct}, module) do
+    association_names = struct.__schema__(:associations)
+
+    Enum.reduce association_names, built_record, fn(association_name, record) ->
+      case association = Map.get(record, association_name) do
+        %{__meta__: %{state: :built}} ->
+          association = ExMachina.create(module, association)
+          put_assoc(record, association_name, association)
+        %{__meta__: %{state: :loaded}} ->
+          put_assoc(record, association_name, association)
+        _ -> record
+      end
+    end
+  end
+
+  defp put_assoc(record, association_name, association) do
+    association_id = "#{association_name}_id" |> String.to_atom
+    Map.put(record, association_id, association.id)
   end
 end

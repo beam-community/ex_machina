@@ -38,7 +38,7 @@ defmodule ExMachina.EctoTest do
     end
   end
 
-  defmodule EctoFactories do
+  defmodule Factory do
     use ExMachina.Ecto, repo: TestRepo
 
     factory :user do
@@ -59,15 +59,15 @@ defmodule ExMachina.EctoTest do
     factory :article do
       %Article{
         title: "My Awesome Article",
-        author_id: assoc(:author, factory: :user).id
+        author: assoc(:author, factory: :user)
       }
     end
 
     factory :comment do
       %Comment{
         body: "Great article!",
-        article_id: assoc(:article).id,
-        user_id: assoc(:user).id
+        article: assoc(:article),
+        user: assoc(:user)
       }
     end
   end
@@ -87,7 +87,7 @@ defmodule ExMachina.EctoTest do
   end
 
   test "fields_for/2 removes Ecto specific fields" do
-    assert EctoFactories.fields_for(:user) == %{
+    assert Factory.fields_for(:user) == %{
       id: nil,
       name: "John Doe",
       admin: false
@@ -96,37 +96,57 @@ defmodule ExMachina.EctoTest do
 
   test "fields_for/2 raises when passed a map" do
     assert_raise ArgumentError, fn ->
-      EctoFactories.fields_for(:user_map)
+      Factory.fields_for(:user_map)
     end
   end
 
   test "save_record/1 inserts the record into @repo" do
-    model = EctoFactories.save_record(%User{name: "John"})
+    model = Factory.save_record(%User{name: "John"})
 
     new_user = TestRepo.one!(User)
     assert model == new_user
+  end
+
+  test "save_record/1 saves associated records and sets the association id" do
+    author = Factory.build(:user)
+    article = Factory.save_record(%Article{title: "Ecto is Awesome", author: author})
+
+    assert article.author_id == 1
+    assert article.title == "Ecto is Awesome"
+    assert TestRepo.get_by(Article, title: "Ecto is Awesome", author_id: 1)
+    assert TestRepo.one(User)
+  end
+
+  test "save_record/1 assigns the id of already saved records" do
+    author = Factory.create(:user)
+    article = Factory.save_record(%Article{title: "Ecto is Awesome", author: author})
+
+    assert article.author_id == author.id
+    assert article.title == "Ecto is Awesome"
+    assert TestRepo.get_by(Article, title: "Ecto is Awesome", author_id: author.id)
+    assert TestRepo.one(User)
   end
 
   test "assoc/3 returns the passed in key if it exists" do
     existing_account = %{id: 1, plan_type: "free"}
     attrs = %{account: existing_account}
 
-    assert ExMachina.Ecto.assoc(EctoFactories, attrs, :account) == existing_account
+    assert ExMachina.Ecto.assoc(Factory, attrs, :account) == existing_account
   end
 
   test "assoc/3 does not insert a record if it exists" do
     existing_account = %{id: 1, plan_type: "free"}
     attrs = %{account: existing_account}
 
-    ExMachina.Ecto.assoc(EctoFactories, attrs, :account)
+    ExMachina.Ecto.assoc(Factory, attrs, :account)
 
-    TestRepo.all(User) == []
+    assert TestRepo.all(User) == []
   end
 
   test "assoc/3 builds and returns a factory if one was not in attrs" do
     attrs = %{}
 
-    user = ExMachina.Ecto.assoc(EctoFactories, attrs, :user)
+    user = ExMachina.Ecto.assoc(Factory, attrs, :user)
 
     refute TestRepo.one(User)
     assert user.name == "John Doe"
@@ -136,17 +156,24 @@ defmodule ExMachina.EctoTest do
   test "assoc/3 can specify a factory for the association" do
     attrs = %{}
 
-    account = ExMachina.Ecto.assoc(EctoFactories, attrs, :account, factory: :user)
+    account = ExMachina.Ecto.assoc(Factory, attrs, :account, factory: :user)
 
-    assert account == EctoFactories.build(:user)
+    assert account == Factory.build(:user)
     refute TestRepo.one(User)
   end
 
   test "can use assoc/3 in a factory to override associations" do
-    my_article = EctoFactories.create(:article, title: "So Deep")
+    my_article = Factory.create(:article, title: "So Deep")
 
-    comment = EctoFactories.create(:comment, article: my_article)
+    comment = Factory.create(:comment, article: my_article)
 
     assert comment.article == my_article
+  end
+
+  test "chaining build and create" do
+    Factory.build(:article, title: "Ecto is Awesome") |> Factory.create
+
+    article = TestRepo.get_by!(Article, title: "Ecto is Awesome")
+    assert article.author_id
   end
 end
