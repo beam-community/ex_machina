@@ -188,7 +188,9 @@ defmodule ExMachina do
   end
 
   defmacro __before_compile__(_env) do
-    quote do
+    # We are using line -1 because we don't want warnings coming from
+    # save_record/1 when someone defines there own save_recod/1 function.
+    quote line: -1 do
       @doc """
       Raises a helpful error if no factory is defined.
       """
@@ -226,7 +228,7 @@ defmodule ExMachina do
               %User{name: "John"}
             end
 
-            def save_function(record) do
+            def save_record(record) do
               # Poison is a library for working with JSON
               Poison.encode!(record)
             end

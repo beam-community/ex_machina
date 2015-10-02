@@ -14,7 +14,7 @@ defmodule ExMachina.Ecto do
         end
 
         def save_record(record) do
-          ExMachina.Ecto.save_record(__MODULE__, @repo, record)
+          ExMachina.Ecto.save_record(@repo, record)
         end
       end
     else
@@ -106,7 +106,7 @@ defmodule ExMachina.Ecto do
   @doc """
   Saves a record using `Repo.insert!` when `create` is called.
   """
-  def save_record(_module, repo, record) do
+  def save_record(repo, record) do
     if repo do
       repo.insert!(record)
     end

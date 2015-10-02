@@ -79,7 +79,7 @@ end
 ## Using without Ecto
 
 You can use ExMachina without Ecto, by using just the `build` function, or by
-defining `save_function/1` in your module.
+defining `save_record/1` in your module.
 
 ```elixir
 defmodule MyApp.JsonFactories do
