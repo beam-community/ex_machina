@@ -1,21 +1,29 @@
 defmodule ExMachina.Ecto do
   defmacro __using__(opts) do
     verify_ecto_dep
+    if repo = Keyword.get(opts, :repo) do
+      quote do
+        use ExMachina
 
-    quote do
-      use ExMachina
+        import ExMachina.Ecto, only: [assoc: 1, assoc: 2]
 
-      import ExMachina.Ecto, only: [assoc: 1, assoc: 2]
+        @repo unquote(repo)
 
-      @repo Dict.fetch!(unquote(opts), :repo)
+        def fields_for(factory_name, attrs \\ %{}) do
+          ExMachina.Ecto.fields_for(__MODULE__, factory_name, attrs)
+        end
 
-      def fields_for(factory_name, attrs \\ %{}) do
-        ExMachina.Ecto.fields_for(__MODULE__, factory_name, attrs)
+        def save_record(record) do
+          ExMachina.Ecto.save_record(__MODULE__, @repo, record)
+        end
       end
+    else
+      raise ArgumentError,
+        """
+        expected :repo to be given as an option. Example:
 
-      def save_record(record) do
-        ExMachina.Ecto.save_record(__MODULE__, @repo, record)
-      end
+        use ExMachina.Ecto, repo: MyApp.Repo
+        """
     end
   end
 
