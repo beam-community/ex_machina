@@ -9,7 +9,7 @@ In `mix.exs`, add the ExMachina dependency:
 
 ```elixir
 def deps do
-  [{:ex_machina, "~> 0.2"}]
+  [{:ex_machina, "~> 0.3"}]
 end
 ```
 
@@ -23,6 +23,23 @@ end
 defp app_list(:test), do: [:ex_machina | app_list]
 defp app_list(_),  do: app_list
 defp app_list,  do: [:logger]
+```
+
+## Using with Phoenix and Ecto
+
+There is nothing special you need to do with Phoenix unless you decide to
+`import` your factory module.
+
+By default Phoenix `import`s `Ecto.Model` in the generated `ConnCase` and
+`ModelCase`  modules (found in `test/support/conn_case.ex` and
+`test/support/model_case.ex`). To import your factory we recommend excluding
+`build/2` or aliasing your factory instead.
+
+```elixir
+# in test/support/conn_case|model_case.ex
+
+# Add `except: [build: 2] to the `Ecto.Model` import
+import Ecto.Model, except: [build: 2]
 ```
 
 ## Using with Ecto
