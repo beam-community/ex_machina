@@ -107,11 +107,9 @@ defmodule ExMachina.Ecto do
   Saves a record and all associated records using `Repo.insert!`
   """
   def save_record(module, repo, record) do
-    if repo do
-      record
-      |> associate_records(module)
-      |> repo.insert!
-    end
+    record
+    |> associate_records(module)
+    |> repo.insert!
   end
 
   defp associate_records(built_record = %{__struct__: struct}, module) do
