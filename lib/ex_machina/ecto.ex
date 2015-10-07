@@ -124,7 +124,9 @@ defmodule ExMachina.Ecto do
           put_assoc(record, association_name, association)
         %{__meta__: %{state: :loaded}} ->
           put_assoc(record, association_name, association)
-        _ -> record
+        _ ->
+          raise ArgumentError,
+            "expected #{inspect(association_name)} to be an Ecto struct but got #{inspect(association)}"
       end
     end
   end

@@ -127,6 +127,16 @@ defmodule ExMachina.EctoTest do
     assert TestRepo.one(User)
   end
 
+  test "save_record/1 raises for associated records that are not Ecto structs" do
+    author = %{}
+
+    message = "expected :author to be an Ecto struct but got %{}"
+
+    assert_raise ArgumentError, message, fn ->
+      Factory.save_record(%Article{title: "Ecto is Awesome", author: author})
+    end
+  end
+
   test "assoc/3 returns the passed in key if it exists" do
     existing_account = %{id: 1, plan_type: "free"}
     attrs = %{account: existing_account}
