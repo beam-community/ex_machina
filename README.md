@@ -142,8 +142,8 @@ You can use ExMachina without Ecto, by using just the `build` function, or by
 defining `save_record/1` in your module.
 
 ```elixir
-defmodule MyApp.JsonFactories do
-  use ExMachina.Ecto, repo: MyApp.Repo
+defmodule MyApp.JsonFactory do
+  use ExMachina
 
   factory :user do
     %User{name: "John"}
