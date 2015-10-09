@@ -39,8 +39,8 @@ defmodule MyApp.Factory do
   # without Ecto
   use ExMachina
 
-  factory :author do
-    %Author{
+  factory :user do
+    %User{
       name: "Jane Smith",
       email: sequence(:email, &"email-#{&1}@example.com"),
     }
@@ -49,7 +49,7 @@ defmodule MyApp.Factory do
   factory :article do
     %Article{
       title: "Use ExMachina!",
-      author: assoc(:author, factory: user), # only available in ExMachina.Ecto
+      author: assoc(:author, factory: :user), # only available in ExMachina.Ecto
     }
   end
 
