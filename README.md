@@ -25,6 +25,79 @@ defp app_list(_),  do: app_list
 defp app_list,  do: [:logger]
 ```
 
+## Cheatsheet
+
+Check out [the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details.
+
+Define factories:
+
+```elixir
+defmodule MyApp.Factory do
+  # with Ecto
+  use ExMachina.Ecto, repo: MyApp.Repo
+
+  # without Ecto
+  use ExMachina
+
+  factory :author do
+    %Author{
+      name: "Jane Smith",
+      email: sequence(:email, &"email-#{&1}@example.com"),
+    }
+  end
+
+  factory :article do
+    %Article{
+      title: "Use ExMachina!",
+      author: assoc(:author, factory: user), # only available in ExMachina.Ecto
+    }
+  end
+
+  factory :comment do
+    %Comment{
+      text: "It's great!",
+      article: assoc(:article),
+    }
+  end
+end
+```
+
+Use factories:
+
+```elixir
+# `build*` returns an unsaved comment.
+# Associated records defined on the factory are built.
+attrs = %{body: "A comment!"} # attrs is optional. Also accepts a keyword list.
+build(:comment, attrs)
+build_pair(:comment, attrs)
+build_list(3, :comment, attrs)
+
+# `create*` returns a saved comment.
+# Associated records defined on the factory are built and saved.
+create(:comment, attrs)
+create_pair(:comment, attrs)
+create_list(3, :comment, attrs)
+
+# `fields_for` returns a plain map without any Ecto specific attributes.
+# This is only available when using `ExMachina.Ecto`.
+fields_for(:comment, attrs)
+```
+
+Pipe functions:
+
+```elixir
+def make_admin(user) do
+  %{user | admin: true}
+end
+
+def with_article(user) do
+  create(:article, user: user)
+  user
+end
+
+build(:user) |> make_admin |> create |> with_article
+```
+
 ## Using with Phoenix and Ecto
 
 There is nothing special you need to do with Phoenix unless you decide to
@@ -42,37 +115,7 @@ By default Phoenix `import`s `Ecto.Model` in the generated `ConnCase` and
 import Ecto.Model, except: [build: 2]
 ```
 
-## Using with Ecto
-
-```elixir
-# test/factories.ex
-defmodule MyApp.Factory do
-  # MyApp.Repo is an Ecto Repo.
-  # It will automatically be used when calling `create`
-  use ExMachina.Ecto, repo: MyApp.Repo
-
-  factory :config do
-    # Factories can be plain maps
-    %{url: "http://example.com"}
-  end
-
-  factory :article do
-    %Article{
-      title: "My Awesome Article"
-    }
-  end
-
-  factory :comment do
-    %Comment{
-      body: "This is great!",
-      author_email: sequence(:email, &"email-#{&1}@example.com"),
-      article_id: assoc(:article).id
-    }
-  end
-end
-```
-
-Then use it in your tests. This is an example with Phoenix.
+## Usage in a test
 
 ```elixir
 defmodule MyApp.MyModuleTest do
@@ -100,7 +143,7 @@ defining `save_record/1` in your module.
 
 ```elixir
 defmodule MyApp.JsonFactories do
-  use ExMachina
+  use ExMachina.Ecto, repo: MyApp.Repo
 
   factory :user do
     %User{name: "John"}
