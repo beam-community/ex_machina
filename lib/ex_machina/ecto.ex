@@ -132,6 +132,9 @@ defmodule ExMachina.Ecto do
 
   defp put_assoc(record, association_name, association) do
     association_id = "#{association_name}_id" |> String.to_atom
-    Map.put(record, association_id, association.id)
+
+    record
+    |> Map.put(association_id, association.id)
+    |> Map.put(association_name, association)
   end
 end
