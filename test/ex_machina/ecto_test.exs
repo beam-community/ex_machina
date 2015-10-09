@@ -127,6 +127,13 @@ defmodule ExMachina.EctoTest do
     assert TestRepo.one(User)
   end
 
+  test "save_record/1 ignores associations that are not set" do
+    article = Factory.save_record(%Article{title: "Ecto is Awesome"})
+
+    assert TestRepo.get_by(Article, title: "Ecto is Awesome")
+    assert TestRepo.all(User) == []
+  end
+
   test "save_record/1 raises for associated records that are not Ecto structs" do
     author = %{}
 
