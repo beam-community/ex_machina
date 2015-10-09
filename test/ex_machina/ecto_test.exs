@@ -107,10 +107,11 @@ defmodule ExMachina.EctoTest do
     assert model == new_user
   end
 
-  test "save_record/1 saves associated records and sets the association id" do
+  test "save_record/1 saves associated records and sets the association and association id" do
     author = Factory.build(:user)
     article = Factory.save_record(%Article{title: "Ecto is Awesome", author: author})
 
+    assert article.author == TestRepo.one(User)
     assert article.author_id == 1
     assert article.title == "Ecto is Awesome"
     assert TestRepo.get_by(Article, title: "Ecto is Awesome", author_id: 1)
