@@ -43,7 +43,7 @@ defmodule ExMachina.Mixfile do
 
   defp package do
     [
-      contributors: ["Josh Steiner", "Paul Smith"],
+      maintainers: ["Josh Steiner", "Paul Smith"],
       licenses: ["MIT"],
       links: %{"GitHub" => @project_url}
     ]
