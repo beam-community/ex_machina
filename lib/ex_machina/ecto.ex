@@ -103,17 +103,55 @@ defmodule ExMachina.Ecto do
     ExMachina.build(module, factory_name)
   end
 
+  defp get_assocs(%{__struct__: struct}) do
+    for a <- struct.__schema__(:associations) do
+      {a, struct.__schema__(:association, a)}
+    end
+  end
+
+  defp belongs_to_assocs(model) do
+    for {a, %Ecto.Association.BelongsTo{}} <- get_assocs(model), do: a
+  end
+
+  defp not_loaded_assocs(model) do
+    for {a, %Ecto.Association.Has{}} <- get_assocs(model),
+      !Ecto.Association.loaded?(Map.get(model, a)),
+      do: a
+  end
+
+  defp reset_associations(target, source) do
+    target
+      |> belongs_to_assocs
+      |> Enum.reduce(target, fn(a, target) -> Map.put(target, a, Map.get(source, a)) end)
+  end
+
+  defp convert_to_changes(record) do
+    record
+    |> Map.from_struct
+    |> Map.delete(:__meta__)
+    # drop fields for `belongs_to` assocs as they cannot be handled by changeset
+    |> Map.drop(belongs_to_assocs(record))
+    |> Map.drop(not_loaded_assocs(record))
+  end
+
   @doc """
   Saves a record and all associated records using `Repo.insert!`
   """
-  def save_record(module, repo, record) do
-    record
-    |> associate_records(module)
+  def save_record(module, repo, %{__struct__: model} = record) do
+    record = record |> associate_records(module)
+    changes = record |> convert_to_changes
+
+    struct(model)
+    |> Ecto.Changeset.change(changes)
     |> repo.insert!
+    |> reset_associations(record)
+  end
+  def save_record(_, _ , record) do
+    raise ArgumentError, "#{inspect record} is not Ecto model."
   end
 
-  defp associate_records(built_record = %{__struct__: struct}, module) do
-    association_names = struct.__schema__(:associations)
+  defp associate_records(built_record, module) do
+    association_names = belongs_to_assocs(built_record)
 
     Enum.reduce association_names, built_record, fn(association_name, record) ->
       case association = Map.get(record, association_name) do

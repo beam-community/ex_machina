@@ -1,5 +1,5 @@
 defmodule ExMachina.EctoTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   alias ExMachina.TestRepo
 
   setup_all do
@@ -144,6 +144,12 @@ defmodule ExMachina.EctoTest do
 
     assert_raise ArgumentError, message, fn ->
       Factory.save_record(%Article{title: "Ecto is Awesome", author: author})
+    end
+  end
+
+  test "save_record/1 raises unless Ecto.Model is passed" do
+    assert_raise ArgumentError, ~r"not Ecto model", fn ->
+      Factory.save_record(%{foo: "bar"})
     end
   end
 
