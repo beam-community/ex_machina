@@ -86,7 +86,7 @@ defmodule ExMachina.EctoHasManyTest do
     assert package
   end
 
-  test "create/1 creates model with `belongs_to` having `has_many` associations" do
+  test "create/1 creates model with `belongs_to` that `has_many` associations" do
     invoice = Factory.create(:invoice)
 
     saved_package = TestRepo.one(Package)
