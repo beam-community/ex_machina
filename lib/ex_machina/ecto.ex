@@ -137,7 +137,10 @@ defmodule ExMachina.Ecto do
   @doc """
   Saves a record and all associated records using `Repo.insert!`
   """
-  def save_record(module, repo, %{__struct__: model} = record) do
+  def save_record(
+    module,
+    repo,
+    %{__struct__: model, __meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
     record = record |> associate_records(module)
     changes = record |> convert_to_changes
 
