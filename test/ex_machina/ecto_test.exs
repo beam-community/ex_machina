@@ -1,17 +1,6 @@
 defmodule ExMachina.EctoTest do
-  use ExUnit.Case, async: false
+  use ExMachina.EctoCase, async: false
   alias ExMachina.TestRepo
-
-  setup_all do
-    Ecto.Adapters.SQL.begin_test_transaction(TestRepo, [])
-    on_exit fn -> Ecto.Adapters.SQL.rollback_test_transaction(TestRepo, []) end
-    :ok
-  end
-
-  setup do
-    Ecto.Adapters.SQL.restart_test_transaction(TestRepo, [])
-    :ok
-  end
 
   defmodule User do
     use Ecto.Model
