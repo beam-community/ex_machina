@@ -29,17 +29,11 @@ defmodule ExMachina.EctoHasManyTest do
   defmodule Factory do
     use ExMachina.Ecto, repo: TestRepo
 
-    factory(:invalid_package) do
-      %Package{
-        description: "Invalid package without any statuses"
-      }
-    end
-
     factory(:package) do
       %Package{
         description: "Package that just got ordered",
         statuses: [
-          %PackageStatus{status: "ordered"}
+          build(:package_status, status: "ordered")
         ]
       }
     end
@@ -48,10 +42,16 @@ defmodule ExMachina.EctoHasManyTest do
       %Package{
         description: "Package that got shipped",
         statuses: [
-          %PackageStatus{status: "ordered"},
-          %PackageStatus{status: "sent"},
-          %PackageStatus{status: "shipped"}
+          build(:package_status, status: "ordered"),
+          build(:package_status, status: "sent"),
+          build(:package_status, status: "shipped")
         ]
+      }
+    end
+
+    factory(:package_status) do
+      %PackageStatus{
+        status: "ordered"
       }
     end
 
@@ -63,32 +63,35 @@ defmodule ExMachina.EctoHasManyTest do
     end
   end
 
-  test "create/1 creates model with `has_many` associations" do
+  test "create/1 saves `has_many` records defined in the factory" do
     package = Factory.create(:package)
 
     assert %{statuses: [%{status: "ordered"}]} = package
   end
 
-  test "create/2 creates model with overriden `has_many` associations" do
+  test "create/2 saves overriden `has_many` associations" do
     statuses = [
-      %PackageStatus{status: "ordered"},
-      %PackageStatus{status: "delayed"}
+      Factory.build(:package_status, status: "ordered"),
+      Factory.build(:package_status, status: "delayed")
     ]
-    package = Factory.create :package,
-      description: "Delayed package",
-      statuses: statuses
+    package = Factory.create(:package, statuses: statuses)
 
-    assert %{statuses: [%{status: "ordered"}, %{status: "delayed"}]} = package
+    statuses = TestRepo.all(PackageStatus)
+    assert package.statuses == statuses
+    assert [%{status: "ordered"}, %{status: "delayed"}] = statuses
   end
 
-  test "create/1 creates model without `has_many` association specified" do
-    package = Factory.create(:invalid_package)
+  test "create/1 creates a record without any associations" do
+    package = Factory.create(:package, statuses: [])
     assert package
   end
 
   test "create/1 creates model with `belongs_to` having `has_many` associations" do
     invoice = Factory.create(:invoice)
 
-    assert %{title: "Invoice for shipped package", package_id: 1} = invoice
+    saved_package = TestRepo.one(Package)
+    assert invoice.title == "Invoice for shipped package"
+    assert invoice.package_id == saved_package.id
+    assert length(invoice.package.statuses) == 3
   end
 end
