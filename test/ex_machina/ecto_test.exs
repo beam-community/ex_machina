@@ -136,9 +136,17 @@ defmodule ExMachina.EctoTest do
     end
   end
 
-  test "save_record/1 raises unless Ecto.Model is passed" do
-    assert_raise ArgumentError, ~r"not Ecto model", fn ->
+  test "save_record/1 raises if a map is passed" do
+    message = "%{foo: \"bar\"} is not an Ecto model. Use `build` instead"
+    assert_raise ArgumentError, message, fn ->
       Factory.save_record(%{foo: "bar"})
+    end
+  end
+
+  test "save_record/1 raises if a non-Ecto struct is passed" do
+    message = "%{__struct__: Foo.Bar} is not an Ecto model. Use `build` instead"
+    assert_raise ArgumentError, message, fn ->
+      Factory.save_record(%{__struct__: Foo.Bar})
     end
   end
 
