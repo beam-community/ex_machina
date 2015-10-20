@@ -119,7 +119,7 @@ defmodule ExMachina.Ecto do
       do: a
   end
 
-  defp reset_associations(target, source) do
+  defp restore_belongs_to_associations(target, source) do
     target
       |> belongs_to_assocs
       |> Enum.reduce(target, fn(a, target) -> Map.put(target, a, Map.get(source, a)) end)
@@ -137,23 +137,20 @@ defmodule ExMachina.Ecto do
   @doc """
   Saves a record and all associated records using `Repo.insert!`
   """
-  def save_record(
-    module,
-    repo,
-    %{__struct__: model, __meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
-    record = record |> associate_records(module)
+  def save_record(module, repo, %{__struct__: model, __meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
+    record = record |> persist_belongs_to_associations(module)
     changes = record |> convert_to_changes
 
     struct(model)
     |> Ecto.Changeset.change(changes)
     |> repo.insert!
-    |> reset_associations(record)
+    |> restore_belongs_to_associations(record)
   end
   def save_record(_, _ , record) do
-    raise ArgumentError, "#{inspect record} is not Ecto model."
+    raise ArgumentError, "#{inspect record} is not an Ecto model. Use `build` instead"
   end
 
-  defp associate_records(built_record, module) do
+  defp persist_belongs_to_associations(built_record, module) do
     association_names = belongs_to_assocs(built_record)
 
     Enum.reduce association_names, built_record, fn(association_name, record) ->
