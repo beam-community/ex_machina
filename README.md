@@ -39,24 +39,24 @@ defmodule MyApp.Factory do
   # without Ecto
   use ExMachina
 
-  factory :user do
+  def factory(:user, _attrs) do
     %User{
       name: "Jane Smith",
       email: sequence(:email, &"email-#{&1}@example.com"),
     }
   end
 
-  factory :article do
+  def factory(:article, attrs) do
     %Article{
       title: "Use ExMachina!",
-      author: assoc(:author, factory: :user), # only available in ExMachina.Ecto
+      author: assoc(attrs, :author, factory: :user), # only available in ExMachina.Ecto
     }
   end
 
-  factory :comment do
+  def factory(:comment, attrs) do
     %Comment{
       text: "It's great!",
-      article: assoc(:article),
+      article: assoc(attrs, :article),
     }
   end
 end
@@ -145,7 +145,7 @@ defining `save_record/1` in your module.
 defmodule MyApp.JsonFactory do
   use ExMachina
 
-  factory :user do
+  def factory(:user, _attrs) do
     %User{name: "John"}
   end
 
@@ -167,7 +167,7 @@ or `create_json` to return encoded JSON objects.
 defmodule MyApp.Factory do
   use ExMachina.Ecto, repo: MyApp.Repo
 
-  factory :user do
+  def factory(:user, _attrs) do
     %User{name: "John"}
   end
 

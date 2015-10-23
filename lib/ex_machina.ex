@@ -73,13 +73,19 @@ defmodule ExMachina do
     end
   end
 
-  defmacro factory(factory_name, do: block) do
-    quote do
-      def factory(unquote(factory_name), var!(attrs)) do
-        !var!(attrs) # Removes unused variable warning if attrs wasn't used
-        unquote(block)
+  defmacro factory(factory_name, do: _block) do
+    raise """
+    The factory and assoc macros have been removed. Please use regular
+    functions instead.
+
+      def factory(#{factory_name}, attrs) do
+        %{
+          ...
+          some_assoc: assoc(attrs, :some_assoc)
+          ...
+        }
       end
-    end
+    """
   end
 
   @doc """
@@ -87,7 +93,7 @@ defmodule ExMachina do
 
   ## Examples
 
-      factory :user do
+      def factory(:user, _attrs) do
         %{
           # Will generate "me-0@example.com" then "me-1@example.com", etc.
           email: sequence(:email, &"me-\#{&1}@foo.com")
@@ -101,7 +107,7 @@ defmodule ExMachina do
 
   ## Example
 
-      factory :user do
+      def factory(:user, _attrs) do
         %{name: "John Doe", admin: false}
       end
 
@@ -150,7 +156,7 @@ defmodule ExMachina do
 
   ## Example
 
-      factory :user do
+      def factory(:user, _attrs) do
         %{name: "John Doe", admin: false}
       end
 
@@ -199,7 +205,7 @@ defmodule ExMachina do
       @doc """
       Raises a helpful error if no factory is defined.
       """
-      def factory(factory_name, _) do
+      def factory(factory_name, _attrs) do
         raise UndefinedFactory, factory_name
       end
 
@@ -217,7 +223,7 @@ defmodule ExMachina do
           defmodule MyApp.Factory do
             use ExMachina.Ecto, repo: MyApp.Repo
 
-            factory :user do
+            def factory(:user, _attrs) do
               %User{name: "John"}
             end
           end
@@ -229,7 +235,7 @@ defmodule ExMachina do
             # Note, we are not using ExMachina.Ecto
             use ExMachina
 
-            factory :user do
+            def factory(:user, _attrs) do
               %User{name: "John"}
             end
 

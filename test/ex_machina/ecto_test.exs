@@ -30,14 +30,14 @@ defmodule ExMachina.EctoTest do
   defmodule Factory do
     use ExMachina.Ecto, repo: TestRepo
 
-    factory :user do
+    def factory(:user, _attrs) do
       %User{
         name: "John Doe",
         admin: false
       }
     end
 
-    factory :user_map do
+    def factory(:user_map, _attrs) do
       %{
         id: 3,
         name: "John Doe",
@@ -45,18 +45,18 @@ defmodule ExMachina.EctoTest do
       }
     end
 
-    factory :article do
+    def factory(:article, attrs) do
       %Article{
         title: "My Awesome Article",
-        author: assoc(:author, factory: :user)
+        author: assoc(attrs, :author, factory: :user)
       }
     end
 
-    factory :comment do
+    def factory(:comment, attrs) do
       %Comment{
         body: "Great article!",
-        article: assoc(:article),
-        user: assoc(:user)
+        article: assoc(attrs, :article),
+        user: assoc(attrs, :user)
       }
     end
   end
