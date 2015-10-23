@@ -106,11 +106,11 @@ defmodule ExMachina.Ecto do
   end
 
   defp belongs_to_assocs(model) do
-    for {a, %Ecto.Association.BelongsTo{}} <- get_assocs(model), do: a
+    for {a, %{__struct__: Ecto.Association.BelongsTo}} <- get_assocs(model), do: a
   end
 
   defp not_loaded_assocs(model) do
-    for {a, %Ecto.Association.Has{}} <- get_assocs(model),
+    for {a, %{__struct__: Ecto.Association.Has}} <- get_assocs(model),
       !Ecto.Association.loaded?(Map.get(model, a)),
       do: a
   end
