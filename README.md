@@ -1,5 +1,7 @@
 # ExMachina
 
+[![Circle CI](https://circleci.com/gh/thoughtbot/ex_machina.svg?style=svg&circle-token=fea4685d4951936734e764796c4b37c3686cdab3)](https://circleci.com/gh/thoughtbot/ex_machina)
+
 ExMachina makes it easy to create test data and associations. It works great with
 Ecto, but is configurable to work with any persistence library.
 
