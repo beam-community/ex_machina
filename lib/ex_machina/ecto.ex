@@ -5,8 +5,6 @@ defmodule ExMachina.Ecto do
       quote do
         use ExMachina
 
-        import ExMachina.Ecto, only: [assoc: 1, assoc: 2]
-
         @repo unquote(repo)
 
         def fields_for(factory_name, attrs \\ %{}) do
@@ -16,6 +14,10 @@ defmodule ExMachina.Ecto do
         def save_record(record) do
           ExMachina.Ecto.save_record(__MODULE__, @repo, record)
         end
+
+        defp assoc(attrs, factory_name, opts \\ []) do
+          ExMachina.Ecto.assoc(__MODULE__, attrs, factory_name, opts)
+        end
       end
     else
       raise ArgumentError,
@@ -24,12 +26,6 @@ defmodule ExMachina.Ecto do
 
         use ExMachina.Ecto, repo: MyApp.Repo
         """
-    end
-  end
-
-  defmacro assoc(factory_name, opts \\ []) do
-    quote do
-      ExMachina.Ecto.assoc(__MODULE__, var!(attrs), unquote(factory_name), unquote(opts))
     end
   end
 
@@ -50,7 +46,7 @@ defmodule ExMachina.Ecto do
 
   ## Example
 
-      factory :user do
+      def factory(:user, _attrs) do
         %MyApp.User{name: "John Doe", admin: false}
       end
 

@@ -4,7 +4,7 @@ defmodule ExMachinaTest do
   defmodule Factory do
     use ExMachina
 
-    factory :user do
+    def factory(:user, _attrs) do
       %{
         id: 3,
         name: "John Doe",
@@ -12,7 +12,7 @@ defmodule ExMachinaTest do
       }
     end
 
-    factory :email do
+    def factory(:email, _attrs) do
       %{
         email: sequence(:email, &"me-#{&1}@foo.com")
       }
@@ -27,7 +27,7 @@ defmodule ExMachinaTest do
   defmodule NoSaveFunction do
     use ExMachina
 
-    factory(:foo) do
+    def factory(:foo, _attrs) do
       %{foo: :bar}
     end
   end
