@@ -75,15 +75,15 @@ defmodule ExMachina.Ecto do
 
       attrs = %{user: %{name: "Someone"}}
       # Returns attrs.user
-      assoc(:user)
+      assoc(attrs, :user)
 
       attrs = %{}
       # Builds and returns new instance based on :user factory
-      assoc(:user)
+      assoc(attrs, :user)
 
       attrs = %{}
       # Builds and returns new instance based on :user factory
-      assoc(:author, factory: :user)
+      assoc(attrs, :author, factory: :user)
   """
   def assoc(module, attrs, factory_name, opts \\ []) do
     case Map.get(attrs, factory_name) do
