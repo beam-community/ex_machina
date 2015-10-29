@@ -1,5 +1,5 @@
 defmodule ExMachina.EctoTest do
-  use ExMachina.EctoCase, async: false
+  use ExMachina.EctoCase
   alias ExMachina.TestRepo
 
   defmodule User do

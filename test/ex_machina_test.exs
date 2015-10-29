@@ -1,5 +1,5 @@
 defmodule ExMachinaTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   defmodule Factory do
     use ExMachina

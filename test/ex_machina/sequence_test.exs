@@ -1,5 +1,5 @@
 defmodule ExMachina.SequenceTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   alias ExMachina.Sequence
 
