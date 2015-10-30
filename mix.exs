@@ -36,7 +36,7 @@ defmodule ExMachina.Mixfile do
     [
       {:ex_doc, "~> 0.9", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:ecto, "~> 1.0", only: :test},
+      {:ecto, "~> 1.0", only: [:dev, :test]},
       {:sqlite_ecto, "~> 1.0.0", only: :test}
     ]
   end
