@@ -44,7 +44,7 @@ defmodule MyApp.Factory do
   def factory(:user, _attrs) do
     %User{
       name: "Jane Smith",
-      email: sequence(:email, &"email-#{&1}@example.com")
+      email: sequence(:email, &"email-#{&1}@example.com"),
     }
   end
 
@@ -54,14 +54,14 @@ defmodule MyApp.Factory do
       # has_many/has_one associations are inserted when you call `create`
       comments: [build(:comment)],
       # only available in ExMachina.Ecto
-      author: assoc(attrs, :author, factory: :user)
+      author: assoc(attrs, :author, factory: :user),
     }
   end
 
   def factory(:comment, attrs) do
     %Comment{
       text: "It's great!",
-      article: assoc(attrs, :article)
+      article: assoc(attrs, :article),
     }
   end
 end
