@@ -132,6 +132,14 @@ defmodule ExMachina.Ecto do
 
   @doc """
   Saves a record and all associated records using `Repo.insert!`
+
+  Before inserting, changes are wrapped in a changeset. This means that
+  has_many, has_one, embeds_one, and embeds_many associations will be saved
+  correctly. Any belongs_to associations will also be saved.
+
+      # Will save the article and list of comments
+      create(:article, comments: [build(:comment)])
+
   """
   def save_record(module, repo, %{__struct__: model, __meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
     record = record |> persist_belongs_to_associations(module)

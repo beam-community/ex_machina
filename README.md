@@ -2,8 +2,8 @@
 
 [![Circle CI](https://circleci.com/gh/thoughtbot/ex_machina.svg?style=svg&circle-token=fea4685d4951936734e764796c4b37c3686cdab3)](https://circleci.com/gh/thoughtbot/ex_machina)
 
-ExMachina makes it easy to create test data and associations. It works great with
-Ecto, but is configurable to work with any persistence library.
+ExMachina makes it easy to create test data and associations. It works great
+with Ecto, but is configurable to work with any persistence library.
 
 ## Installation
 
@@ -44,21 +44,24 @@ defmodule MyApp.Factory do
   def factory(:user, _attrs) do
     %User{
       name: "Jane Smith",
-      email: sequence(:email, &"email-#{&1}@example.com"),
+      email: sequence(:email, &"email-#{&1}@example.com")
     }
   end
 
   def factory(:article, attrs) do
     %Article{
       title: "Use ExMachina!",
-      author: assoc(attrs, :author, factory: :user), # only available in ExMachina.Ecto
+      # has_many/has_one associations are inserted when you call `create`
+      comments: [build(:comment)],
+      # only available in ExMachina.Ecto
+      author: assoc(attrs, :author, factory: :user)
     }
   end
 
   def factory(:comment, attrs) do
     %Comment{
       text: "It's great!",
-      article: assoc(attrs, :article),
+      article: assoc(attrs, :article)
     }
   end
 end
