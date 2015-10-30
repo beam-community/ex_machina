@@ -11,7 +11,7 @@ In `mix.exs`, add the ExMachina dependency:
 
 ```elixir
 def deps do
-  [{:ex_machina, "~> 0.3"}]
+  [{:ex_machina, "~> 0.4"}]
 end
 ```
 
@@ -85,7 +85,7 @@ create_list(3, :comment, attrs)
 fields_for(:comment, attrs)
 ```
 
-Pipe functions:
+# Flexible Factories with Pipes
 
 ```elixir
 def make_admin(user) do
@@ -105,7 +105,7 @@ build(:user) |> make_admin |> create |> with_article
 There is nothing special you need to do with Phoenix unless you decide to
 `import` your factory module.
 
-By default Phoenix `import`s `Ecto.Model` in the generated `ConnCase` and
+By default Phoenix imports `Ecto.Model` in the generated `ConnCase` and
 `ModelCase`  modules (found in `test/support/conn_case.ex` and
 `test/support/model_case.ex`). To import your factory we recommend excluding
 `build/2` or aliasing your factory instead.
@@ -184,6 +184,17 @@ defmodule MyApp.Factory do
   end
 end
 ```
+
+## Contributing
+
+Before opening a pull request, please open an issue first.
+
+    $ git clone https://github.com/thoughtbot/ex_machina.git
+    $ cd ex_machina
+    $ mix deps.get
+    $ mix test
+
+Once you've made your additions and `mix test` passes, go ahead and open a PR!
 
 ## License
 
