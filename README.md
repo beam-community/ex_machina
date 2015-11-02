@@ -88,7 +88,7 @@ create_list(3, :comment, attrs)
 fields_for(:comment, attrs)
 ```
 
-# Flexible Factories with Pipes
+## Flexible Factories with Pipes
 
 ```elixir
 def make_admin(user) do
