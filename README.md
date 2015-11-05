@@ -120,15 +120,12 @@ By default Phoenix imports `Ecto.Model` in the generated `ConnCase` and
 import Ecto.Model, except: [build: 2]
 ```
 
-If you want to keep the factories somewhere other than test/support,
-change this line in mix.exs:
+If you want to keep the factories somewhere other than `test/support`,
+change this line in `mix.exs`:
 
 ```elixir
-# Add the folder to the end of the list. In this case we're
-# adding `test/factories`.
-defp elixirc_paths(:test), do: [
-  "lib", "web", "test/support", "test/factories"
-]
+# Add the folder to the end of the list. In this case we're adding `test/factories`.
+defp elixirc_paths(:test), do: ["lib", "web", "test/support", "test/factories"]
 ```
 
 ## Usage in a test
