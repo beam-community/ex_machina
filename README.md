@@ -11,7 +11,7 @@ In `mix.exs`, add the ExMachina dependency:
 
 ```elixir
 def deps do
-  [{:ex_machina, "~> 0.4"}]
+  [{:ex_machina, "~> 0.4", only: "test"}]
 end
 ```
 
@@ -27,6 +27,19 @@ defp app_list(_),  do: app_list
 defp app_list,  do: [:logger]
 ```
 
+Make sure that the `test/support` directory (where you'll put your factory definitions) will be compiled. If you use Phoenix, this should already be done for you.
+
+```elixir
+def project do
+  […
+   elixirc_paths: elixirc_paths(Mix.env),
+  …]
+end
+
+defp elixirc_paths(:test), do: ["lib", "test/support"]
+defp elixirc_paths(_), do: ["lib"]
+```
+
 ## Cheatsheet
 
 Check out [the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details.
@@ -34,6 +47,8 @@ Check out [the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more detai
 Define factories:
 
 ```elixir
+# You might put this in `test/support/factory.ex`.
+
 defmodule MyApp.Factory do
   # with Ecto
   use ExMachina.Ecto, repo: MyApp.Repo
