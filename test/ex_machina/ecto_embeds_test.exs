@@ -22,14 +22,14 @@ defmodule ExMachina.EctoEmbedsTest do
   defmodule Factory do
     use ExMachina.Ecto, repo: TestRepo
 
-    def factory(:settings, _attrs) do
+    def factory(:settings) do
       %Settings{
         email_signature: "Mr. John Doe",
         send_emails: true
       }
     end
 
-    def factory(:user, _attrs) do
+    def factory(:user) do
       %User{
         name: "John Doe",
         admin: false,
