@@ -38,14 +38,14 @@ defmodule ExMachina.EctoTest do
   defmodule Factory do
     use ExMachina.Ecto, repo: TestRepo
 
-    def factory(:user, _attrs) do
+    def factory(:user) do
       %User{
         name: "John Doe",
         admin: false
       }
     end
 
-    def factory(:user_map, _attrs) do
+    def factory(:user_map) do
       %{
         id: 3,
         name: "John Doe",
@@ -53,22 +53,22 @@ defmodule ExMachina.EctoTest do
       }
     end
 
-    def factory(:article, attrs) do
+    def factory(:article) do
       %Article{
         title: "My Awesome Article",
-        author: assoc(attrs, :author, factory: :user)
+        author: build(:user)
       }
     end
 
-    def factory(:comment, attrs) do
+    def factory(:comment) do
       %Comment{
         body: "Great article!",
-        article: assoc(attrs, :article),
-        user: assoc(attrs, :user)
+        article: build(:article),
+        user: build(:user)
       }
     end
 
-    def factory(:company_account, _attrs) do
+    def factory(:company_account) do
       %CompanyAccount{
         name: "BigBizAccount",
         user: build(:user)
@@ -170,42 +170,8 @@ defmodule ExMachina.EctoTest do
     end
   end
 
-  test "assoc/3 returns the passed in key if it exists" do
-    existing_account = %{id: 1, plan_type: "free"}
-    attrs = %{account: existing_account}
 
-    assert ExMachina.Ecto.assoc(Factory, attrs, :account) == existing_account
-  end
-
-  test "assoc/3 does not insert a record if it exists" do
-    existing_account = %{id: 1, plan_type: "free"}
-    attrs = %{account: existing_account}
-
-    ExMachina.Ecto.assoc(Factory, attrs, :account)
-
-    assert TestRepo.all(User) == []
-  end
-
-  test "assoc/3 builds and returns a factory if one was not in attrs" do
-    attrs = %{}
-
-    user = ExMachina.Ecto.assoc(Factory, attrs, :user)
-
-    refute TestRepo.one(User)
-    assert user.name == "John Doe"
-    refute user.admin
-  end
-
-  test "assoc/3 can specify a factory for the association" do
-    attrs = %{}
-
-    account = ExMachina.Ecto.assoc(Factory, attrs, :account, factory: :user)
-
-    assert account == Factory.build(:user)
-    refute TestRepo.one(User)
-  end
-
-  test "can use assoc/3 in a factory to override associations" do
+  test "passed in attrs can override associations" do
     my_article = Factory.create(:article, title: "So Deep")
 
     comment = Factory.create(:comment, article: my_article)

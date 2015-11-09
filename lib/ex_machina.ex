@@ -78,10 +78,10 @@ defmodule ExMachina do
     The factory and assoc macros have been removed. Please use regular
     functions instead.
 
-      def factory(#{factory_name}, attrs) do
+      def factory(#{factory_name}) do
         %{
           ...
-          some_assoc: assoc(attrs, :some_assoc)
+          some_assoc: build(:some_assoc)
           ...
         }
       end
@@ -93,7 +93,7 @@ defmodule ExMachina do
 
   ## Examples
 
-      def factory(:user, _attrs) do
+      def factory(:user) do
         %{
           # Will generate "me-0@example.com" then "me-1@example.com", etc.
           email: sequence(:email, &"me-\#{&1}@foo.com")
@@ -107,7 +107,7 @@ defmodule ExMachina do
 
   ## Example
 
-      def factory(:user, _attrs) do
+      def factory(:user) do
         %{name: "John Doe", admin: false}
       end
 
@@ -116,7 +116,7 @@ defmodule ExMachina do
   """
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
-    module.factory(factory_name, attrs) |> Map.merge(attrs)
+    module.factory(factory_name) |> Map.merge(attrs)
   end
 
   @doc """
@@ -205,8 +205,23 @@ defmodule ExMachina do
       @doc """
       Raises a helpful error if no factory is defined.
       """
-      def factory(factory_name, _attrs) do
+      def factory(factory_name) do
         raise UndefinedFactory, factory_name
+      end
+
+      def factory(factory_name, _) do
+        raise """
+        Use of factory/2 has been removed. Please use factory/1 instead.
+        belongs_to associations can be defined with build.
+
+          def factory(#{factory_name}) do
+            %{
+              ...
+              some_assoc: build(:some_assoc)
+              ...
+            }
+          end
+        """
       end
 
       @doc """
@@ -223,7 +238,7 @@ defmodule ExMachina do
           defmodule MyApp.Factory do
             use ExMachina.Ecto, repo: MyApp.Repo
 
-            def factory(:user, _attrs) do
+            def factory(:user) do
               %User{name: "John"}
             end
           end
@@ -235,7 +250,7 @@ defmodule ExMachina do
             # Note, we are not using ExMachina.Ecto
             use ExMachina
 
-            def factory(:user, _attrs) do
+            def factory(:user) do
               %User{name: "John"}
             end
 

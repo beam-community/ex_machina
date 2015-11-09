@@ -29,7 +29,7 @@ defmodule ExMachina.EctoHasManyTest do
   defmodule Factory do
     use ExMachina.Ecto, repo: TestRepo
 
-    def factory(:package, _attrs) do
+    def factory(:package) do
       %Package{
         description: "Package that just got ordered",
         statuses: [
@@ -38,7 +38,7 @@ defmodule ExMachina.EctoHasManyTest do
       }
     end
 
-    def factory(:shipped_package, _attrs) do
+    def factory(:shipped_package) do
       %Package{
         description: "Package that got shipped",
         statuses: [
@@ -49,16 +49,16 @@ defmodule ExMachina.EctoHasManyTest do
       }
     end
 
-    def factory(:package_status, _attrs) do
+    def factory(:package_status) do
       %PackageStatus{
         status: "ordered"
       }
     end
 
-    def factory(:invoice, attrs) do
+    def factory(:invoice) do
       %Invoice{
         title: "Invoice for shipped package",
-        package: assoc(attrs, :package, factory: :shipped_package)
+        package: build(:shipped_package)
       }
     end
   end

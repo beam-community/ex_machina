@@ -36,27 +36,26 @@ defmodule MyApp.Factory do
   # without Ecto
   use ExMachina
 
-  def factory(:user, _attrs) do
+  def factory(:user) do
     %User{
       name: "Jane Smith",
       email: sequence(:email, &"email-#{&1}@example.com"),
     }
   end
 
-  def factory(:article, attrs) do
+  def factory(:article) do
     %Article{
       title: "Use ExMachina!",
-      # has_many/has_one associations are inserted when you call `create`
+      # associations are inserted when you call `create`
       comments: [build(:comment)],
-      # only available in ExMachina.Ecto
-      author: assoc(attrs, :author, factory: :user),
+      author: build(:user),
     }
   end
 
-  def factory(:comment, attrs) do
+  def factory(:comment) do
     %Comment{
       text: "It's great!",
-      article: assoc(attrs, :article),
+      article: build(:article),
     }
   end
 end
@@ -155,7 +154,7 @@ defining `save_record/1` in your module.
 defmodule MyApp.JsonFactory do
   use ExMachina
 
-  def factory(:user, _attrs) do
+  def factory(:user) do
     %User{name: "John"}
   end
 
@@ -177,7 +176,7 @@ or `create_json` to return encoded JSON objects.
 defmodule MyApp.Factory do
   use ExMachina.Ecto, repo: MyApp.Repo
 
-  def factory(:user, _attrs) do
+  def factory(:user) do
     %User{name: "John"}
   end
 

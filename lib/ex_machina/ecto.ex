@@ -15,8 +15,18 @@ defmodule ExMachina.Ecto do
           ExMachina.Ecto.save_record(__MODULE__, @repo, record)
         end
 
-        defp assoc(attrs, factory_name, opts \\ []) do
-          ExMachina.Ecto.assoc(__MODULE__, attrs, factory_name, opts)
+        defp assoc(_, factory_name, _) do
+          raise """
+          assoc/3 has been removed. Please use build instead. Built records will be automatically saved when you call create.
+
+            def factory(#{factory_name}) do
+              %{
+                ...
+                some_assoc: build(:some_assoc)
+                ...
+              }
+            end
+          """
         end
       end
     else
@@ -46,7 +56,7 @@ defmodule ExMachina.Ecto do
 
   ## Example
 
-      def factory(:user, _attrs) do
+      def factory(:user) do
         %MyApp.User{name: "John Doe", admin: false}
       end
 
@@ -66,37 +76,6 @@ defmodule ExMachina.Ecto do
   end
   defp drop_ecto_fields(record) do
     raise ArgumentError, "#{inspect record} is not an Ecto model. Use `build` instead."
-  end
-
-  @doc """
-  Gets a factory from the passed in attrs, or builds if none is present
-
-  ## Examples
-
-      attrs = %{user: %{name: "Someone"}}
-      # Returns attrs.user
-      assoc(attrs, :user)
-
-      attrs = %{}
-      # Builds and returns new instance based on :user factory
-      assoc(attrs, :user)
-
-      attrs = %{}
-      # Builds and returns new instance based on :user factory
-      assoc(attrs, :author, factory: :user)
-  """
-  def assoc(module, attrs, factory_name, opts \\ []) do
-    case Map.get(attrs, factory_name) do
-      nil -> build_assoc(module, factory_name, opts)
-      record -> record
-    end
-  end
-
-  defp build_assoc(module, _factory_name, factory: factory_name) do
-    ExMachina.build(module, factory_name)
-  end
-  defp build_assoc(module, factory_name, _opts) do
-    ExMachina.build(module, factory_name)
   end
 
   defp get_assocs(%{__struct__: struct}) do
