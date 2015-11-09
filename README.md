@@ -15,16 +15,11 @@ def deps do
 end
 ```
 
-Add `:ex_machina` to your application list:
+Start `:ex_machina` for the test environment in `test/test_helper.exs`:
 
 ```elixir
-def application do
-  [applications: app_list(Mix.env)]
-end
-
-defp app_list(:test), do: [:ex_machina | app_list]
-defp app_list(_),  do: app_list
-defp app_list,  do: [:logger]
+ExUnit.start()
+Application.ensure_all_started(:ex_machina)
 ```
 
 ## Cheatsheet
