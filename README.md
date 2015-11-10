@@ -22,7 +22,7 @@ ExUnit.start()
 Application.ensure_all_started(:ex_machina)
 ```
 
-## Cheatsheet
+## Overview
 
 [Check out the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details.
 
@@ -83,6 +83,28 @@ create_list(3, :comment, attrs)
 # This is only available when using `ExMachina.Ecto`.
 fields_for(:comment, attrs)
 ```
+
+## Ecto Associations
+
+ExMachina will automatically save any associations when you call `create/2`.
+This includes `belongs_to` and anything that is automatically saved by using an
+Ecto changesets, such as `has_many`, `has_one`, and embeds. Since we
+automatically save these records for you, we advise that factory definitions
+only use `build/2` when declaring associations, like so:
+
+```elixir
+def factory(:article) do
+  %Article{
+    title: "Use ExMachina!",
+    # associations are inserted when you call `create`
+    comments: [build(:comment)],
+    author: build(:user),
+  }
+end
+```
+
+Using `create/2` in factory definitions may lead to performance issues and bugs,
+as records will be saved unnecessarily.
 
 ## Flexible Factories with Pipes
 
