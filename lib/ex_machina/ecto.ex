@@ -172,9 +172,12 @@ defmodule ExMachina.Ecto do
     end
   end
 
-  defp put_assoc(record, association_name, association) do
-    association_id = "#{association_name}_id" |> String.to_atom
+  defp get_owner_key(record, association_name) do
+    record.__struct__.__schema__(:association, association_name).owner_key
+  end
 
+  defp put_assoc(record, association_name, association) do
+    association_id = get_owner_key(record, association_name)
     record
     |> Map.put(association_id, association.id)
     |> Map.put(association_name, association)

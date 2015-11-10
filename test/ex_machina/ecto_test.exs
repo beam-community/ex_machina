@@ -10,6 +10,14 @@ defmodule ExMachina.EctoTest do
     end
   end
 
+  defmodule CompanyAccount do
+    use Ecto.Model
+    schema "company_accounts" do
+      field :name, :string
+      belongs_to :user, User, foreign_key: :manager_id
+    end
+  end
+
   defmodule Article do
     use Ecto.Model
     schema "articles" do
@@ -59,6 +67,13 @@ defmodule ExMachina.EctoTest do
         user: assoc(attrs, :user)
       }
     end
+
+    def factory(:company_account, atts) do
+      %CompanyAccount{
+        name: "BigBizAccount",
+        user: build(:user)
+      }
+    end
   end
 
   test "raises helpful error message if no repo is provided" do
@@ -81,6 +96,11 @@ defmodule ExMachina.EctoTest do
       name: "John Doe",
       admin: false
     }
+  end
+
+  test "save_record/1 works with irregular foreign_keys for belongs_to associations" do
+    company_account = Factory.create(:company_account)
+    assert company_account.user.name == "John Doe"
   end
 
   test "fields_for/2 raises when passed a map" do
