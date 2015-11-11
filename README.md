@@ -24,7 +24,7 @@ Application.ensure_all_started(:ex_machina)
 
 ## Cheatsheet
 
-Check out [the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details.
+[Check out the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details.
 
 Define factories:
 
@@ -62,9 +62,11 @@ defmodule MyApp.Factory do
 end
 ```
 
-Use factories:
+Using factories ([check out the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details):
 
 ```elixir
+# `attrs` are automatically merged in for all build/create functions.
+
 # `build*` returns an unsaved comment.
 # Associated records defined on the factory are built.
 attrs = %{body: "A comment!"} # attrs is optional. Also accepts a keyword list.
