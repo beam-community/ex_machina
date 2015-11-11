@@ -68,7 +68,7 @@ defmodule ExMachina.EctoTest do
       }
     end
 
-    def factory(:company_account, atts) do
+    def factory(:company_account, _attrs) do
       %CompanyAccount{
         name: "BigBizAccount",
         user: build(:user)
