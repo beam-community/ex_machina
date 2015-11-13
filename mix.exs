@@ -9,7 +9,7 @@ defmodule ExMachina.Mixfile do
       app: :ex_machina,
       version: @version,
       elixir: "~> 1.0",
-      description: "Easily create test data for Elixir applications",
+      description: "A factory library by the creators of FactoryGirl",
       source_url: @project_url,
       homepage_url: @project_url,
       elixirc_paths: elixirc_paths(Mix.env),
