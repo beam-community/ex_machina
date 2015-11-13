@@ -60,7 +60,7 @@ defmodule ExMachinaTest do
   end
 
   test "build/2 merges passed in options as a map" do
-    assert Factory.build(:user, admin: true) == %{
+    assert Factory.build(:user, %{admin: true}) == %{
       id: 3,
       name: "John Doe",
       admin: true
