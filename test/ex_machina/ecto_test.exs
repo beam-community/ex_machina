@@ -24,6 +24,10 @@ defmodule ExMachina.EctoTest do
       field :title, :string
       belongs_to :author, User
     end
+
+    def changeset(model, params \\ :emtpy) do
+      model |> cast(params, ~w(title author_id), [])
+    end
   end
 
   defmodule Comment do
@@ -90,12 +94,24 @@ defmodule ExMachina.EctoTest do
     end
   end
 
-  test "fields_for/2 removes Ecto specific fields" do
+  test "fields_for/2 removes Ecto specific fields and nil values" do
     assert Factory.fields_for(:user) == %{
-      id: nil,
       name: "John Doe",
       admin: false
     }
+  end
+
+  test "fields_for/2 works nice with changesets" do
+    author = Factory.create(:user)
+    article = Factory.build(:article, author: author)
+    changeset = Article.changeset(article, Factory.fields_for(:article))
+
+    refute changeset.valid?
+    assert changeset.errors[:author_id] == "can't be blank"
+
+    params = Factory.fields_for(:article, author_id: author.id)
+    changeset = Article.changeset(article, params)
+    assert changeset.valid?
   end
 
   test "save_record/1 works with irregular foreign_keys for belongs_to associations" do

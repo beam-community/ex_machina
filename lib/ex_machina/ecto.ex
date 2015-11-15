@@ -56,6 +56,7 @@ defmodule ExMachina.Ecto do
   def fields_for(module, factory_name, attrs \\ %{}) do
     module.build(factory_name, attrs)
     |> drop_ecto_fields
+    |> drop_nil_fields
   end
 
   defp drop_ecto_fields(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
@@ -66,6 +67,12 @@ defmodule ExMachina.Ecto do
   end
   defp drop_ecto_fields(record) do
     raise ArgumentError, "#{inspect record} is not an Ecto model. Use `build` instead."
+  end
+
+  defp drop_nil_fields(fields) do
+    fields
+    |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+    |> Enum.into(%{})
   end
 
   @doc """
