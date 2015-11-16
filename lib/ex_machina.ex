@@ -13,7 +13,27 @@ defmodule ExMachina do
     defexception [:message]
 
     def exception(factory_name) do
-      message = "No factory defined for #{inspect factory_name}"
+      message =
+        """
+        No factory defined for #{inspect factory_name}. This may be because you
+        defined a factory with two parameters like this:
+
+            def factory(:my_factory, attrs)
+
+        As of ExMachina 0.5.0, we no longer call factory/2. Please define your
+        factory function like this:
+
+            def factory(#{inspect factory_name}) do
+              ...
+            end
+
+        The assoc/3 function has also been removed. belongs_to relationships
+        can now be used with build:
+
+            def factory(#{inspect factory_name}) do
+              parent: build(:parent)
+            end
+        """
       %UndefinedFactory{message: message}
     end
   end
@@ -207,21 +227,6 @@ defmodule ExMachina do
       """
       def factory(factory_name) do
         raise UndefinedFactory, factory_name
-      end
-
-      def factory(factory_name, _) do
-        raise """
-        Use of factory/2 has been removed. Please use factory/1 instead.
-        belongs_to associations can be defined with build.
-
-          def factory(#{factory_name}) do
-            %{
-              ...
-              some_assoc: build(:some_assoc)
-              ...
-            }
-          end
-        """
       end
 
       @doc """
