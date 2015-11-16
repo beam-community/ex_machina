@@ -38,7 +38,7 @@ defmodule ExMachinaTest do
   end
 
   test "raises a helpful error if the factory is not defined" do
-    assert_raise ExMachina.UndefinedFactory, "No factory defined for :foo", fn ->
+    assert_raise ExMachina.UndefinedFactory, fn ->
       Factory.build(:foo)
     end
   end
