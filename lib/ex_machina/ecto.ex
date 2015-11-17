@@ -15,7 +15,7 @@ defmodule ExMachina.Ecto do
           ExMachina.Ecto.save_record(__MODULE__, @repo, record)
         end
 
-        defp assoc(_, factory_name, _) do
+        defp assoc(_, factory_name, _ \\ nil) do
           raise """
           assoc/3 has been removed. Please use build instead. Built records will be automatically saved when you call create.
 
