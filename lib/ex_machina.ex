@@ -18,10 +18,10 @@ defmodule ExMachina do
         No factory defined for #{inspect factory_name}. This may be because you
         defined a factory with two parameters like this:
 
-            def factory(:my_factory, attrs)
+            def factory(#{inspect factory_name}, attrs)
 
         As of ExMachina 0.5.0, we no longer call factory/2. Please define your
-        factory function like this:
+        factory function without the second attrs parameter:
 
             def factory(#{inspect factory_name}) do
               ...

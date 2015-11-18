@@ -11,7 +11,7 @@ In `mix.exs`, add the ExMachina dependency:
 
 ```elixir
 def deps do
-  [{:ex_machina, "~> 0.4"}]
+  [{:ex_machina, "~> 0.5"}]
 end
 ```
 

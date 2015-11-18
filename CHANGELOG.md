@@ -3,7 +3,22 @@
 The noteworthy changes for each ExMachina version are included here. For a
 complete changelog, see the git history for each version via the version links.
 
-## [0.4.0] - In progress
+## [0.5.0] - November 18, 2015
+
+### Changed
+
+- Factories were simplified so that `attrs` is no longer required. See [70a0481] and [issue #56]
+- ExMachina.Ecto.assoc/3 was removed. You can now use build(:factory) instead. See discussion in [issue #56]
+
+### Fixed
+- Use association id as defined on the schema [7c67047]
+
+[issue #56]:https://github.com/thoughtbot/ex_machina/issues/56
+[70a0481]: https://github.com/thoughtbot/ex_machina/commit/70a04814aacc33b3c727e133f4bd6b03a8217731
+[7c67047]:https://github.com/thoughtbot/ex_machina/commit/7c6704706cffa7285a608049a1b1f10784790fdd
+[0.5.0]: https://github.com/thoughtbot/ex_machina/compare/v0.4.0...v0.5.0
+
+## [0.4.0] - October 30, 2015
 
 ### Added
 
