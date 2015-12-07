@@ -15,11 +15,15 @@ def deps do
 end
 ```
 
-Start `:ex_machina` for the test environment in `test/test_helper.exs`:
+And be sure to start the ExMachina application. For most projects (such as
+Phoenix apps) this will mean adding `:ex_machina` to the list of applications in
+`mix.exs`.
 
 ```elixir
-ExUnit.start()
-Application.ensure_all_started(:ex_machina)
+def application do
+  [mod: {MyApp, []},
+   applications: [:ex_machina, :other_apps...]]
+end
 ```
 
 ## Overview
@@ -83,6 +87,16 @@ create_list(3, :comment, attrs)
 # This is only available when using `ExMachina.Ecto`.
 fields_for(:comment, attrs)
 ```
+
+## Where to put your factories
+
+We recommend starting by creating one factory module (such as MyApp.Factory) in
+`lib/my_app/factory.ex` and putting all factory definitions in that module.
+
+Later on you can easily create different factories by creating a new module in
+the same directory. This can be helpful if you need to create factories that are
+used for different repos, your factory module is getting to big, or if you have
+different ways of saving the record for different types of factories.
 
 ## Ecto Associations
 
