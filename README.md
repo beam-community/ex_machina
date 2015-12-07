@@ -15,7 +15,7 @@ def deps do
 end
 ```
 
-And be sure to start the ExMachina application. For most projects (such as
+And be sure to start the `ExMachina` application. For most projects (such as
 Phoenix apps) this will mean adding `:ex_machina` to the list of applications in
 `mix.exs`.
 
