@@ -90,7 +90,7 @@ defmodule ExMachina.Ecto do
 
   defp not_loaded_assocs(model) do
     for {a, %{__struct__: Ecto.Association.Has}} <- get_assocs(model),
-      !Ecto.Association.loaded?(Map.get(model, a)),
+      !Ecto.assoc_loaded?(Map.get(model, a)),
       do: a
   end
 
