@@ -79,8 +79,8 @@ defmodule ExMachina.Ecto do
   end
 
   defp get_assocs(%{__struct__: struct}) do
-    for a <- struct.__schema__(:associations) do
-      {a, struct.__schema__(:association, a)}
+    for assoc <- struct.__schema__(:associations) do
+      {assoc, struct.__schema__(:association, assoc)}
     end
   end
 
@@ -90,33 +90,33 @@ defmodule ExMachina.Ecto do
 
   defp put_assoc_changes(changeset, record) do
     keys = assoc_keys(record) --
-           belongs_to_assocs(record) --
-           not_loaded_assocs(record)
+           belongs_to_assoc_keys(record) --
+           not_loaded_assoc_keys(record)
 
     Enum.reduce(keys, changeset, fn(key, changes) ->
       Ecto.Changeset.put_assoc(changes, key, Map.get(record, key))
     end)
   end
 
-  defp belongs_to_assocs(model) do
-    for {a, %{__struct__: Ecto.Association.BelongsTo}} <- get_assocs(model), do: a
+  defp belongs_to_assoc_keys(model) do
+    for {key, %{__struct__: Ecto.Association.BelongsTo}} <- get_assocs(model), do: key
   end
 
-  defp not_loaded_assocs(model) do
-    for {a, %{__struct__: Ecto.Association.Has}} <- get_assocs(model),
-      !Ecto.assoc_loaded?(Map.get(model, a)),
-      do: a
+  defp not_loaded_assoc_keys(model) do
+    for {key, %{__struct__: Ecto.Association.Has}} <- get_assocs(model),
+      !Ecto.assoc_loaded?(Map.get(model, key)),
+      do: key
   end
 
   defp restore_belongs_to_associations(target, source) do
-    target
-      |> belongs_to_assocs
-      |> Enum.reduce(target, fn(a, target) -> Map.put(target, a, Map.get(source, a)) end)
+    Enum.reduce(belongs_to_assoc_keys(target), target, fn(key, target) ->
+      Map.put(target, key, Map.get(source, key))
+    end)
   end
 
   defp get_embeds(%{__struct__: struct}) do
-    for e <- struct.__schema__(:embeds) do
-      {e, struct.__schema__(:embed, e)}
+    for embed <- struct.__schema__(:embeds) do
+      {embed, struct.__schema__(:embed, embed)}
     end
   end
 
@@ -165,7 +165,7 @@ defmodule ExMachina.Ecto do
   end
 
   defp persist_belongs_to_associations(built_record, module) do
-    association_names = belongs_to_assocs(built_record)
+    association_names = belongs_to_assoc_keys(built_record)
 
     Enum.reduce association_names, built_record, fn(association_name, record) ->
       case association = Map.get(record, association_name) do
