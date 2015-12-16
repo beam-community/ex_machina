@@ -84,6 +84,20 @@ defmodule ExMachina.Ecto do
     end
   end
 
+  defp assoc_keys(record) do
+    for {key, _assoc} <- get_assocs(record), do: key
+  end
+
+  defp put_assoc_changes(changeset, record) do
+    keys = assoc_keys(record) --
+           belongs_to_assocs(record) --
+           not_loaded_assocs(record)
+
+    Enum.reduce(keys, changeset, fn(key, changes) ->
+      Ecto.Changeset.put_assoc(changes, key, Map.get(record, key))
+    end)
+  end
+
   defp belongs_to_assocs(model) do
     for {a, %{__struct__: Ecto.Association.BelongsTo}} <- get_assocs(model), do: a
   end
@@ -120,9 +134,8 @@ defmodule ExMachina.Ecto do
     record
     |> Map.from_struct
     |> Map.delete(:__meta__)
+    |> Map.drop(assoc_keys(record))
     |> Map.drop(embed_keys(record))
-    |> Map.drop(belongs_to_assocs(record))
-    |> Map.drop(not_loaded_assocs(record))
   end
 
   @doc """
@@ -142,6 +155,7 @@ defmodule ExMachina.Ecto do
 
     struct(model)
     |> Ecto.Changeset.change(changes)
+    |> put_assoc_changes(record)
     |> put_embed_changes(record)
     |> repo.insert!
     |> restore_belongs_to_associations(record)
