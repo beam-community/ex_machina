@@ -3,6 +3,19 @@
 The noteworthy changes for each ExMachina version are included here. For a
 complete changelog, see the git history for each version via the version links.
 
+## [0.6.0] - December 16, 2015
+
+You can continue using ExMachina 0.5.0 if you are not ready for Ecto 1.1 yet.
+There are no additional new features in this release.
+
+- Updated to use Ecto 1.1
+- Require Ecto 1.1
+
+There are still some warnings that we need to fix for Ecto 1.1, but this release
+at least fixes the error that was caused when upgrading to Ecto 1.1.
+
+[0.6.0]: https://github.com/thoughtbot/ex_machina/compare/v0.5.0...v0.6.0
+
 ## [0.5.0] - November 18, 2015
 
 ### Changed
