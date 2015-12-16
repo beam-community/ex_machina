@@ -100,11 +100,27 @@ defmodule ExMachina.Ecto do
       |> Enum.reduce(target, fn(a, target) -> Map.put(target, a, Map.get(source, a)) end)
   end
 
+  defp get_embeds(%{__struct__: struct}) do
+    for e <- struct.__schema__(:embeds) do
+      {e, struct.__schema__(:embed, e)}
+    end
+  end
+
+  defp embed_keys(record) do
+    for {key, _embed} <- get_embeds(record), do: key
+  end
+
+  defp put_embed_changes(changeset, record) do
+    Enum.reduce(embed_keys(record), changeset, fn(key, changes) ->
+      Ecto.Changeset.put_embed(changes, key, Map.get(record, key))
+    end)
+  end
+
   defp convert_to_changes(record) do
     record
     |> Map.from_struct
     |> Map.delete(:__meta__)
-    # drop fields for `belongs_to` assocs as they cannot be handled by changeset
+    |> Map.drop(embed_keys(record))
     |> Map.drop(belongs_to_assocs(record))
     |> Map.drop(not_loaded_assocs(record))
   end
@@ -126,6 +142,7 @@ defmodule ExMachina.Ecto do
 
     struct(model)
     |> Ecto.Changeset.change(changes)
+    |> put_embed_changes(record)
     |> repo.insert!
     |> restore_belongs_to_associations(record)
   end
