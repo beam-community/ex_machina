@@ -89,23 +89,20 @@ defmodule ExMachina.Ecto do
   end
 
   defp put_assoc_changes(changeset, record) do
-    keys = assoc_keys(record) --
-           belongs_to_assoc_keys(record) --
-           not_loaded_assoc_keys(record)
+    keys = assoc_keys(record) -- belongs_to_assoc_keys(record)
 
     Enum.reduce(keys, changeset, fn(key, changes) ->
-      Ecto.Changeset.put_assoc(changes, key, Map.get(record, key))
+      case Map.get(record, key) do
+        %Ecto.Association.NotLoaded{} ->
+          changes
+        association ->
+          Ecto.Changeset.put_assoc(changes, key, association)
+        end
     end)
   end
 
   defp belongs_to_assoc_keys(model) do
     for {key, %{__struct__: Ecto.Association.BelongsTo}} <- get_assocs(model), do: key
-  end
-
-  defp not_loaded_assoc_keys(model) do
-    for {key, %{__struct__: Ecto.Association.Has}} <- get_assocs(model),
-      !Ecto.assoc_loaded?(Map.get(model, key)),
-      do: key
   end
 
   defp restore_belongs_to_associations(target, source) do

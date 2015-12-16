@@ -7,6 +7,7 @@ defmodule ExMachina.EctoHasManyTest do
     schema "packages" do
       field :description, :string
       has_many :statuses, ExMachina.EctoHasManyTest.PackageStatus
+      has_many :invoices, ExMachina.EctoHasManyTest.Invoice
     end
   end
 
