@@ -93,7 +93,7 @@ defmodule ExMachina.Ecto do
 
     Enum.reduce(keys, changeset, fn(key, changes) ->
       case Map.get(record, key) do
-        %Ecto.Association.NotLoaded{} ->
+        %{__struct__: Ecto.Association.NotLoaded} ->
           changes
         association ->
           Ecto.Changeset.put_assoc(changes, key, association)
