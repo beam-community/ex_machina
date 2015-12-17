@@ -94,6 +94,14 @@ defmodule ExMachina.Ecto do
       do: a
   end
 
+  defp has_many_assocs(model) do
+    for {a, %{__struct__: Ecto.Association.Has}} <- get_assocs(model), do: a
+  end
+
+  defp embeds(%{__struct__: struct}) do
+    struct.__schema__(:embeds)
+  end
+
   defp restore_belongs_to_associations(target, source) do
     target
       |> belongs_to_assocs
@@ -101,12 +109,18 @@ defmodule ExMachina.Ecto do
   end
 
   defp convert_to_changes(record) do
-    record
-    |> Map.from_struct
-    |> Map.delete(:__meta__)
-    # drop fields for `belongs_to` assocs as they cannot be handled by changeset
-    |> Map.drop(belongs_to_assocs(record))
-    |> Map.drop(not_loaded_assocs(record))
+    changes =
+      record
+      |> Map.from_struct
+      |> Map.delete(:__meta__)
+      # drop fields for `belongs_to` assocs as they cannot be handled by changeset
+      |> Map.drop(belongs_to_assocs(record))
+      |> Map.drop(not_loaded_assocs(record))
+    {
+      changes |> Map.drop(has_many_assocs(record)) |> Map.drop(embeds(record)),
+      changes |> Map.take(has_many_assocs(record)),
+      changes |> Map.take(embeds(record))
+    }
   end
 
   @doc """
@@ -122,15 +136,29 @@ defmodule ExMachina.Ecto do
   """
   def save_record(module, repo, %{__struct__: model, __meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
     record = record |> persist_belongs_to_associations(module)
-    changes = record |> convert_to_changes
+    {changes, assocs, embeds} = record |> convert_to_changes
 
     struct(model)
     |> Ecto.Changeset.change(changes)
+    |> put_assocs(assocs)
+    |> put_embeds(embeds)
     |> repo.insert!
     |> restore_belongs_to_associations(record)
   end
   def save_record(_, _ , record) do
     raise ArgumentError, "#{inspect record} is not an Ecto model. Use `build` instead"
+  end
+
+  defp put_assocs(changeset, assocs) do
+    Enum.reduce(assocs, changeset, fn({k, v}, changeset) ->
+      changeset |> Ecto.Changeset.put_assoc(k, v)
+    end)
+  end
+
+  defp put_embeds(changeset, embeds) do
+    Enum.reduce(embeds, changeset, fn({k, v}, changeset) ->
+      changeset |> Ecto.Changeset.put_embed(k, v)
+    end)
   end
 
   defp persist_belongs_to_associations(built_record, module) do
