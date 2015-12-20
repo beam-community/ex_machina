@@ -95,7 +95,7 @@ We recommend starting by creating one factory module (such as `MyApp.Factory`) i
 
 Later on you can easily create different factories by creating a new module in
 the same directory. This can be helpful if you need to create factories that are
-used for different repos, your factory module is getting to big, or if you have
+used for different repos, your factory module is getting too big, or if you have
 different ways of saving the record for different types of factories.
 
 ## Ecto Associations
