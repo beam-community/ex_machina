@@ -5,6 +5,7 @@ defmodule ExMachina.TestRepo.Migrations.CreateUsers do
     create table(:users) do
       add :name, :string
       add :admin, :boolean
+      add :token, :string
     end
   end
 end

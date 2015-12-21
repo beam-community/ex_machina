@@ -3,6 +3,8 @@ defmodule ExMachina.Ecto do
     verify_ecto_dep
     if repo = Keyword.get(opts, :repo) do
       quote do
+        @before_compile unquote(__MODULE__)
+
         use ExMachina
 
         @repo unquote(repo)
@@ -88,14 +90,14 @@ defmodule ExMachina.Ecto do
     for {key, _assoc} <- get_assocs(record), do: key
   end
 
-  defp put_assoc_changes(changeset, record) do
+  defp put_assoc_changes(changeset, record, module) do
     keys = assoc_keys(record) -- belongs_to_assoc_keys(record)
     Enum.reduce(keys, changeset, fn(key, changes) ->
       case Map.get(record, key) do
         %{__struct__: Ecto.Association.NotLoaded} ->
           changes
         associations when is_list(associations) ->
-          changesets = associations |> Enum.map(&record_to_changeset/1)
+          changesets = associations |> Enum.map(&(record_to_changeset(&1, module)))
 
           Ecto.Changeset.put_assoc(changes, key, changesets)
         association ->
@@ -153,7 +155,7 @@ defmodule ExMachina.Ecto do
     record = record |> persist_belongs_to_associations(module)
 
     record
-    |> record_to_changeset
+    |> record_to_changeset(module)
     |> repo.insert!
     |> restore_belongs_to_associations(record)
   end
@@ -190,12 +192,26 @@ defmodule ExMachina.Ecto do
     |> Map.put(association_name, association)
   end
 
-  defp record_to_changeset(%{__struct__: model, __meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
+  defp record_to_changeset(%{__struct__: model, __meta__: %{__struct__: Ecto.Schema.Metadata}} = record, module) do
     changes = record |> convert_to_changes
 
+
     struct(model)
-    |> Ecto.Changeset.change(changes)
-    |> put_assoc_changes(record)
+    |> module.make_changeset(changes)
+    |> put_assoc_changes(record, module)
     |> put_embed_changes(record)
+  end
+
+  defmacro __before_compile__(_env) do
+    # We are using line -1 because we don't want warnings coming from
+    # save_record/1 when someone defines there own save_recod/1 function.
+    quote line: -1 do
+      @doc """
+      Raises a helpful error if no factory is defined.
+      """
+      def make_changeset(record, changes) do
+        Ecto.Changeset.change(record, changes)
+      end
+    end
   end
 end

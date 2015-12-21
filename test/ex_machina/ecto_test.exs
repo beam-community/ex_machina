@@ -7,6 +7,21 @@ defmodule ExMachina.EctoTest do
     schema "users" do
       field :name, :string
       field :admin, :boolean
+      field :token, :string
+    end
+
+    def changeset(model, params \\ :empty) do
+      model
+      |> cast(params, ~w(name), [])
+      |> generate_token
+    end
+
+    defp generate_token(changeset) do
+      put_change(changeset, :token, generated_token)
+    end
+
+    def generated_token do
+      "generated_token"
     end
   end
 
@@ -74,6 +89,10 @@ defmodule ExMachina.EctoTest do
         user: build(:user)
       }
     end
+
+    def make_changeset(%User{} = user, changes) do
+      User.changeset(user, changes)
+    end
   end
 
   test "raises helpful error message if no repo is provided" do
@@ -94,7 +113,8 @@ defmodule ExMachina.EctoTest do
     assert Factory.fields_for(:user) == %{
       id: nil,
       name: "John Doe",
-      admin: false
+      admin: false,
+      token: nil
     }
   end
 
@@ -114,6 +134,12 @@ defmodule ExMachina.EctoTest do
 
     new_user = TestRepo.one!(User)
     assert model == new_user
+  end
+
+  test "save_record/1 uses correct make_changeset" do
+    model = Factory.create(:user)
+
+    assert model.token == User.generated_token
   end
 
   test "save_record/1 saves associated records and sets the association and association id" do
