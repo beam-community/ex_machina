@@ -3,7 +3,20 @@
 The noteworthy changes for each ExMachina version are included here. For a
 complete changelog, see the git history for each version via the version links.
 
-## [0.6.0] - December 16, 2015
+**To see the dates a version was published see the [hex package page].**
+
+[hex package page]: https://hex.pm/packages/ex_machina
+
+## [0.6.1]
+
+Removes warnings as reported by
+https://github.com/thoughtbot/ex_machina/issues/70. We recommend updating if you
+are using Ecto 1.1. There are no backward incompatible changes and no new
+features.
+
+[0.6.1]: https://github.com/thoughtbot/ex_machina/compare/v0.6.0...v0.6.1
+
+## [0.6.0]
 
 You can continue using ExMachina 0.5.0 if you are not ready for Ecto 1.1 yet.
 There are no additional new features in this release.
@@ -16,7 +29,7 @@ at least fixes the error that was caused when upgrading to Ecto 1.1.
 
 [0.6.0]: https://github.com/thoughtbot/ex_machina/compare/v0.5.0...v0.6.0
 
-## [0.5.0] - November 18, 2015
+## [0.5.0]
 
 ### Changed
 
@@ -31,7 +44,7 @@ at least fixes the error that was caused when upgrading to Ecto 1.1.
 [7c67047]:https://github.com/thoughtbot/ex_machina/commit/7c6704706cffa7285a608049a1b1f10784790fdd
 [0.5.0]: https://github.com/thoughtbot/ex_machina/compare/v0.4.0...v0.5.0
 
-## [0.4.0] - October 30, 2015
+## [0.4.0]
 
 ### Added
 
@@ -45,7 +58,7 @@ at least fixes the error that was caused when upgrading to Ecto 1.1.
 [59b7d23]: https://github.com/thoughtbot/ex_machina/commit/59b7d23522d8ef4a3ae209f856b4d3c159de376e
 [0.4.0]: https://github.com/thoughtbot/ex_machina/compare/v0.3.0...v0.4.0
 
-## [0.3.0] - October 7, 2015
+## [0.3.0]
 
 ### Added
 
@@ -65,7 +78,7 @@ like: `build(:foo) |> make_admin |> create`. See [59cbef5].
 [03c41f6]: https://github.com/thoughtbot/ex_machina/commit/03c41f64470423a168f91d40edcd91eb242c3c61
 [0.3.0]: https://github.com/thoughtbot/ex_machina/compare/v0.2.0...v0.3.0
 
-## [0.2.0] - September 17, 2015
+## [0.2.0]
 
 ### Changed
 
