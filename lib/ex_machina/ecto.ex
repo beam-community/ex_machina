@@ -79,34 +79,60 @@ defmodule ExMachina.Ecto do
   end
 
   defp get_assocs(%{__struct__: struct}) do
-    for a <- struct.__schema__(:associations) do
-      {a, struct.__schema__(:association, a)}
+    for assoc <- struct.__schema__(:associations) do
+      {assoc, struct.__schema__(:association, assoc)}
     end
   end
 
-  defp belongs_to_assocs(model) do
-    for {a, %{__struct__: Ecto.Association.BelongsTo}} <- get_assocs(model), do: a
+  defp assoc_keys(record) do
+    for {key, _assoc} <- get_assocs(record), do: key
   end
 
-  defp not_loaded_assocs(model) do
-    for {a, %{__struct__: Ecto.Association.Has}} <- get_assocs(model),
-      !Ecto.assoc_loaded?(Map.get(model, a)),
-      do: a
+  defp put_assoc_changes(changeset, record) do
+    keys = assoc_keys(record) -- belongs_to_assoc_keys(record)
+
+    Enum.reduce(keys, changeset, fn(key, changes) ->
+      case Map.get(record, key) do
+        %{__struct__: Ecto.Association.NotLoaded} ->
+          changes
+        association ->
+          Ecto.Changeset.put_assoc(changes, key, association)
+        end
+    end)
+  end
+
+  defp belongs_to_assoc_keys(model) do
+    for {key, %{__struct__: Ecto.Association.BelongsTo}} <- get_assocs(model), do: key
   end
 
   defp restore_belongs_to_associations(target, source) do
-    target
-      |> belongs_to_assocs
-      |> Enum.reduce(target, fn(a, target) -> Map.put(target, a, Map.get(source, a)) end)
+    Enum.reduce(belongs_to_assoc_keys(target), target, fn(key, target) ->
+      Map.put(target, key, Map.get(source, key))
+    end)
+  end
+
+  defp get_embeds(%{__struct__: struct}) do
+    for embed <- struct.__schema__(:embeds) do
+      {embed, struct.__schema__(:embed, embed)}
+    end
+  end
+
+  defp embed_keys(record) do
+    for {key, _embed} <- get_embeds(record), do: key
+  end
+
+  defp put_embed_changes(changeset, record) do
+    Enum.reduce(embed_keys(record), changeset, fn(key, changes) ->
+      Ecto.Changeset.put_embed(changes, key, Map.get(record, key))
+    end)
   end
 
   defp convert_to_changes(record) do
     record
     |> Map.from_struct
     |> Map.delete(:__meta__)
-    # drop fields for `belongs_to` assocs as they cannot be handled by changeset
-    |> Map.drop(belongs_to_assocs(record))
-    |> Map.drop(not_loaded_assocs(record))
+    |> Map.drop(assoc_keys(record))
+    |> Map.drop(embed_keys(record))
   end
 
   @doc """
@@ -126,6 +152,8 @@ defmodule ExMachina.Ecto do
 
     struct(model)
     |> Ecto.Changeset.change(changes)
+    |> put_assoc_changes(record)
+    |> put_embed_changes(record)
     |> repo.insert!
     |> restore_belongs_to_associations(record)
   end
@@ -134,7 +162,7 @@ defmodule ExMachina.Ecto do
   end
 
   defp persist_belongs_to_associations(built_record, module) do
-    association_names = belongs_to_assocs(built_record)
+    association_names = belongs_to_assoc_keys(built_record)
 
     Enum.reduce association_names, built_record, fn(association_name, record) ->
       case association = Map.get(record, association_name) do

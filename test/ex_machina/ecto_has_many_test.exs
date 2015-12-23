@@ -7,6 +7,7 @@ defmodule ExMachina.EctoHasManyTest do
     schema "packages" do
       field :description, :string
       has_many :statuses, ExMachina.EctoHasManyTest.PackageStatus
+      has_many :invoices, ExMachina.EctoHasManyTest.Invoice
     end
   end
 
@@ -93,5 +94,10 @@ defmodule ExMachina.EctoHasManyTest do
     assert invoice.title == "Invoice for shipped package"
     assert invoice.package_id == saved_package.id
     assert length(invoice.package.statuses) == 3
+  end
+
+  test "create/1 saves when a has many association is not loaded" do
+    package = Factory.create(:package, invoices: %Ecto.Association.NotLoaded{})
+    assert package
   end
 end
