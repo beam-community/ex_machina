@@ -90,14 +90,17 @@ defmodule ExMachina.Ecto do
 
   defp put_assoc_changes(changeset, record) do
     keys = assoc_keys(record) -- belongs_to_assoc_keys(record)
-
     Enum.reduce(keys, changeset, fn(key, changes) ->
       case Map.get(record, key) do
         %{__struct__: Ecto.Association.NotLoaded} ->
           changes
+        associations when is_list(associations) ->
+          changesets = associations |> Enum.map(&record_to_changeset/1)
+
+          Ecto.Changeset.put_assoc(changes, key, changesets)
         association ->
           Ecto.Changeset.put_assoc(changes, key, association)
-        end
+      end
     end)
   end
 
@@ -146,14 +149,11 @@ defmodule ExMachina.Ecto do
       create(:article, comments: [build(:comment)])
 
   """
-  def save_record(module, repo, %{__struct__: model, __meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
+  def save_record(module, repo, %{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
     record = record |> persist_belongs_to_associations(module)
-    changes = record |> convert_to_changes
 
-    struct(model)
-    |> Ecto.Changeset.change(changes)
-    |> put_assoc_changes(record)
-    |> put_embed_changes(record)
+    record
+    |> record_to_changeset
     |> repo.insert!
     |> restore_belongs_to_associations(record)
   end
@@ -188,5 +188,14 @@ defmodule ExMachina.Ecto do
     record
     |> Map.put(association_id, association.id)
     |> Map.put(association_name, association)
+  end
+
+  defp record_to_changeset(%{__struct__: model, __meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
+    changes = record |> convert_to_changes
+
+    struct(model)
+    |> Ecto.Changeset.change(changes)
+    |> put_assoc_changes(record)
+    |> put_embed_changes(record)
   end
 end
