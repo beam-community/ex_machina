@@ -2,12 +2,22 @@ defmodule ExMachina.EctoHasManyTest do
   use ExMachina.EctoCase
   alias ExMachina.TestRepo
 
+  defmodule Shipment do
+    use Ecto.Model
+    schema "shipments" do
+      field :name, :string
+      has_many :packages, ExMachina.EctoHasManyTest.Package
+    end
+  end
+
   defmodule Package do
     use Ecto.Model
     schema "packages" do
       field :description, :string
       has_many :statuses, ExMachina.EctoHasManyTest.PackageStatus
       has_many :invoices, ExMachina.EctoHasManyTest.Invoice
+
+      belongs_to :shipment, Shipment
     end
   end
 
@@ -62,6 +72,24 @@ defmodule ExMachina.EctoHasManyTest do
         package: build(:shipped_package)
       }
     end
+
+    def factory(:shipment) do
+      %Shipment{
+        name: "I'm nested",
+        packages: [
+          build(:shipped_package),
+          build(:shipped_package)
+        ]
+      }
+    end
+  end
+
+  test "create/1 saves nested `has_many` records" do
+    shipment = Factory.create(:shipment)
+
+    assert length(shipment.packages) == 2
+    statuses = shipment.packages |> Enum.flat_map(&Map.get(&1, :statuses))
+    assert length(statuses) == 6
   end
 
   test "create/1 saves `has_many` records defined in the factory" do
