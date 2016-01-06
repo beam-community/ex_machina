@@ -84,14 +84,6 @@ defmodule ExMachina.EctoHasManyTest do
     end
   end
 
-  test "create/1 saves nested `has_many` records" do
-    shipment = Factory.create(:shipment)
-
-    assert length(shipment.packages) == 2
-    statuses = shipment.packages |> Enum.flat_map(&Map.get(&1, :statuses))
-    assert length(statuses) == 6
-  end
-
   test "create/1 saves `has_many` records defined in the factory" do
     package = Factory.create(:package)
 
@@ -127,5 +119,22 @@ defmodule ExMachina.EctoHasManyTest do
   test "create/1 saves when a has many association is not loaded" do
     package = Factory.create(:package, invoices: %Ecto.Association.NotLoaded{})
     assert package
+  end
+
+  test "create/1 saves nested `has_many` records" do
+    shipment = Factory.create(:shipment)
+
+    assert length(shipment.packages) == 2
+    statuses = shipment.packages |> Enum.flat_map(&Map.get(&1, :statuses))
+    assert length(statuses) == 6
+  end
+
+  test "create/2 saves nested `belongs_to` records" do
+    shipment = Factory.build(:shipment)
+    package  = Factory.build(:package, shipment: shipment)
+    status   = Factory.build(:package_status, package: package) |> Factory.create
+
+    assert %{ package: %{ shipment: s } } = status
+    refute is_nil s
   end
 end
