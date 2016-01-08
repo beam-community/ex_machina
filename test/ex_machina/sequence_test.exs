@@ -18,4 +18,15 @@ defmodule ExMachina.SequenceTest do
     assert 0 == Sequence.next(:month, &(&1))
     assert 1 == Sequence.next(:month, &(&1))
   end
+
+  test "let's you quickly create sequences" do
+    assert "Comment Body 0" == Sequence.next("Comment Body")
+    assert "Comment Body 1" == Sequence.next("Comment Body")
+  end
+
+  test "only accepts strings for sequence shortcut" do
+    assert_raise ArgumentError, ~r/must be a string/, fn ->
+      Sequence.next(:not_a_string)
+    end
+  end
 end

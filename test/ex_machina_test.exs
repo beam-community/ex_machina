@@ -18,6 +18,12 @@ defmodule ExMachinaTest do
       }
     end
 
+    def factory(:article) do
+      %{
+        title: sequence("Post Title")
+      }
+    end
+
     def save_record(record) do
       send self, {:custom_save, record}
       record
@@ -35,6 +41,11 @@ defmodule ExMachinaTest do
   test "sequence/2 sequences a value" do
     assert "me-0@foo.com" == Factory.build(:email).email
     assert "me-1@foo.com" == Factory.build(:email).email
+  end
+
+  test "sequence/1 shortcut for creating sequences" do
+    assert "Post Title 0" == Factory.build(:article).title
+    assert "Post Title 1" == Factory.build(:article).title
   end
 
   test "raises a helpful error if the factory is not defined" do

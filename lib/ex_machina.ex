@@ -61,7 +61,7 @@ defmodule ExMachina do
     quote do
       @before_compile unquote(__MODULE__)
 
-      import ExMachina, only: [sequence: 2, factory: 2]
+      import ExMachina, only: [sequence: 1, sequence: 2, factory: 2]
 
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
@@ -107,6 +107,22 @@ defmodule ExMachina do
       end
     """
   end
+
+  @doc """
+  Shortcut for creating unique values. Similar to sequence/2
+
+  For more customization of the generated string, see ExMachina.sequence/2
+
+  ## Examples
+
+      def factory(:comment) do
+        %{
+          # Will generate "Comment Title 0" then "Comment Title 1", etc.
+          title: sequence("Comment Title")
+        }
+      end
+  """
+  def sequence(name), do: ExMachina.Sequence.next(name)
 
   @doc """
   Create sequences for generating unique values
