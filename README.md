@@ -11,19 +11,17 @@ In `mix.exs`, add the ExMachina dependency:
 
 ```elixir
 def deps do
-  [{:ex_machina, "~> 0.6.1"}]
+  [{:ex_machina, "~> 0.6.1", only: :test}]
 end
 ```
 
-And be sure to start the ExMachina application. For most projects (such as
-Phoenix apps) this will mean adding `:ex_machina` to the list of applications in
-`mix.exs`.
+In the snippet above, we are adding it as a test only dependency. You
+can change it accordingly if you plan to use it in other enviroments.
+Next, be sure to start the application in your `test/test_helper.exs`
+before `ExUnit.start`:
 
 ```elixir
-def application do
-  [mod: {MyApp, []},
-   applications: [:ex_machina, :other_apps...]]
-end
+{:ok, _} = Application.ensure_all_started(:ex_machina)
 ```
 
 ## Overview
