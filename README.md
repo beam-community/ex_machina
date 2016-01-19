@@ -133,8 +133,15 @@ fields_for(:comment, attrs)
 
 ## Where to put your factories
 
-We recommend starting by creating one factory module (such as `MyApp.Factory`) in
+If you are using ExMachina in all environments:
+
+> Start by creating one factory module (such as `MyApp.Factory`) in
 `lib/my_app/factory.ex` and putting all factory definitions in that module.
+
+If you are using ExMachina in only the test environment:
+
+> Start by creating one factory module (such as `MyApp.Factory`) in
+`test/support/factory.ex` and putting all factory definitions in that module.
 
 Later on you can easily create different factories by creating a new module in
 the same directory. This can be helpful if you need to create factories that are
