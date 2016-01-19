@@ -131,6 +131,27 @@ create_list(3, :comment, attrs)
 fields_for(:comment, attrs)
 ```
 
+## Usage in a test
+
+```elixir
+defmodule MyApp.MyModuleTest do
+  use MyApp.ConnCase
+  # You can also import this in your MyApp.ConnCase if using Phoenix
+  import MyApp.Factory
+
+  test "shows comments for an article" do
+    conn = conn()
+    article = create(:article)
+    comment = create(:comment, article: article)
+
+    conn = get conn, article_path(conn, :show, article.id)
+
+    assert html_response(conn, 200) =~ article.title
+    assert html_response(conn, 200) =~ comment.body
+  end
+end
+```
+
 ## Where to put your factories
 
 If you are using ExMachina in all environments:
@@ -208,27 +229,6 @@ change this line in `mix.exs`:
 ```elixir
 # Add the folder to the end of the list. In this case we're adding `test/factories`.
 defp elixirc_paths(:test), do: ["lib", "web", "test/support", "test/factories"]
-```
-
-## Usage in a test
-
-```elixir
-defmodule MyApp.MyModuleTest do
-  use MyApp.ConnCase
-  # You can also import this in your MyApp.ConnCase if using Phoenix
-  import MyApp.Factory
-
-  test "shows comments for an article" do
-    conn = conn()
-    article = create(:article)
-    comment = create(:comment, article: article)
-
-    conn = get conn, article_path(conn, :show, article.id)
-
-    assert html_response(conn, 200) =~ article.title
-    assert html_response(conn, 200) =~ comment.body
-  end
-end
 ```
 
 ## Using without Ecto
