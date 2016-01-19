@@ -7,6 +7,8 @@ with Ecto, but is configurable to work with any persistence library.
 
 ## Installation
 
+#### To install in all environments (useful for generating seed data in dev/prod):
+
 In `mix.exs`, add the ExMachina dependency:
 
 ```elixir
@@ -15,7 +17,7 @@ def deps do
 end
 ```
 
-And be sure to start the ExMachina application. For most projects (such as
+And start the ExMachina application. For most projects (such as
 Phoenix apps) this will mean adding `:ex_machina` to the list of applications in
 `mix.exs`.
 
@@ -24,6 +26,47 @@ def application do
   [mod: {MyApp, []},
    applications: [:ex_machina, :other_apps...]]
 end
+```
+
+#### Install in just the test environment with Phoenix:
+
+In `mix.exs`, add the ExMachina dependency:
+
+```elixir
+def deps do
+  [{:ex_machina, "~> 0.6.1", only: :test}]
+end
+```
+
+Add your factory module inside `test/support` so that it is only compiled in the
+test environment.
+
+Next, be sure to start the application in your `test/test_helper.exs` before
+ExUnit.start:
+
+```elixir
+{:ok, _} = Application.ensure_all_started(:ex_machina)
+```
+
+#### Install in just the test environment for non Phoenix projects:
+
+You will follow the same instructions as above, but you will also need to add
+`test/support` to your compilation paths (elixirc_paths) if you have not done
+so already.
+
+In `mix.exs`, add test/support to your elixirc_paths for just the test env.
+
+```elixir
+def project do
+  [app: ...,
+   # Add this if it's not already in your project definition.
+   elixirc_paths: elixirc_paths(Mix.env)]
+end
+
+# This makes sure your factory and any other modules in test/support are compiled
+# when in the test environment.
+defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
+defp elixirc_paths(_), do: ["lib", "web"]
 ```
 
 ## Overview
