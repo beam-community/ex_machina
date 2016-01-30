@@ -7,6 +7,7 @@ defmodule ExMachina.EctoTest do
     schema "users" do
       field :name, :string
       field :admin, :boolean
+      has_many :comments, ExMachina.EctoTest.Comment
     end
   end
 
@@ -42,6 +43,14 @@ defmodule ExMachina.EctoTest do
       %User{
         name: "John Doe",
         admin: false
+      }
+    end
+
+    def factory(:commenting_user) do
+      %User{
+        name: "John Doe",
+        admin: false,
+        comments: [build(:comment)]
       }
     end
 
@@ -184,5 +193,15 @@ defmodule ExMachina.EctoTest do
 
     article = TestRepo.get_by!(Article, title: "Ecto is Awesome")
     assert article.author_id
+  end
+
+  test "create user with comments" do
+    import Ecto.Query
+
+    Factory.create(:commenting_user)
+
+    assert 1 == User |> select([u], count(u.id)) |> TestRepo.one
+    assert 1 == Comment |> select([c], count(c.id)) |> TestRepo.one
+    assert 1 == Article |> select([a], count(a.id)) |> TestRepo.one
   end
 end
