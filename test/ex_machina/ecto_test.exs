@@ -75,17 +75,17 @@ defmodule ExMachina.EctoTest do
     end
   end
 
-  test "fields_for/2 removes Ecto specific fields" do
-    assert Factory.fields_for(:user) == %{
+  test "params_for/2 removes Ecto specific fields" do
+    assert Factory.params_for(:user) == %{
       id: nil,
       name: "John Doe",
       admin: false
     }
   end
 
-  test "fields_for/2 raises when passed a map" do
+  test "params_for/2 raises when passed a map" do
     assert_raise ArgumentError, fn ->
-      Factory.fields_for(:user_map)
+      Factory.params_for(:user_map)
     end
   end
 

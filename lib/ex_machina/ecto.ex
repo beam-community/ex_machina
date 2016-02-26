@@ -7,8 +7,12 @@ defmodule ExMachina.Ecto do
 
         @repo unquote(repo)
 
+        def params_for(factory_name, attrs \\ %{}) do
+          ExMachina.Ecto.params_for(__MODULE__, factory_name, attrs)
+        end
+
         def fields_for(factory_name, attrs \\ %{}) do
-          ExMachina.Ecto.fields_for(__MODULE__, factory_name, attrs)
+          raise "fields_for/2 has been renamed to params_for/2."
         end
 
         def save_record(record) do
@@ -61,9 +65,9 @@ defmodule ExMachina.Ecto do
       end
 
       # Returns %{name: "John Doe", admin: true}
-      fields_for(:user, admin: true)
+      params_for(:user, admin: true)
   """
-  def fields_for(module, factory_name, attrs \\ %{}) do
+  def params_for(module, factory_name, attrs \\ %{}) do
     module.build(factory_name, attrs)
     |> drop_ecto_fields
   end

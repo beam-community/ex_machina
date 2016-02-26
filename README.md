@@ -126,9 +126,9 @@ create(:comment, attrs)
 create_pair(:comment, attrs)
 create_list(3, :comment, attrs)
 
-# `fields_for` returns a plain map without any Ecto specific attributes.
+# `params_for` returns a plain map without any Ecto specific attributes.
 # This is only available when using `ExMachina.Ecto`.
-fields_for(:comment, attrs)
+params_for(:comment, attrs)
 ```
 
 ## Usage in a test
