@@ -152,7 +152,14 @@ defmodule ExMachina do
   """
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
-    module.factory(factory_name) |> Map.merge(attrs)
+    module.factory(factory_name) |> do_merge(attrs)
+  end
+
+  defp do_merge(%{__struct__: _} = record, attrs) do
+    struct!(record, attrs)
+  end
+  defp do_merge(record, attrs) do
+    Map.merge(record, attrs)
   end
 
   @doc """

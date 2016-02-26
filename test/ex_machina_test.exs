@@ -24,6 +24,12 @@ defmodule ExMachinaTest do
       }
     end
 
+    def factory(:struct) do
+      %{
+        __struct__: Foo.Bar
+      }
+    end
+
     def save_record(record) do
       send self, {:custom_save, record}
       record
@@ -76,6 +82,12 @@ defmodule ExMachinaTest do
       name: "John Doe",
       admin: true
     }
+  end
+
+  test "build/2 raises if passing invalid keys to a struct factory" do
+    assert_raise KeyError, fn ->
+      Factory.build(:struct, doesnt_exist: true)
+    end
   end
 
   test "build_pair/2 builds 2 factories" do

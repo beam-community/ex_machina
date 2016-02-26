@@ -8,7 +8,7 @@ defmodule ExMachina.Mixfile do
     [
       app: :ex_machina,
       version: @version,
-      elixir: "~> 1.0",
+      elixir: "~> 1.2",
       description: "A factory library by the creators of FactoryGirl",
       source_url: @project_url,
       homepage_url: @project_url,
