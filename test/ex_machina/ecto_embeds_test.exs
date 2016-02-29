@@ -3,7 +3,7 @@ defmodule ExMachina.EctoEmbedsTest do
   alias ExMachina.TestRepo
 
   defmodule User do
-    use Ecto.Model
+    use Ecto.Schema
     schema "users" do
       field :name, :string
       field :admin, :boolean
@@ -12,7 +12,7 @@ defmodule ExMachina.EctoEmbedsTest do
   end
 
   defmodule Settings do
-    use Ecto.Model
+    use Ecto.Schema
     embedded_schema do
       field :email_signature
       field :send_emails, :boolean
@@ -41,7 +41,7 @@ defmodule ExMachina.EctoEmbedsTest do
   test "create/1 saves `embeds_one` record defined in the factory" do
     Factory.create(:user)
 
-    user = TestRepo.one(User)
+    user = TestRepo.first!(User)
     assert %{settings: %{email_signature: "Mr. John Doe", send_emails: true}} = user
   end
 
@@ -49,7 +49,7 @@ defmodule ExMachina.EctoEmbedsTest do
     settings = %Settings{email_signature: "Mrs. Jane Doe"}
     Factory.create(:user, settings: settings)
 
-    user = TestRepo.one(User)
+    user = TestRepo.first!(User)
     assert user.settings.email_signature == settings.email_signature
   end
 end

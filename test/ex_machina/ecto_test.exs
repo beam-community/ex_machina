@@ -3,23 +3,15 @@ defmodule ExMachina.EctoTest do
   alias ExMachina.TestRepo
 
   defmodule User do
-    use Ecto.Model
+    use Ecto.Schema
     schema "users" do
       field :name, :string
       field :admin, :boolean
     end
   end
 
-  defmodule CompanyAccount do
-    use Ecto.Model
-    schema "company_accounts" do
-      field :name, :string
-      belongs_to :user, User, foreign_key: :manager_id
-    end
-  end
-
   defmodule Article do
-    use Ecto.Model
+    use Ecto.Schema
     schema "articles" do
       field :title, :string
       belongs_to :author, User
@@ -27,7 +19,7 @@ defmodule ExMachina.EctoTest do
   end
 
   defmodule Comment do
-    use Ecto.Model
+    use Ecto.Schema
     schema "comments" do
       field :body, :string
       belongs_to :article, Article
@@ -67,13 +59,6 @@ defmodule ExMachina.EctoTest do
         user: build(:user)
       }
     end
-
-    def factory(:company_account) do
-      %CompanyAccount{
-        name: "BigBizAccount",
-        user: build(:user)
-      }
-    end
   end
 
   test "raises helpful error message if no repo is provided" do
@@ -98,11 +83,6 @@ defmodule ExMachina.EctoTest do
     }
   end
 
-  test "save_record/1 works with irregular foreign_keys for belongs_to associations" do
-    company_account = Factory.create(:company_account)
-    assert company_account.user.name == "John Doe"
-  end
-
   test "fields_for/2 raises when passed a map" do
     assert_raise ArgumentError, fn ->
       Factory.fields_for(:user_map)
@@ -112,48 +92,8 @@ defmodule ExMachina.EctoTest do
   test "save_record/1 inserts the record into @repo" do
     model = Factory.save_record(%User{name: "John"})
 
-    new_user = TestRepo.one!(User)
+    new_user = TestRepo.first!(User)
     assert model == new_user
-  end
-
-  test "save_record/1 saves associated records and sets the association and association id" do
-    author = Factory.build(:user)
-    article = Factory.save_record(%Article{title: "Ecto is Awesome", author: author})
-
-    assert article.author == TestRepo.one(User)
-    assert article.author_id == 1
-    assert article.title == "Ecto is Awesome"
-    assert TestRepo.get_by(Article, title: "Ecto is Awesome", author_id: 1)
-    assert TestRepo.one(User)
-  end
-
-  test "save_record/1 assigns the id of already saved records" do
-    author = Factory.create(:user)
-    article = Factory.save_record(%Article{title: "Ecto is Awesome", author: author})
-
-    assert article.author_id == author.id
-    assert article.title == "Ecto is Awesome"
-    assert TestRepo.get_by(Article, title: "Ecto is Awesome", author_id: author.id)
-    assert TestRepo.one(User)
-  end
-
-  test "save_record/1 ignores associations that are not set" do
-    Factory.save_record(
-      %Article{title: "Ecto is Awesome", author: %Ecto.Association.NotLoaded{}}
-    )
-
-    assert TestRepo.get_by(Article, title: "Ecto is Awesome")
-    assert TestRepo.all(User) == []
-  end
-
-  test "save_record/1 raises for associated records that are not Ecto structs" do
-    author = %{}
-
-    message = "expected :author to be an Ecto struct but got %{}"
-
-    assert_raise ArgumentError, message, fn ->
-      Factory.save_record(%Article{title: "Ecto is Awesome", author: author})
-    end
   end
 
   test "save_record/1 raises if a map is passed" do
