@@ -5,7 +5,7 @@ defmodule ExMachina do
   In depth examples are in the [README](README.html)
   """
 
-  defmodule UndefinedFactory do
+  defmodule UndefinedFactoryError do
     @moduledoc """
     Error raised when trying to build or create a factory that is undefined.
     """
@@ -15,26 +15,15 @@ defmodule ExMachina do
     def exception(factory_name) do
       message =
         """
-        No factory defined for #{inspect factory_name}. This may be because you
-        defined a factory with two parameters like this:
+        No factory defined for #{inspect factory_name}.
 
-            def factory(#{inspect factory_name}, attrs)
-
-        As of ExMachina 0.5.0, we no longer call factory/2. Please define your
-        factory function without the second attrs parameter:
+        Please check for typos or define your factory:
 
             def factory(#{inspect factory_name}) do
               ...
             end
-
-        The assoc/3 function has also been removed. belongs_to relationships
-        can now be used with build:
-
-            def factory(#{inspect factory_name}) do
-              parent: build(:parent)
-            end
         """
-      %UndefinedFactory{message: message}
+      %UndefinedFactoryError{message: message}
     end
   end
 
@@ -249,7 +238,7 @@ defmodule ExMachina do
       Raises a helpful error if no factory is defined.
       """
       def factory(factory_name) do
-        raise UndefinedFactory, factory_name
+        raise UndefinedFactoryError, factory_name
       end
 
       @doc """
