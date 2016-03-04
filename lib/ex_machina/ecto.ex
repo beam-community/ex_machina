@@ -18,20 +18,6 @@ defmodule ExMachina.Ecto do
         def save_record(record) do
           ExMachina.Ecto.save_record(@repo, record)
         end
-
-        defp assoc(_, factory_name, _ \\ nil) do
-          raise """
-          assoc/3 has been removed. Please use build instead. Built records will be automatically saved when you call create.
-
-            def factory(#{factory_name}) do
-              %{
-                ...
-                some_assoc: build(:some_assoc)
-                ...
-              }
-            end
-          """
-        end
       end
     else
       raise ArgumentError,
@@ -88,7 +74,7 @@ defmodule ExMachina.Ecto do
   ## Example
 
       # Will save the article and list of comments
-      create(:article, comments: [build(:comment)])
+      insert(:article, comments: [build(:comment)])
   """
   def save_record(repo, %{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
     repo.insert!(record)
