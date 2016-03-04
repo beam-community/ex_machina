@@ -1,11 +1,23 @@
 defmodule ExMachina.Ecto do
+  @moduledoc """
+  Module for building and inserting factories with Ecto
+
+  This module works much like the regular `ExMachina` module, but adds a few
+  nice things that make working with Ecto easier.
+
+  * It uses `ExMachina.EctoStrategy`, which adds `insert/1`, `insert/2`,
+    `insert_pair/2`, `insert_list/3`.
+  * Adds a `params_for` function that is useful for working with changesets or
+    sending params to API endpoints.
+
+  More in-depth examples are in the [README](README.html).
+  """
   defmacro __using__(opts) do
     verify_ecto_dep
     if repo = Keyword.get(opts, :repo) do
       quote do
         use ExMachina
-
-        @repo unquote(repo)
+        use ExMachina.EctoStrategy, repo: unquote(repo)
 
         def params_for(factory_name, attrs \\ %{}) do
           ExMachina.Ecto.params_for(__MODULE__, factory_name, attrs)
@@ -13,10 +25,6 @@ defmodule ExMachina.Ecto do
 
         def fields_for(factory_name, attrs \\ %{}) do
           raise "fields_for/2 has been renamed to params_for/2."
-        end
-
-        def save_record(record) do
-          ExMachina.Ecto.save_record(@repo, record)
         end
       end
     else
@@ -66,20 +74,5 @@ defmodule ExMachina.Ecto do
   end
   defp drop_ecto_fields(record) do
     raise ArgumentError, "#{inspect record} is not an Ecto model. Use `build` instead."
-  end
-
-  @doc """
-  Saves a record and all associated records using `Repo.insert!`
-
-  ## Example
-
-      # Will save the article and list of comments
-      insert(:article, comments: [build(:comment)])
-  """
-  def save_record(repo, %{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record) do
-    repo.insert!(record)
-  end
-  def save_record(_, record) do
-    raise ArgumentError, "#{inspect record} is not an Ecto model. Use `build` instead"
   end
 end

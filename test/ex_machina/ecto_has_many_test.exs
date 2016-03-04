@@ -39,18 +39,18 @@ defmodule ExMachina.EctoHasManyTest do
     end
   end
 
-  test "create/1 saves `has_many` records defined in the factory" do
-    package = Factory.create(:package)
+  test "insert/1 saves `has_many` records defined in the factory" do
+    package = Factory.insert(:package)
 
     assert %{statuses: [%{status: "ordered"}]} = package
   end
 
-  test "create/2 saves overriden `has_many` associations" do
+  test "insert/2 saves overriden `has_many` associations" do
     statuses = [
       Factory.build(:package_status, status: "ordered"),
       Factory.build(:package_status, status: "delayed")
     ]
-    package = Factory.create(:package, statuses: statuses)
+    package = Factory.insert(:package, statuses: statuses)
 
     statuses = TestRepo.all(PackageStatus)
     assert package.statuses == statuses

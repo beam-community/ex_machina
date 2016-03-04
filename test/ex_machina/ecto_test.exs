@@ -10,23 +10,6 @@ defmodule ExMachina.EctoTest do
     end
   end
 
-  defmodule Article do
-    use Ecto.Schema
-    schema "articles" do
-      field :title, :string
-      belongs_to :author, User
-    end
-  end
-
-  defmodule Comment do
-    use Ecto.Schema
-    schema "comments" do
-      field :body, :string
-      belongs_to :article, Article
-      belongs_to :user, User
-    end
-  end
-
   defmodule Factory do
     use ExMachina.Ecto, repo: TestRepo
 
@@ -42,21 +25,6 @@ defmodule ExMachina.EctoTest do
         id: 3,
         name: "John Doe",
         admin: false
-      }
-    end
-
-    def factory(:article) do
-      %Article{
-        title: "My Awesome Article",
-        author: build(:user)
-      }
-    end
-
-    def factory(:comment) do
-      %Comment{
-        body: "Great article!",
-        article: build(:article),
-        user: build(:user)
       }
     end
   end
@@ -75,6 +43,18 @@ defmodule ExMachina.EctoTest do
     end
   end
 
+  test "insert, insert_pair and insert_list work as expected" do
+    assert %User{} = Factory.build(:user) |> Factory.insert
+    assert %User{} = Factory.insert(:user)
+    assert %User{} = Factory.insert(:user, admin: true)
+
+    assert [%User{}, %User{}] = Factory.insert_pair(:user)
+    assert [%User{}, %User{}] = Factory.insert_pair(:user, admin: true)
+
+    assert [%User{}, %User{}, %User{}] = Factory.insert_list(3, :user)
+    assert [%User{}, %User{}, %User{}] = Factory.insert_list(3, :user, admin: true)
+  end
+
   test "params_for/2 removes Ecto specific fields" do
     assert Factory.params_for(:user) == %{
       id: nil,
@@ -87,42 +67,5 @@ defmodule ExMachina.EctoTest do
     assert_raise ArgumentError, fn ->
       Factory.params_for(:user_map)
     end
-  end
-
-  test "save_record/1 inserts the record into @repo" do
-    model = Factory.save_record(%User{name: "John"})
-
-    new_user = TestRepo.first!(User)
-    assert model == new_user
-  end
-
-  test "save_record/1 raises if a map is passed" do
-    message = "%{foo: \"bar\"} is not an Ecto model. Use `build` instead"
-    assert_raise ArgumentError, message, fn ->
-      Factory.save_record(%{foo: "bar"})
-    end
-  end
-
-  test "save_record/1 raises if a non-Ecto struct is passed" do
-    message = "%{__struct__: Foo.Bar} is not an Ecto model. Use `build` instead"
-    assert_raise ArgumentError, message, fn ->
-      Factory.save_record(%{__struct__: Foo.Bar})
-    end
-  end
-
-
-  test "passed in attrs can override associations" do
-    my_article = Factory.create(:article, title: "So Deep")
-
-    comment = Factory.create(:comment, article: my_article)
-
-    assert comment.article == my_article
-  end
-
-  test "chaining build and create" do
-    Factory.build(:article, title: "Ecto is Awesome") |> Factory.create
-
-    article = TestRepo.get_by!(Article, title: "Ecto is Awesome")
-    assert article.author_id
   end
 end

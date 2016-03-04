@@ -120,11 +120,11 @@ build(:comment, attrs)
 build_pair(:comment, attrs)
 build_list(3, :comment, attrs)
 
-# `create*` returns a saved comment.
-# Associated records defined on the factory are built and saved.
-create(:comment, attrs)
-create_pair(:comment, attrs)
-create_list(3, :comment, attrs)
+# `insert*` returns an inserted comment. Only works with ExMachina.Ecto
+# Associated records defined on the factory are inserted as well.
+insert(:comment, attrs)
+insert_pair(comment, attrs)
+insert_list(3, :comment, attrs)
 
 # `params_for` returns a plain map without any Ecto specific attributes.
 # This is only available when using `ExMachina.Ecto`.
@@ -134,6 +134,7 @@ params_for(:comment, attrs)
 ## Usage in a test
 
 ```elixir
+# Example of use in Phoenix with a factory that uses ExMachina.Ecto
 defmodule MyApp.MyModuleTest do
   use MyApp.ConnCase
   # You can also import this in your MyApp.ConnCase if using Phoenix
@@ -141,8 +142,8 @@ defmodule MyApp.MyModuleTest do
 
   test "shows comments for an article" do
     conn = conn()
-    article = create(:article)
-    comment = create(:comment, article: article)
+    article = insert(:article)
+    comment = insert(:comment, article: article)
 
     conn = get conn, article_path(conn, :show, article.id)
 
@@ -171,11 +172,11 @@ different ways of saving the record for different types of factories.
 
 ## Ecto Associations
 
-ExMachina will automatically save any associations when you call `create/2`.
-This includes `belongs_to` and anything that is automatically saved by using an
-Ecto changesets, such as `has_many`, `has_one`, and embeds. Since we
-automatically save these records for you, we advise that factory definitions
-only use `build/2` when declaring associations, like so:
+ExMachina will automatically save any associations when you call any of the
+`insert` functions. This includes `belongs_to` and anything that is
+inserted by Ecto when using `Repo.insert!`, such as `has_many`, `has_one`,
+and embeds. Since we automatically save these records for you, we advise that
+factory definitions only use `build/2` when declaring associations, like so:
 
 ```elixir
 def factory(:article) do
@@ -188,7 +189,7 @@ def factory(:article) do
 end
 ```
 
-Using `create/2` in factory definitions may lead to performance issues and bugs,
+Using `insert/2` in factory definitions may lead to performance issues and bugs,
 as records will be saved unnecessarily.
 
 ## Flexible Factories with Pipes
@@ -206,22 +207,7 @@ end
 build(:user) |> make_admin |> create |> with_article
 ```
 
-## Using with Phoenix and Ecto
-
-There is nothing special you need to do with Phoenix unless you decide to
-`import` your factory module.
-
-By default Phoenix imports `Ecto.Model` in the generated `ConnCase` and
-`ModelCase`  modules (found in `test/support/conn_case.ex` and
-`test/support/model_case.ex`). To import your factory we recommend excluding
-`build/2` or aliasing your factory instead.
-
-```elixir
-# in test/support/conn_case|model_case.ex
-
-# Add `except: [build: 2] to the `Ecto.Model` import
-import Ecto.Model, except: [build: 2]
-```
+## Using with Phoenix
 
 If you want to keep the factories somewhere other than `test/support`,
 change this line in `mix.exs`:
@@ -231,51 +217,36 @@ change this line in `mix.exs`:
 defp elixirc_paths(:test), do: ["lib", "web", "test/support", "test/factories"]
 ```
 
-## Using without Ecto
+## Custom Strategies
 
-You can use ExMachina without Ecto, by using just the `build` function, or by
-defining `save_record/1` in your module.
+You can use ExMachina without Ecto, by using just the `build` functions, or you
+can define one or more custom strategies to use in your factory. You can also
+use custom strategies with Ecto. Here's an example of a strategy for json
+encoding your factories. See the docs on [ExMachina.Strategy] for more info.
+
+[ExMachina.Strategy]: https://hexdocs.pm/ex_machina/ExMachina.Strategy.html
 
 ```elixir
-defmodule MyApp.JsonFactory do
-  use ExMachina
+defmodule MyApp.JsonEncodeStrategy do
+  use ExMachina.Strategy, function_name: :json_encode
 
-  def factory(:user) do
-    %User{name: "John"}
-  end
-
-  def save_record(record) do
-    # Poison is a library for working with JSON
+  def handle_json_encode(record, _opts) do
     Poison.encode!(record)
   end
 end
 
-# Will build and then return a JSON encoded version of the map
-MyApp.JsonFactories.create(:user)
-```
-
-You can do something similar while also using Ecto by defining a new function.
-This gives you the power to call `create` and save to Ecto, or call `build_json`
-or `create_json` to return encoded JSON objects.
-
-```elixir
 defmodule MyApp.Factory do
-  use ExMachina.Ecto, repo: MyApp.Repo
+  use ExMachina
+  # Using this will add json_encode/2, json_encode_pair/2 and json_encode_list/2
+  use MyApp.JsonEncodeStrategy
 
   def factory(:user) do
     %User{name: "John"}
   end
-
-  # builds the object and then encodes it as JSON
-  def build_json(factory_name, attrs) do
-    build(factory_name, attrs) |> Poison.encode!
-  end
-
-  # builds the object, saves it to Ecto and then encodes it
-  def create_json(factory_name, attrs) do
-    create(factory_name, attrs) |> Poison.encode!
-  end
 end
+
+# Will build and then return a JSON encoded version of the user.
+MyApp.JsonFactories.json_encode(:user)
 ```
 
 ## Contributing

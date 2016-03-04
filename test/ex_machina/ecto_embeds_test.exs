@@ -38,16 +38,16 @@ defmodule ExMachina.EctoEmbedsTest do
     end
   end
 
-  test "create/1 saves `embeds_one` record defined in the factory" do
-    Factory.create(:user)
+  test "insert/1 saves `embeds_one` record defined in the factory" do
+    Factory.insert(:user)
 
     user = TestRepo.first!(User)
     assert %{settings: %{email_signature: "Mr. John Doe", send_emails: true}} = user
   end
 
-  test "create/2 saves `embeds_one` record when overridden" do
+  test "insert/2 saves `embeds_one` record when overridden" do
     settings = %Settings{email_signature: "Mrs. Jane Doe"}
-    Factory.create(:user, settings: settings)
+    Factory.insert(:user, settings: settings)
 
     user = TestRepo.first!(User)
     assert user.settings.email_signature == settings.email_signature

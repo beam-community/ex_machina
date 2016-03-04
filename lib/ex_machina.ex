@@ -50,7 +50,7 @@ defmodule ExMachina do
     quote do
       @before_compile unquote(__MODULE__)
 
-      import ExMachina, only: [sequence: 1, sequence: 2, factory: 2]
+      import ExMachina, only: [sequence: 1, sequence: 2]
 
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
@@ -63,38 +63,7 @@ defmodule ExMachina do
       def build_list(number_of_factories, factory_name, attrs \\ %{}) do
         ExMachina.build_list(__MODULE__, number_of_factories, factory_name, attrs)
       end
-
-      def create(built_record) when is_map(built_record) do
-        ExMachina.create(__MODULE__, built_record)
-      end
-
-      def create(factory_name, attrs \\ %{}) do
-        ExMachina.create(__MODULE__, factory_name, attrs)
-      end
-
-      def create_pair(factory_name, attrs \\ %{}) do
-        ExMachina.create_pair(__MODULE__, factory_name, attrs)
-      end
-
-      def create_list(number_of_factories, factory_name, attrs \\ %{}) do
-        ExMachina.create_list(__MODULE__, number_of_factories, factory_name, attrs)
-      end
     end
-  end
-
-  defmacro factory(factory_name, do: _block) do
-    raise """
-    The factory and assoc macros have been removed. Please use regular
-    functions instead.
-
-      def factory(#{factory_name}) do
-        %{
-          ...
-          some_assoc: build(:some_assoc)
-          ...
-        }
-      end
-    """
   end
 
   @doc """
@@ -174,59 +143,6 @@ defmodule ExMachina do
   def build_list(module, number_of_factories, factory_name, attrs \\ %{}) do
     Enum.map(1..number_of_factories, fn(_) ->
       ExMachina.build(module, factory_name, attrs)
-    end)
-  end
-
-  @doc """
-  Builds and saves a factory with the passed in factory_name
-
-  If using ExMachina.Ecto it will use the Ecto Repo passed in to save the
-  record automatically.
-
-  If you are not using ExMachina.Ecto, you need to define a `save_record/1`
-  function in your module. See `save_record` docs for more information.
-
-  ## Example
-
-      def factory(:user, _attrs) do
-        %{name: "John Doe", admin: false}
-      end
-
-      # Saves and returns %{name: "John Doe", admin: true}
-      create(:user, admin: true)
-  """
-
-  def create(module, built_record) when is_map(built_record) do
-    module.save_record(built_record)
-  end
-
-  def create(module, factory_name, attrs \\ %{}) do
-    ExMachina.build(module, factory_name, attrs) |> module.save_record
-  end
-
-  @doc """
-  Creates and returns 2 records with the passed in factory_name and attrs
-
-  ## Example
-
-      # Returns a list of 2 saved users
-      create_pair(:user)
-  """
-  def create_pair(module, factory_name, attrs \\ %{}) do
-    ExMachina.create_list(module, 2, factory_name, attrs)
-  end
-
-  @doc """
-  Creates and returns X records with the passed in factory_name and attrs
-
-  ## Example
-
-      # Returns a list of 3 saved users
-      create_list(3, :user)
-  """
-  def create_list(module, number_of_factories, factory_name, attrs \\ %{}) do
-    Enum.map(1..number_of_factories, fn(_) ->
-      ExMachina.create(module, factory_name, attrs)
     end)
   end
 

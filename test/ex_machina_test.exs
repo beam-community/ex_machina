@@ -29,19 +29,6 @@ defmodule ExMachinaTest do
         __struct__: Foo.Bar
       }
     end
-
-    def save_record(record) do
-      send self, {:custom_save, record}
-      record
-    end
-  end
-
-  defmodule NoSaveFunction do
-    use ExMachina
-
-    def factory(:foo) do
-      %{foo: :bar}
-    end
   end
 
   test "sequence/2 sequences a value" do
@@ -110,49 +97,5 @@ defmodule ExMachinaTest do
       admin: true
     }
     assert records == [expected_record, expected_record, expected_record]
-  end
-
-  test "create/2 builds factory and performs save with user defined save_record/1" do
-    record = Factory.create(:user)
-
-    created_record = %{admin: false, id: 3, name: "John Doe"}
-    assert record == created_record
-    assert_received {:custom_save, ^created_record}
-  end
-
-  test "create/2 saves built records" do
-    record = Factory.build(:user) |> Factory.create
-
-    created_record = %{admin: false, id: 3, name: "John Doe"}
-    assert record == created_record
-    assert_received {:custom_save, ^created_record}
-    refute_received {:custom_save}
-  end
-
-  test "create/2 raises a helpful error if save_record/1 is not defined" do
-    assert_raise ExMachina.UndefinedSave, fn ->
-      NoSaveFunction.create(:foo)
-    end
-  end
-
-  test "create_pair/2 creates the factory and saves it 2 times" do
-    records = Factory.create_pair(:user)
-
-    created_record = %{admin: false, id: 3, name: "John Doe"}
-    assert records == [created_record, created_record]
-    assert_received {:custom_save, ^created_record}
-    assert_received {:custom_save, ^created_record}
-    refute_received {:custom_save, _}
-  end
-
-  test "create_list/3 creates factory and saves it passed in number of times" do
-    records = Factory.create_list(3, :user)
-
-    created_record = %{admin: false, id: 3, name: "John Doe"}
-    assert records == [created_record, created_record, created_record]
-    assert_received {:custom_save, ^created_record}
-    assert_received {:custom_save, ^created_record}
-    assert_received {:custom_save, ^created_record}
-    refute_received {:custom_save, _}
   end
 end
