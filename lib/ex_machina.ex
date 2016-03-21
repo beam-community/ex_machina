@@ -27,21 +27,6 @@ defmodule ExMachina do
     end
   end
 
-  defmodule UndefinedSave do
-    @moduledoc """
-    Error raised when trying to call create and save_record/1 is
-    not defined.
-    """
-
-    defexception [:message]
-
-    def exception do
-      %UndefinedSave{
-        message: "Define save_record/1. See docs for ExMachina.save_record/1."
-      }
-    end
-  end
-
   use Application
 
   def start(_type, _args), do: ExMachina.Sequence.start_link
@@ -155,49 +140,6 @@ defmodule ExMachina do
       """
       def factory(factory_name) do
         raise UndefinedFactoryError, factory_name
-      end
-
-      @doc """
-      Saves a record when `create` is called. Uses Ecto if using ExMachina.Ecto
-
-      If using ExMachina.Ecto (`use ExMachina.Ecto, repo: MyApp.Repo`) this
-      function will call `insert!` on the passed in repo.
-
-      If you are not using ExMachina.Ecto, you must define a custom
-      save_record/1 for saving the record.
-
-      ## Examples
-
-          defmodule MyApp.Factory do
-            use ExMachina.Ecto, repo: MyApp.Repo
-
-            def factory(:user) do
-              %User{name: "John"}
-            end
-          end
-
-          # Will build and save the record to the MyApp.Repo
-          MyApp.Factory.create(:user)
-
-          defmodule MyApp.JsonFactories do
-            # Note, we are not using ExMachina.Ecto
-            use ExMachina
-
-            def factory(:user) do
-              %User{name: "John"}
-            end
-
-            def save_record(record) do
-              # Poison is a library for working with JSON
-              Poison.encode!(record)
-            end
-          end
-
-          # Will build and then return a JSON encoded version of the map
-          MyApp.JsonFactories.create(:user)
-      """
-      def save_record(record) do
-        raise UndefinedSave
       end
     end
   end
