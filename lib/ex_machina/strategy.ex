@@ -20,7 +20,7 @@ defmodule ExMachina.Strategy do
         use ExMachina
         use MyApp.JsonEncodeStrategy
 
-        def factory(:user) do
+        def user_factory do
           %User{name: "John"}
         end
       end

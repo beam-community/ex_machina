@@ -22,14 +22,14 @@ defmodule ExMachina.EctoStrategyTest do
     use ExMachina
     use ExMachina.EctoStrategy, repo: TestRepo
 
-    def factory(:user) do
+    def user_factory do
       %User{
         name: "John Doe",
         admin: false
       }
     end
 
-    def factory(:article) do
+    def article_factory do
       %Article{
         title: "My Awesome Article",
         author: build(:user)
@@ -40,7 +40,7 @@ defmodule ExMachina.EctoStrategyTest do
   defmodule FactoryWithNoRepo do
     use ExMachina.EctoStrategy
 
-    def factory(:whatever) do
+    def whatever_factory do
       %{}
     end
   end

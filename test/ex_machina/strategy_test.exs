@@ -13,7 +13,7 @@ defmodule ExMachina.StrategyTest do
     use ExMachina
     use FakeJsonStrategy, foo: :bar
 
-    def factory(:user) do
+    def user_factory do
       %{
         name: "John"
       }

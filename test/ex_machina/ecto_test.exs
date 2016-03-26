@@ -13,14 +13,14 @@ defmodule ExMachina.EctoTest do
   defmodule Factory do
     use ExMachina.Ecto, repo: TestRepo
 
-    def factory(:user) do
+    def user_factory do
       %User{
         name: "John Doe",
         admin: false
       }
     end
 
-    def factory(:user_map) do
+    def user_map_factory do
       %{
         id: 3,
         name: "John Doe",

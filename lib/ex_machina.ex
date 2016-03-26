@@ -19,7 +19,7 @@ defmodule ExMachina do
 
         Please check for typos or define your factory:
 
-            def factory(#{inspect factory_name}) do
+            def #{inspect factory_name}_factory do
               ...
             end
         """
@@ -58,7 +58,7 @@ defmodule ExMachina do
 
   ## Examples
 
-      def factory(:comment) do
+      def comment_factory do
         %{
           # Will generate "Comment Title 0" then "Comment Title 1", etc.
           title: sequence("Comment Title")
@@ -72,7 +72,7 @@ defmodule ExMachina do
 
   ## Examples
 
-      def factory(:user) do
+      def user_factory do
         %{
           # Will generate "me-0@example.com" then "me-1@example.com", etc.
           email: sequence(:email, &"me-\#{&1}@foo.com")
@@ -86,7 +86,7 @@ defmodule ExMachina do
 
   ## Example
 
-      def factory(:user) do
+      def user_factory do
         %{name: "John Doe", admin: false}
       end
 
@@ -95,7 +95,12 @@ defmodule ExMachina do
   """
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
-    module.factory(factory_name) |> do_merge(attrs)
+    function_name = Atom.to_string(factory_name) <> "_factory" |> String.to_atom
+    if Code.ensure_loaded?(module) && function_exported?(module, function_name, 0) do
+      apply(module, function_name, []) |> do_merge(attrs)
+    else
+      raise UndefinedFactoryError, factory_name
+    end
   end
 
   defp do_merge(%{__struct__: _} = record, attrs) do
