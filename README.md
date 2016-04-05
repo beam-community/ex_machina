@@ -5,6 +5,9 @@
 ExMachina makes it easy to create test data and associations. It works great
 with Ecto, but is configurable to work with any persistence library.
 
+> **This README is for the unreleased beta version of ExMachina**. Here are the 
+[docs for the latest published version of ExMachina](https://hexdocs.pm/ex_machina/README.html).
+
 ## Installation
 
 #### To install in all environments (useful for generating seed data in dev/prod):
