@@ -52,16 +52,22 @@ defmodule ExMachina do
   end
 
   @doc """
-  Shortcut for creating unique values. Similar to sequence/2
+  Shortcut for creating unique string values. Similar to sequence/2
 
   For more customization of the generated string, see ExMachina.sequence/2
 
   ## Examples
 
-      def comment_factory do
-        %{
-          # Will generate "Comment Title 0" then "Comment Title 1", etc.
-          title: sequence("Comment Title")
+      def user_factory do
+        %User{
+          # Will generate "username0" then "username1", etc.
+          username: sequence("username")
+        }
+      end
+
+      def article_factory do
+        %Article{
+          title: sequence("Article Title")
         }
       end
   """

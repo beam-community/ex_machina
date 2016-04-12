@@ -20,8 +20,8 @@ defmodule ExMachina.SequenceTest do
   end
 
   test "let's you quickly create sequences" do
-    assert "Comment Body 0" == Sequence.next("Comment Body")
-    assert "Comment Body 1" == Sequence.next("Comment Body")
+    assert "Comment Body0" == Sequence.next("Comment Body")
+    assert "Comment Body1" == Sequence.next("Comment Body")
   end
 
   test "only accepts strings for sequence shortcut" do
