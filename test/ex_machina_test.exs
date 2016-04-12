@@ -37,8 +37,8 @@ defmodule ExMachinaTest do
   end
 
   test "sequence/1 shortcut for creating sequences" do
-    assert "Post Title 0" == Factory.build(:article).title
-    assert "Post Title 1" == Factory.build(:article).title
+    assert "Post Title0" == Factory.build(:article).title
+    assert "Post Title1" == Factory.build(:article).title
   end
 
   test "raises a helpful error if the factory is not defined" do
