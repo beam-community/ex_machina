@@ -29,6 +29,7 @@ defmodule ExMachina do
 
   use Application
 
+  @doc false
   def start(_type, _args), do: ExMachina.Sequence.start_link
 
   defmacro __using__(_opts) do
