@@ -5,7 +5,7 @@
 ExMachina makes it easy to create test data and associations. It works great
 with Ecto, but is configurable to work with any persistence library.
 
-> **This README follows master, which may not be the currently published version**. Here are the 
+> **This README follows master, which may not be the currently published version**. Here are the
 [docs for the latest published version of ExMachina](https://hexdocs.pm/ex_machina/README.html).
 
 ## Installation
@@ -86,14 +86,14 @@ defmodule MyApp.Factory do
   # without Ecto
   use ExMachina
 
-  def user_factory do
+  def factory(:user) do
     %User{
       name: "Jane Smith",
       email: sequence(:email, &"email-#{&1}@example.com"),
     }
   end
 
-  def article_factory do
+  def factory(:article) do
     %Article{
       title: "Use ExMachina!",
       # associations are inserted when you call `create`
@@ -102,7 +102,7 @@ defmodule MyApp.Factory do
     }
   end
 
-  def comment_factory do
+  def factory(:comment) do
     %Comment{
       text: "It's great!",
       article: build(:article),
@@ -182,7 +182,7 @@ and embeds. Since we automatically save these records for you, we advise that
 factory definitions only use `build/2` when declaring associations, like so:
 
 ```elixir
-def article_factory do
+def factory(:article) do
   %Article{
     title: "Use ExMachina!",
     # associations are inserted when you call `create`
@@ -243,7 +243,7 @@ defmodule MyApp.Factory do
   # Using this will add json_encode/2, json_encode_pair/2 and json_encode_list/2
   use MyApp.JsonEncodeStrategy
 
-  def user_factory do
+  def factory(:user) do
     %User{name: "John"}
   end
 end
