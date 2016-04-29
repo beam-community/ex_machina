@@ -100,7 +100,7 @@ defmodule MyApp.Factory do
   def article_factory do
     %Article{
       title: "Use ExMachina!",
-      # associations are inserted when you call `create`
+      # associations are inserted when you call `insert`
       comments: [build(:comment)],
       author: build(:user),
     }
@@ -118,7 +118,7 @@ end
 Using factories ([check out the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details):
 
 ```elixir
-# `attrs` are automatically merged in for all build/create functions.
+# `attrs` are automatically merged in for all build/insert functions.
 
 # `build*` returns an unsaved comment.
 # Associated records defined on the factory are built.
@@ -189,7 +189,7 @@ factory definitions only use `build/2` when declaring associations, like so:
 def article_factory do
   %Article{
     title: "Use ExMachina!",
-    # associations are inserted when you call `create`
+    # associations are inserted when you call `insert`
     comments: [build(:comment)],
     author: build(:user),
   }
@@ -207,11 +207,11 @@ def make_admin(user) do
 end
 
 def with_article(user) do
-  create(:article, user: user)
+  insert(:article, user: user)
   user
 end
 
-build(:user) |> make_admin |> create |> with_article
+build(:user) |> make_admin |> insert |> with_article
 ```
 
 ## Using with Phoenix
