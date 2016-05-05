@@ -4,14 +4,15 @@ defmodule ExMachina.TestFactory do
   def user_factory do
     %ExMachina.User{
       name: "John Doe",
-      admin: false
+      admin: false,
+      articles: [],
     }
   end
 
   def article_factory do
     %ExMachina.Article{
       title: "My Awesome Article",
-      author: build(:user)
+      author: build(:user),
     }
   end
 

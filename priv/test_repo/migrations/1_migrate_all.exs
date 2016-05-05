@@ -10,6 +10,7 @@ defmodule ExMachina.TestRepo.Migrations.MigrateAll do
     create table(:articles) do
       add :title, :string
       add :author_id, :integer
+      add :editor_id, :integer
     end
   end
 end

@@ -42,4 +42,35 @@ defmodule ExMachina.EctoTest do
       TestFactory.params_for(:user_map)
     end
   end
+
+  test "params_with_assocs/2 inserts belongs_tos that are set by the factory" do
+    assert has_association_in_schema?(ExMachina.Article, :editor)
+
+    assert TestFactory.params_with_assocs(:article) == %{
+      title: "My Awesome Article",
+      author_id: ExMachina.TestRepo.first!(User).id,
+    }
+  end
+
+  test "params_with_assocs/2 doesn't insert unloaded assocs" do
+    not_loaded = %{__struct__: Ecto.Association.NotLoaded}
+
+    assert TestFactory.params_with_assocs(:article, editor: not_loaded) == %{
+      title: "My Awesome Article",
+      author_id: ExMachina.TestRepo.first!(User).id,
+    }
+  end
+
+  test "params_with_assocs/2 doesn't try to save has_many fields" do
+    assert has_association_in_schema?(ExMachina.User, :articles)
+
+    assert TestFactory.params_with_assocs(:user) == %{
+      admin: false,
+      name: "John Doe",
+    }
+  end
+
+  defp has_association_in_schema?(model, association_name) do
+    Enum.member?(model.__schema__(:associations), association_name)
+  end
 end

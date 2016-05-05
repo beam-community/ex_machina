@@ -136,6 +136,11 @@ insert_list(3, :comment, attrs)
 # `params_for` returns a plain map without any Ecto specific attributes.
 # This is only available when using `ExMachina.Ecto`.
 params_for(:comment, attrs)
+
+# `params_with_assocs` is the same as `params_for` but inserts all belongs_to
+# associations and sets the foreign keys.
+# This is only available when using `ExMachina.Ecto`.
+params_for(:comment, attrs)
 ```
 
 ## Usage in a test
