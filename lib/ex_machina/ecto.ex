@@ -50,11 +50,11 @@ defmodule ExMachina.Ecto do
   This is only for use with Ecto models.
 
   Will return a map with the fields and virtual fields, but without the Ecto
-  metadata and associations.
+  metadata, associations, and the primary key.
 
   ## Example
 
-      def factory(:user) do
+      def user_factory do
         %MyApp.User{name: "John Doe", admin: false}
       end
 
@@ -71,6 +71,7 @@ defmodule ExMachina.Ecto do
     |> Map.from_struct
     |> Map.delete(:__meta__)
     |> Map.drop(struct.__schema__(:associations))
+    |> Map.drop(struct.__schema__(:primary_key))
   end
   defp drop_ecto_fields(record) do
     raise ArgumentError, "#{inspect record} is not an Ecto model. Use `build` instead."

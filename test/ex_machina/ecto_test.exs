@@ -57,7 +57,6 @@ defmodule ExMachina.EctoTest do
 
   test "params_for/2 removes Ecto specific fields" do
     assert Factory.params_for(:user) == %{
-      id: nil,
       name: "John Doe",
       admin: false
     }
