@@ -1,33 +1,8 @@
 defmodule ExMachina.EctoTest do
   use ExMachina.EctoCase
-  alias ExMachina.TestRepo
 
-  defmodule User do
-    use Ecto.Schema
-    schema "users" do
-      field :name, :string
-      field :admin, :boolean
-    end
-  end
-
-  defmodule Factory do
-    use ExMachina.Ecto, repo: TestRepo
-
-    def user_factory do
-      %User{
-        name: "John Doe",
-        admin: false
-      }
-    end
-
-    def user_map_factory do
-      %{
-        id: 3,
-        name: "John Doe",
-        admin: false
-      }
-    end
-  end
+  alias ExMachina.TestFactory
+  alias ExMachina.User
 
   test "raises helpful error message if no repo is provided" do
     message =
@@ -44,19 +19,19 @@ defmodule ExMachina.EctoTest do
   end
 
   test "insert, insert_pair and insert_list work as expected" do
-    assert %User{} = Factory.build(:user) |> Factory.insert
-    assert %User{} = Factory.insert(:user)
-    assert %User{} = Factory.insert(:user, admin: true)
+    assert %User{} = TestFactory.build(:user) |> TestFactory.insert
+    assert %User{} = TestFactory.insert(:user)
+    assert %User{} = TestFactory.insert(:user, admin: true)
 
-    assert [%User{}, %User{}] = Factory.insert_pair(:user)
-    assert [%User{}, %User{}] = Factory.insert_pair(:user, admin: true)
+    assert [%User{}, %User{}] = TestFactory.insert_pair(:user)
+    assert [%User{}, %User{}] = TestFactory.insert_pair(:user, admin: true)
 
-    assert [%User{}, %User{}, %User{}] = Factory.insert_list(3, :user)
-    assert [%User{}, %User{}, %User{}] = Factory.insert_list(3, :user, admin: true)
+    assert [%User{}, %User{}, %User{}] = TestFactory.insert_list(3, :user)
+    assert [%User{}, %User{}, %User{}] = TestFactory.insert_list(3, :user, admin: true)
   end
 
   test "params_for/2 removes Ecto specific fields" do
-    assert Factory.params_for(:user) == %{
+    assert TestFactory.params_for(:user) == %{
       name: "John Doe",
       admin: false
     }
@@ -64,7 +39,7 @@ defmodule ExMachina.EctoTest do
 
   test "params_for/2 raises when passed a map" do
     assert_raise ArgumentError, fn ->
-      Factory.params_for(:user_map)
+      TestFactory.params_for(:user_map)
     end
   end
 end

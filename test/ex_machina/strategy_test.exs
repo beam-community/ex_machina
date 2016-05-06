@@ -9,7 +9,7 @@ defmodule ExMachina.StrategyTest do
     end
   end
 
-  defmodule Factory do
+  defmodule JsonFactory do
     use ExMachina
     use FakeJsonStrategy, foo: :bar
 
@@ -27,44 +27,44 @@ defmodule ExMachina.StrategyTest do
   end
 
   test "defines functions based on the strategy name" do
-    strategy_options = %{foo: :bar, factory_module: Factory}
+    strategy_options = %{foo: :bar, factory_module: JsonFactory}
 
-    Factory.build(:user) |> Factory.json_encode
-    built_user = Factory.build(:user)
+    JsonFactory.build(:user) |> JsonFactory.json_encode
+    built_user = JsonFactory.build(:user)
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
     refute_received {:handle_json_encode, _, _}
 
-    Factory.json_encode(:user)
-    built_user = Factory.build(:user)
+    JsonFactory.json_encode(:user)
+    built_user = JsonFactory.build(:user)
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
     refute_received {:handle_json_encode, _, _}
 
-    Factory.json_encode(:user, name: "Jane")
-    built_user = Factory.build(:user, name: "Jane")
+    JsonFactory.json_encode(:user, name: "Jane")
+    built_user = JsonFactory.build(:user, name: "Jane")
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
     refute_received {:handle_json_encode, _, _}
 
-    Factory.json_encode_pair(:user)
-    built_user = Factory.build(:user)
-    assert_received {:handle_json_encode, ^built_user, ^strategy_options}
-    assert_received {:handle_json_encode, ^built_user, ^strategy_options}
-    refute_received {:handle_json_encode, _, _}
-
-    Factory.json_encode_pair(:user, name: "Jane")
-    built_user = Factory.build(:user, name: "Jane")
+    JsonFactory.json_encode_pair(:user)
+    built_user = JsonFactory.build(:user)
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
     refute_received {:handle_json_encode, _, _}
 
-    Factory.json_encode_list(3, :user)
-    built_user = Factory.build(:user)
+    JsonFactory.json_encode_pair(:user, name: "Jane")
+    built_user = JsonFactory.build(:user, name: "Jane")
+    assert_received {:handle_json_encode, ^built_user, ^strategy_options}
+    assert_received {:handle_json_encode, ^built_user, ^strategy_options}
+    refute_received {:handle_json_encode, _, _}
+
+    JsonFactory.json_encode_list(3, :user)
+    built_user = JsonFactory.build(:user)
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
     refute_received {:handle_json_encode, _, _}
 
-    Factory.json_encode_list(3, :user, name: "Jane")
-    built_user = Factory.build(:user, name: "Jane")
+    JsonFactory.json_encode_list(3, :user, name: "Jane")
+    built_user = JsonFactory.build(:user, name: "Jane")
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
