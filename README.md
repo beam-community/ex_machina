@@ -89,6 +89,10 @@ defmodule MyApp.Factory do
 
   # without Ecto
   use ExMachina
+  
+  alias MyApp.User
+  alias MyApp.Article
+  alias MyApp.Comment
 
   def user_factory do
     %User{
