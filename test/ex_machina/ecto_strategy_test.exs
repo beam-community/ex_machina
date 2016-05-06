@@ -46,4 +46,11 @@ defmodule ExMachina.EctoStrategyTest do
 
     assert article.author == my_user
   end
+
+  test "insert/1 raises if attempting to insert already inserted record" do
+    message = ~r/You called `insert` on a record that has already been inserted./
+    assert_raise RuntimeError, message, fn ->
+      TestFactory.insert(:user, name: "Maximus") |> TestFactory.insert
+    end
+  end
 end
