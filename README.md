@@ -89,20 +89,16 @@ defmodule MyApp.Factory do
 
   # without Ecto
   use ExMachina
-  
-  alias MyApp.User
-  alias MyApp.Article
-  alias MyApp.Comment
 
   def user_factory do
-    %User{
+    %MyApp.User{
       name: "Jane Smith",
       email: sequence(:email, &"email-#{&1}@example.com"),
     }
   end
 
   def article_factory do
-    %Article{
+    %MyApp.Article{
       title: "Use ExMachina!",
       # associations are inserted when you call `insert`
       comments: [build(:comment)],
@@ -111,7 +107,7 @@ defmodule MyApp.Factory do
   end
 
   def comment_factory do
-    %Comment{
+    %MyApp.Comment{
       text: "It's great!",
       article: build(:article),
     }
