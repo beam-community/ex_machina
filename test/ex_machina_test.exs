@@ -98,4 +98,22 @@ defmodule ExMachinaTest do
     }
     assert records == [expected_record, expected_record, expected_record]
   end
+
+  test "raises helpful error when using old create functions" do
+    assert_raise RuntimeError, ~r/create\/1 has been removed/, fn ->
+      Factory.create(:user)
+    end
+
+    assert_raise RuntimeError, ~r/create\/2 has been removed/, fn ->
+      Factory.create(:user, admin: true)
+    end
+
+    assert_raise RuntimeError, ~r/create_pair\/2 has been removed/, fn ->
+      Factory.create_pair(:user, admin: true)
+    end
+
+    assert_raise RuntimeError, ~r/create_list\/3 has been removed/, fn ->
+      Factory.create_list(3, :user, admin: true)
+    end
+  end
 end

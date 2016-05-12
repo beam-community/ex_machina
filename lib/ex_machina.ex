@@ -49,6 +49,35 @@ defmodule ExMachina do
       def build_list(number_of_factories, factory_name, attrs \\ %{}) do
         ExMachina.build_list(__MODULE__, number_of_factories, factory_name, attrs)
       end
+
+      def create(_) do
+        raise_function_replaced_error("create/1", "insert/1")
+      end
+
+      def create(_, _) do
+        raise_function_replaced_error("create/2", "insert/2")
+      end
+
+      def create_pair(_, _) do
+        raise_function_replaced_error("create_pair/2", "insert_pair/2")
+      end
+
+      def create_list(_, _, _) do
+        raise_function_replaced_error("create_list/3", "insert_list/3")
+      end
+
+      defp raise_function_replaced_error(old_function, new_function) do
+        raise """
+        #{old_function} has been removed.
+
+        If you are using ExMachina.Ecto, use #{new_function} instead.
+
+        If you are using ExMachina with a custom `save_record/2`, you now must use ExMachina.Strategy.
+        See the ExMachina.Strategy documentation for examples.
+        """
+      end
+
+      defoverridable [create: 1, create: 2, create_pair: 2, create_list: 3]
     end
   end
 
