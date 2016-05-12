@@ -5,7 +5,7 @@
 ExMachina makes it easy to create test data and associations. It works great
 with Ecto, but is configurable to work with any persistence library.
 
-> **This README follows master, which may not be the currently published version**. Here are the 
+> **This README follows master, which may not be the currently published version**. Here are the
 [docs for the latest published version of ExMachina](https://hexdocs.pm/ex_machina/README.html).
 
 ## Installation
@@ -18,7 +18,7 @@ In `mix.exs`, add the ExMachina dependency:
 def deps do
   # Get the latest from hex.pm. Works with Ecto 1.1, but not Ecto 2.0
   [{:ex_machina, "~> 0.6.1"}]
-  
+
   # Or use ExMachina beta. This version only works with Ecto 2.0
   [{:ex_machina, "~> 1.0.0-beta.1", github: "thoughtbot/ex_machina"}]
 end
@@ -249,7 +249,7 @@ end
 
 defmodule MyApp.Factory do
   use ExMachina
-  # Using this will add json_encode/2, json_encode_pair/2 and json_encode_list/2
+  # Using this will add json_encode/2, json_encode_pair/2 and json_encode_list/3
   use MyApp.JsonEncodeStrategy
 
   def user_factory do

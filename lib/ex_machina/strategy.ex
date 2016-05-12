@@ -6,7 +6,7 @@ defmodule ExMachina.Strategy do
 
       defmodule MyApp.JsonEncodeStrategy do
         # The function_name will be used to generate functions in your factory
-        # This example adds json_encode/1, json_encode/2, json_encode_pair/2 and json_encode_list/2
+        # This example adds json_encode/1, json_encode/2, json_encode_pair/2 and json_encode_list/3
         use ExMachina.Strategy, function_name: :json_encode
 
         # Define a function for handling the records.
