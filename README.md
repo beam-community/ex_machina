@@ -5,7 +5,7 @@
 ExMachina makes it easy to create test data and associations. It works great
 with Ecto, but is configurable to work with any persistence library.
 
-> **This README follows master, which may not be the currently published version**. Here are the 
+> **This README follows master, which may not be the currently published version**. Here are the
 [docs for the latest published version of ExMachina](https://hexdocs.pm/ex_machina/README.html).
 
 ## Installation
@@ -18,7 +18,7 @@ In `mix.exs`, add the ExMachina dependency:
 def deps do
   # Get the latest from hex.pm. Works with Ecto 1.1, but not Ecto 2.0
   [{:ex_machina, "~> 0.6.1"}]
-  
+
   # Or use ExMachina beta. This version only works with Ecto 2.0
   [{:ex_machina, "~> 1.0.0-beta.1", github: "thoughtbot/ex_machina"}]
 end
@@ -203,6 +203,100 @@ end
 
 Using `insert/2` in factory definitions may lead to performance issues and bugs,
 as records will be saved unnecessarily.
+
+## Lazy Attributes
+
+You may defer calculation of your attributes, and even base one attribute upon
+another, by using functions:
+
+```elixir
+def hero_factory do
+  %{
+    creature: "Bat",
+    nickname: &"#{&1.creature}man",
+    vehicle: &"#{&1.creature}mobile"
+  }
+end
+
+build(:hero)
+# => %{creature: "Bat", nickname: "Batman", vehicle: "Batmobile"}
+
+build(:hero, creature: "Spider", vehicle: "webs")
+# => %{creature: "Spider", nickname: "Spiderman", vehicle: "webs"}
+```
+
+This is especially helpful in complex object graphs where a record and its
+child both belong to the same parent.  This is common in multi-tenant apps,
+where many of the records belong to the same scope.  Consider a multi-site blog
+platform where Articles and Authors both belong to a Site, and Articles also
+belong to the User:
+
+```txt
+Site <---- Author
+  ^          ^
+  |          |
+  +------- Article
+```
+
+Such factories would be:
+
+```elixir
+def site_factory do
+  %Site{
+    name: "Awesome Blog"
+  }
+end
+
+def author_factory do
+  %Author{
+    name: "Danny Tanner",
+    email: "danny@example.com",
+    site: build(:site)
+  }
+end
+
+def article_factory do
+  %Article{
+    title: "The House is Full",
+    site: create(:site), # Unfortunately, site creation can't be deferred or Author won't see it
+    author: build(:author, site: &(&1.site))
+  }
+end
+```
+
+Without lazy attributes, this could be accomplished through something like:
+
+```elixir
+# Don't do this
+def article_factory do
+  site = create(:site) # Site gets created despite the attributes you pass in build/insert :(
+  %Article{
+    site: site,
+    title: "The House is Full",
+    author: build(:author, site: site)
+  }
+end
+```
+
+But with lazy attributes, we can pass in the Site, keeping your inserts to a
+minimum:
+
+```elixir
+def article_factory do
+  %Article{
+    site: create(:site),
+    title: "The House is Full",
+    author: build(:author, site: &(&1.site))
+  }
+end
+
+article_for_auto_generated_site = build(:article)
+# => %Article{site: %Site{id: 1, ...}, author: %Author{site: %Site{id: 1, ...}, ...}}
+
+specific_site = create(:site, name: "Special Blog")
+article_for_specific_site = build(:article, site: specific_site)
+# => %Article{site: %Site{id: 2, ...}, author: %Author{site: %Site{id: 2, ...}, ...}}
+```
 
 ## Flexible Factories with Pipes
 

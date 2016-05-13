@@ -29,6 +29,45 @@ defmodule ExMachinaTest do
         __struct__: Foo.Bar
       }
     end
+
+    def lazy_hero_factory do
+      %{
+        name: "Bat",
+        nickname: &"#{&1.name}man",
+        vehicles: [
+          fn(hero) ->
+            build(
+              :vehicle,
+              name: "#{hero.name}mobile",
+              speed: fn(vehicle) ->
+                if vehicle.name == "Batmobile" do
+                  "very fast"
+                else
+                  "fast"
+                end
+              end
+            )
+          end
+        ]
+      }
+    end
+
+    def vehicle_factory do
+      %{
+        name: "Car",
+        speed: "slow"
+      }
+    end
+
+    defmodule MyStruct do
+      defstruct [:is_safe]
+    end
+
+    def exploding_struct_factory do
+      %MyStruct{
+        is_safe: fn(_) -> raise("It exploded") end
+      }
+    end
   end
 
   test "sequence/2 sequences a value" do
@@ -75,6 +114,49 @@ defmodule ExMachinaTest do
     assert_raise KeyError, fn ->
       Factory.build(:struct, doesnt_exist: true)
     end
+  end
+
+  test "build/2 resolves lazy values (functions) when no attributes are given" do
+    assert Factory.build(:lazy_hero) == %{
+      name: "Bat",
+      nickname: "Batman",
+      vehicles: [
+        %{
+          name: "Batmobile",
+          speed: "very fast"
+        }
+      ]
+    }
+  end
+
+  test "build/2 resolves lazy values (functions) when attributes are passed" do
+    assert Factory.build(:lazy_hero, name: "Super") == %{
+      name: "Super",
+      nickname: "Superman",
+      vehicles: [
+        %{
+          name: "Supermobile",
+          speed: "fast"
+        }
+      ]
+    }
+  end
+
+  test "build/2 resolves lazy values (functions) that are passed as attributes" do
+    assert Factory.build(:lazy_hero, name: "Wonder", nickname: &("#{&1.name}woman")) == %{
+      name: "Wonder",
+      nickname: "Wonderwoman",
+      vehicles: [
+        %{
+          name: "Wondermobile",
+          speed: "fast"
+        }
+      ]
+    }
+  end
+
+  test "build/2 with a lazy value (function) does not apply the function if the attribute is overwritten" do
+    assert Factory.build(:exploding_struct, is_safe: true) == %Factory.MyStruct{is_safe: true}
   end
 
   test "build_pair/2 builds 2 factories" do
