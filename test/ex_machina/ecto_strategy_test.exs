@@ -39,12 +39,72 @@ defmodule ExMachina.EctoStrategyTest do
     end
   end
 
+  test "insert/1 casts all values" do
+    model = TestFactory.insert(:user, net_worth: 300)
+
+    assert model.net_worth == Decimal.new(300)
+  end
+
+  test "insert/1 casts belongs_to associations" do
+    built_author = TestFactory.build(:user, net_worth: 300)
+    model = TestFactory.insert(:article, author: built_author)
+
+    assert model.author.net_worth == Decimal.new(300)
+  end
+
+  test "insert/1 casts has_many associations" do
+    built_article = TestFactory.build(:article, visits: 10)
+    model = TestFactory.insert(:user, articles: [built_article])
+
+    assert List.first(model.articles).visits == Decimal.new(10)
+  end
+
+  test "insert/1 ignores virtual fields" do
+    user = TestFactory.insert(:user, password: "foo")
+
+    assert user.id != nil
+  end
+
+  test "insert/1 casts bare maps" do
+    model = TestFactory.insert(:article, author: %{net_worth: 300})
+
+    assert model.author.net_worth == Decimal.new(300)
+  end
+
+  test "insert/1 casts associations recursively" do
+    editor = TestFactory.build(:user, net_worth: 300)
+    article = TestFactory.build(:article, editor: editor)
+    author = TestFactory.insert(:user, articles: [article])
+
+    assert List.first(author.articles).editor.net_worth == Decimal.new(300)
+  end
+
+  test "insert/1 assigns params that aren't in the schema" do
+    publisher_assoc = ExMachina.Article.__schema__(:association, :publisher)
+    publisher_struct = publisher_assoc.related
+    publisher_fields = publisher_struct.__schema__(:fields)
+
+    refute Enum.member?(publisher_fields, :name)
+
+    publisher = TestFactory.build(:user, name: "name")
+    model = TestFactory.insert(:article, publisher: publisher)
+
+    assert model.publisher.name == "name"
+  end
+
   test "passed in attrs can override associations" do
     my_user = TestFactory.insert(:user, name: "Jane")
 
     article = TestFactory.insert(:article, author: my_user)
 
     assert article.author == my_user
+  end
+
+  test "insert/1 raises a friendly error when casting invalid types" do
+    message = ~r/Failed to cast `invalid` of type Elixir.ExMachina.InvalidType/
+    assert_raise RuntimeError, message, fn ->
+      TestFactory.insert(:invalid_cast, invalid: :invalid)
+    end
   end
 
   test "insert/1 raises if attempting to insert already inserted record" do

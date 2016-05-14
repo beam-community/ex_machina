@@ -23,6 +23,10 @@ defmodule ExMachina.TestFactory do
     }
   end
 
+  def invalid_cast_factory do
+    %ExMachina.InvalidCast{}
+  end
+
   def user_map_factory do
     %{
       id: 3,

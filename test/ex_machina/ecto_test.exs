@@ -33,7 +33,9 @@ defmodule ExMachina.EctoTest do
   test "params_for/2 removes Ecto specific fields" do
     assert TestFactory.params_for(:user) == %{
       name: "John Doe",
-      admin: false
+      admin: false,
+      net_worth: nil,
+      password: nil,
     }
   end
 
@@ -56,6 +58,7 @@ defmodule ExMachina.EctoTest do
     assert TestFactory.params_with_assocs(:article) == %{
       title: "My Awesome Article",
       author_id: ExMachina.TestRepo.one!(User).id,
+      visits: nil,
     }
   end
 
@@ -65,6 +68,7 @@ defmodule ExMachina.EctoTest do
     assert TestFactory.params_with_assocs(:article, editor: not_loaded) == %{
       title: "My Awesome Article",
       author_id: ExMachina.TestRepo.one!(User).id,
+      visits: nil,
     }
   end
 
@@ -74,6 +78,8 @@ defmodule ExMachina.EctoTest do
     assert TestFactory.params_with_assocs(:user) == %{
       admin: false,
       name: "John Doe",
+      net_worth: nil,
+      password: nil,
     }
   end
 

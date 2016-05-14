@@ -4,6 +4,8 @@ defmodule ExMachina.User do
   schema "users" do
     field :name, :string
     field :admin, :boolean
+    field :net_worth, :decimal
+    field :password, :string, virtual: true
 
     has_many :articles, ExMachina.Article
   end
