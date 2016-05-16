@@ -140,7 +140,7 @@ params_for(:comment, attrs)
 # `params_with_assocs` is the same as `params_for` but inserts all belongs_to
 # associations and sets the foreign keys.
 # This is only available when using `ExMachina.Ecto`.
-params_for(:comment, attrs)
+params_with_assocs(:comment, attrs)
 ```
 
 ## Usage in a test
