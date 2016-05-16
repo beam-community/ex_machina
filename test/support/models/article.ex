@@ -6,5 +6,6 @@ defmodule ExMachina.Article do
 
     belongs_to :author, ExMachina.User
     belongs_to :editor, ExMachina.User
+    belongs_to :site,   ExMachina.Site
   end
 end

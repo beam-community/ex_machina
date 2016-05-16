@@ -133,7 +133,7 @@ defmodule ExMachina do
     attrs = Enum.into(attrs, %{})
     function_name = Atom.to_string(factory_name) <> "_factory" |> String.to_atom
     if Code.ensure_loaded?(module) && function_exported?(module, function_name, 0) do
-      apply(module, function_name, []) |> do_merge(attrs)
+      apply(module, function_name, []) |> do_merge(attrs) |> resolve
     else
       raise UndefinedFactoryError, factory_name
     end
@@ -145,6 +145,24 @@ defmodule ExMachina do
   defp do_merge(record, attrs) do
     Map.merge(record, attrs)
   end
+
+  # Entry point to resolve the record map/struct
+  defp resolve(record), do: resolve(record, nil)
+
+  defp resolve(%{__struct__: _} = record, scope) do
+    attrs = Map.from_struct(record) |> resolve(scope)
+    struct!(record, attrs)
+  end
+  defp resolve(record, scope) when is_map(record) do
+    for {key, value} <- record, into: %{}, do: {key, resolve(value, scope || record)}
+  end
+  defp resolve(function, scope) when is_function(function) do
+    function.(scope)
+  end
+  defp resolve(list, scope) when is_list(list) do
+    Enum.map(list, &resolve(&1, scope))
+  end
+  defp resolve(value, _scope), do: value
 
   @doc """
   Builds and returns 2 records with the passed in factory_name and attrs
