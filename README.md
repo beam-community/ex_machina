@@ -55,7 +55,7 @@ ExUnit.start:
 {:ok, _} = Application.ensure_all_started(:ex_machina)
 ```
 
-#### Install in just the test environment for non Phoenix projects:
+#### Install in just the test environment for non-Phoenix projects:
 
 You will follow the same instructions as above, but you will also need to add
 `test/support` to your compilation paths (elixirc_paths) if you have not done
