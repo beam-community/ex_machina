@@ -59,15 +59,24 @@ defmodule ExMachinaTest do
       }
     end
 
-    defmodule MyStruct do
-      defstruct [:is_safe]
-    end
-
-    def exploding_struct_factory do
-      %MyStruct{
+    def exploding_factory do
+      %{
         is_safe: fn(_) -> raise("It exploded") end
       }
     end
+
+    def deferred_factory do
+      %{
+        n: "N",
+        n2: defer(&(&1.n <> &1.n)),
+        n4: defer(1, &(&1.n2 <> &1.n2)),
+        n8: defer(2, &(&1.n4 <> &1.n4)),
+      }
+    end
+
+    def bad_weight_deferred_factory, do: %{n: defer("foo", &(&1))}
+    def bad_func_deferred_factory, do: %{n: defer(1, "foo")}
+    def bad_arity_deferred_factory, do: %{n: defer(1, fn -> "foo" end)}
   end
 
   test "sequence/2 sequences a value" do
@@ -156,7 +165,10 @@ defmodule ExMachinaTest do
   end
 
   test "build/2 with a lazy value (function) does not apply the function if the attribute is overwritten" do
-    assert Factory.build(:exploding_struct, is_safe: true) == %Factory.MyStruct{is_safe: true}
+    assert_raise RuntimeError, fn ->
+      Factory.build(:exploding)
+    end
+    assert Factory.build(:exploding, is_safe: true) == %{is_safe: true}
   end
 
   test "build_pair/2 builds 2 factories" do
@@ -179,5 +191,50 @@ defmodule ExMachinaTest do
       admin: true
     }
     assert records == [expected_record, expected_record, expected_record]
+  end
+
+  test "factory using defer/1 and defer/2 generates `DeferredAttribute` structs with correct weights and functions" do
+    factory = Factory.deferred_factory
+
+    assert %ExMachina.DeferredAttribute{weight: 0} = factory.n2
+    assert %ExMachina.DeferredAttribute{weight: 1} = factory.n4
+    assert %ExMachina.DeferredAttribute{weight: 2} = factory.n8
+    assert is_function(factory.n2.func, 1)
+    assert is_function(factory.n4.func, 1)
+    assert is_function(factory.n8.func, 1)
+  end
+
+  test "factory using defer/2 with a non-numeric first argument raises ArgumentError" do
+    assert_raise ArgumentError,
+      "The first argument must be a number.  You gave: \"foo\"",
+      fn -> Factory.bad_weight_deferred_factory end
+  end
+
+  test "factory using defer/2 with a non-function for the second argument raises ArgumentError" do
+    assert_raise ArgumentError,
+      "The second argument must be a function with arity 1.  You gave: \"foo\"",
+      fn -> Factory.bad_func_deferred_factory end
+  end
+
+  test "factory using defer/2 with a function with the wrong arity raises ArgumentError" do
+    assert_raise ArgumentError,
+      ~r/The second argument must be a function with arity 1.  You gave: #Function/,
+      fn -> Factory.bad_arity_deferred_factory end
+  end
+
+  test "build/2 with deferred attributes and no overrides computes the attributes correctly" do
+    factory = Factory.build(:deferred)
+    assert factory.n == "N"
+    assert factory.n2 == "NN"
+    assert factory.n4 == "NNNN"
+    assert factory.n8 == "NNNNNNNN"
+  end
+
+  test "build/2 with deferred attributes and overrides given computes the attributes correctly" do
+    factory = Factory.build(:deferred, n4: "X")
+    assert factory.n == "N"
+    assert factory.n2 == "NN"
+    assert factory.n4 == "X"
+    assert factory.n8 == "XX"
   end
 end
