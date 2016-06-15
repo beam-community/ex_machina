@@ -2,6 +2,8 @@
 
 [![Circle CI](https://circleci.com/gh/thoughtbot/ex_machina.svg?style=svg&circle-token=fea4685d4951936734e764796c4b37c3686cdab3)](https://circleci.com/gh/thoughtbot/ex_machina)
 
+**ExMachina is part of the [thoughtbot Elixir family][elixir-phoenix] of projects.**
+
 ExMachina makes it easy to create test data and associations. It works great
 with Ecto, but is configurable to work with any persistence library.
 
@@ -284,11 +286,11 @@ redistributed under the terms specified in the [LICENSE](/LICENSE) file.
 ExMachina is maintained and funded by thoughtbot, inc.
 The names and logos for thoughtbot are trademarks of thoughtbot, inc.
 
-We love open source software!
-See [our other projects][community] or
-[hire us][hire] to design, develop, and grow your product.
+We love open source software, Elixir, and Phoenix. See [our other Elixir
+projects][elixir-phoenix], or [hire our Elixir Phoenix development team][hire]
+to design, develop, and grow your product.
 
-[community]: https://thoughtbot.com/community?utm_source=github
+[elixir-phoenix]: https://thoughtbot.com/services/elixir-phoenix?utm_source=github
 [hire]: https://thoughtbot.com?utm_source=github
 
 ## Inspiration
