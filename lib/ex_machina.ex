@@ -19,7 +19,7 @@ defmodule ExMachina do
 
         Please check for typos or define your factory:
 
-            def #{inspect factory_name}_factory do
+            def #{factory_name}_factory do
               ...
             end
         """
