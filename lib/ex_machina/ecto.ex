@@ -107,7 +107,7 @@ defmodule ExMachina.Ecto do
     end)
   end
 
-  def insert_built_belongs_to_assoc(module, foreign_key, association_name, record) do
+  defp insert_built_belongs_to_assoc(module, foreign_key, association_name, record) do
     case Map.get(record, association_name) do
       built_relation = %{__meta__: %{state: :built}} ->
         relation = built_relation |> module.insert
