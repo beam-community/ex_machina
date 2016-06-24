@@ -34,7 +34,7 @@ that show you what needs to change to work with 1.0.0.
   instead of `create_*`
 - Instead of defining a custom `save_record`, you can now implement an
   `ExMachina.Strategy`. See the documentation on hex.pm for more info ([#102])
-- Defined factory as `user_factory` instead of `factory(:user])` ([#110]). See PR
+- Defined factory as `user_factory` instead of `factory(:user)` ([#110]). See PR
   and related issue for details on why this was changed.
 - `params_for` no longer returns the primary key ([#123])
 
