@@ -7,6 +7,13 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [1.0.1]
+
+Small change to the error generated when a factory definition is not found (#142)
+
+[1.0.1]: https://github.com/thoughtbot/ex_machina/compare/v1.0.0...v1.0.1
+[#142]: https://github.com/thoughtbot/ex_machina/pull/142
+
 ## [1.0.0]
 
 A lot has changed but we tried to make upgrading as simple as possible.
