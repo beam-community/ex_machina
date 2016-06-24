@@ -7,6 +7,48 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [1.0.0]
+
+A lot has changed but we tried to make upgrading as simple as possible.
+
+**To upgrade:** In `mix.exs` change the version to `"~> 1.0"` and run `mix
+deps.get`. Once you've updated, run `mix test` and ExMachina will raise errors
+that show you what needs to change to work with 1.0.0.
+
+### Fixed
+
+- Fix compilation issues under OTP 19 ([#138])
+- Raise helpful error when trying to insert twice ([#128])
+
+### Added
+
+- Add `Sequence.next/1` for quickly creating sequences. Example:
+  `sequence("username")` will generate `"username1"`, then `"username2"` ([#84])
+- Raise if passing invalid keys to structs ([#99])
+- Add `params_with_assocs` ([#124])
+
+### Changed
+
+- Rename `fields_for` to `params_for` ([#98])
+- If using ExMachina with Ecto, use `insert`, `insert_list` and `insert_pair`
+  instead of `create_*`
+- Instead of defining a custom `save_record`, you can now implement an
+  `ExMachina.Strategy`. See the documentation on hex.pm for more info ([#102])
+- Defined factory as `user_factory` instead of `factory(:user])` ([#110]). See PR
+  and related issue for details on why this was changed.
+- `params_for` no longer returns the primary key ([#123])
+
+[1.0.0]: https://github.com/thoughtbot/ex_machina/compare/v0.6.1...v1.0.0
+[#138]: https://github.com/thoughtbot/ex_machina/pull/138
+[#128]: https://github.com/thoughtbot/ex_machina/pull/128
+[#84]: https://github.com/thoughtbot/ex_machina/pull/84
+[#99]: https://github.com/thoughtbot/ex_machina/pull/99
+[#124]: https://github.com/thoughtbot/ex_machina/pull/124
+[#98]: https://github.com/thoughtbot/ex_machina/pull/98
+[#102]: https://github.com/thoughtbot/ex_machina/pull/102
+[#110]: https://github.com/thoughtbot/ex_machina/pull/110
+[#123]: https://github.com/thoughtbot/ex_machina/pull/123
+
 ## [0.6.1]
 
 Removes warnings as reported by
