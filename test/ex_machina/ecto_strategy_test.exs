@@ -21,7 +21,7 @@ defmodule ExMachina.EctoStrategyTest do
   test "insert/1 inserts the record into the repo" do
     model = TestFactory.insert(%User{name: "John"})
 
-    new_user = ExMachina.TestRepo.first!(User)
+    new_user = ExMachina.TestRepo.one!(User)
     assert model == new_user
   end
 

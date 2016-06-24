@@ -48,7 +48,7 @@ defmodule ExMachina.EctoTest do
 
     assert TestFactory.params_with_assocs(:article) == %{
       title: "My Awesome Article",
-      author_id: ExMachina.TestRepo.first!(User).id,
+      author_id: ExMachina.TestRepo.one!(User).id,
     }
   end
 
@@ -57,7 +57,7 @@ defmodule ExMachina.EctoTest do
 
     assert TestFactory.params_with_assocs(:article, editor: not_loaded) == %{
       title: "My Awesome Article",
-      author_id: ExMachina.TestRepo.first!(User).id,
+      author_id: ExMachina.TestRepo.one!(User).id,
     }
   end
 
