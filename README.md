@@ -257,7 +257,7 @@ defmodule MyApp.Factory do
 end
 
 # Will build and then return a JSON encoded version of the user.
-MyApp.JsonFactories.json_encode(:user)
+MyApp.Factory.json_encode(:user)
 ```
 
 ## Contributing
