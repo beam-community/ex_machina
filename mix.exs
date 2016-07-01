@@ -2,7 +2,7 @@ defmodule ExMachina.Mixfile do
   use Mix.Project
 
   @project_url "https://github.com/thoughtbot/ex_machina"
-  @version "1.0.1"
+  @version "1.0.2"
 
   def project do
     [
@@ -16,7 +16,7 @@ defmodule ExMachina.Mixfile do
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       package: package,
-      docs: [main: "README", extras: ["README.md"]],
+      docs: [main: "readme", extras: ["README.md"]],
       deps: deps
     ]
   end
