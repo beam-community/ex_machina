@@ -37,6 +37,13 @@ defmodule ExMachina.EctoTest do
     }
   end
 
+  test "params_for/2 leaves ids that are not auto-generated" do
+    assert TestFactory.params_for(:custom) == %{
+      custom_id: 1,
+      name: "Testing"
+    }
+  end
+
   test "params_for/2 raises when passed a map" do
     assert_raise ArgumentError, fn ->
       TestFactory.params_for(:user_map)

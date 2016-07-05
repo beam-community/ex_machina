@@ -1,6 +1,12 @@
 defmodule ExMachina.TestFactory do
   use ExMachina.Ecto, repo: ExMachina.TestRepo
 
+  def custom_factory do
+    %ExMachina.Custom{
+      custom_id: 1,
+      name: "Testing"
+    }
+  end
   def user_factory do
     %ExMachina.User{
       name: "John Doe",
