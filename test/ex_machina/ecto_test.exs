@@ -50,6 +50,12 @@ defmodule ExMachina.EctoTest do
     end
   end
 
+  test "params_for/2 removes does not return nil fields" do
+    assert TestFactory.params_for(:user, admin: nil) == %{
+      name: "John Doe"
+    }
+  end
+
   test "params_with_assocs/2 inserts belongs_tos that are set by the factory" do
     assert has_association_in_schema?(ExMachina.Article, :editor)
 
