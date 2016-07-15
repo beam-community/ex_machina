@@ -137,7 +137,7 @@ defmodule ExMachina.Ecto do
 
   defp drop_nil_values(map) do
     map
-    |> Enum.filter(fn({_, v}) -> v != nil end)
+    |> Enum.reject(fn({_, v}) -> v == nil end)
     |> Enum.into(%{})
   end
 end
