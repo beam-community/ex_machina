@@ -3,12 +3,37 @@ defmodule ExMachina.Sequence do
     Agent.start_link(fn -> HashDict.new end, name: __MODULE__)
   end
 
+  @doc """
+  Reset all sequences so that the next sequence starts from 0
+
+  ## Example
+
+      ExMachina.Sequence.next("joe") # "joe0"
+      ExMachina.Sequence.next("joe") # "joe1"
+
+      Sequence.reset
+
+      ExMachina.Sequence.next("joe") # resets so the return value is "joe0"
+
+  If you want to reset sequences at the beginning of every test, put it in a
+  `setup` block in your test.
+
+     setup do
+       ExMachina.Sequence.reset
+     end
+  """
+  def reset do
+    Agent.update(__MODULE__, fn(_) -> HashDict.new end)
+  end
+
+  @doc false
   def next(sequence_name) when is_binary(sequence_name) do
     next sequence_name, fn(n)->
       sequence_name <> to_string(n)
     end
   end
 
+  @doc false
   def next(sequence_name) do
     raise(
       ArgumentError,
@@ -16,6 +41,7 @@ defmodule ExMachina.Sequence do
     )
   end
 
+  @doc false
   def next(sequence_name, formatter) do
     Agent.get_and_update(__MODULE__, fn(sequences) ->
       current_value = HashDict.get(sequences, sequence_name, 0)

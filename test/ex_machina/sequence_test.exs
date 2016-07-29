@@ -4,7 +4,7 @@ defmodule ExMachina.SequenceTest do
   alias ExMachina.Sequence
 
   setup do
-    Agent.update(ExMachina.Sequence, fn(_) -> HashDict.new end)
+    Sequence.reset
   end
 
   test "increments the sequence each time it is called" do
@@ -28,5 +28,13 @@ defmodule ExMachina.SequenceTest do
     assert_raise ArgumentError, ~r/must be a string/, fn ->
       Sequence.next(:not_a_string)
     end
+  end
+
+  test "can reset sequences" do
+    Sequence.next("joe")
+
+    Sequence.reset
+
+    assert "joe0" == Sequence.next("joe")
   end
 end

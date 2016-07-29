@@ -84,7 +84,11 @@ defmodule ExMachina do
   @doc """
   Shortcut for creating unique string values. Similar to sequence/2
 
-  For more customization of the generated string, see ExMachina.sequence/2
+  If you need to customize the returned string, see `ExMachina.sequence/2`.
+
+  Note that sequences keep growing and are *not* reset by ExMachina. Most of the
+  time you won't need to reset the sequence, but when you do need to reset them,
+  you can use `ExMachina.Sequence.reset/0`.
 
   ## Examples
 
@@ -97,6 +101,7 @@ defmodule ExMachina do
 
       def article_factory do
         %Article{
+          # Will generate "Article Title0" then "Article Title1", etc.
           title: sequence("Article Title")
         }
       end
