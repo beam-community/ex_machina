@@ -50,7 +50,7 @@ defmodule ExMachina.EctoTest do
     end
   end
 
-  test "params_for/2 removes does not return nil fields" do
+  test "params_for/2 removes doesn't return nil fields" do
     assert TestFactory.params_for(:user, admin: nil) == %{
       name: "John Doe"
     }
@@ -79,6 +79,14 @@ defmodule ExMachina.EctoTest do
 
     assert TestFactory.params_with_assocs(:user) == %{
       admin: false,
+      name: "John Doe",
+    }
+  end
+
+  test "params_with_assocs/2 doesn't return nil fields" do
+    assert has_association_in_schema?(ExMachina.User, :articles)
+
+    assert TestFactory.params_with_assocs(:user, admin: nil) == %{
       name: "John Doe",
     }
   end
