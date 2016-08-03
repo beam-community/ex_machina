@@ -71,6 +71,13 @@ defmodule ExMachina.Ecto do
   def params_for(module, factory_name, attrs \\ %{}) do
     module.build(factory_name, attrs)
     |> drop_ecto_fields
+    |> stringify_keys
+  end
+
+  defp stringify_keys(map) do
+    Enum.reduce map, %{}, fn ({key, value}, new_map) ->
+      Map.put new_map, to_string(key), value
+    end
   end
 
   @doc """
@@ -90,6 +97,7 @@ defmodule ExMachina.Ecto do
     module.build(factory_name, attrs)
     |> insert_belongs_to_assocs(module)
     |> drop_ecto_fields
+    |> stringify_keys
   end
 
   defp insert_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}, module) do
