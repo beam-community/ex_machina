@@ -97,6 +97,7 @@ defmodule ExMachina.Ecto do
     module.build(factory_name, attrs)
     |> insert_belongs_to_assocs(module)
     |> drop_ecto_fields
+    |> stringify_keys
   end
 
   defp insert_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}, module) do

@@ -65,9 +65,9 @@ defmodule ExMachina.EctoTest do
     assert has_association_in_schema?(ExMachina.Article, :editor)
 
     assert TestFactory.params_with_assocs(:article) == %{
-      title: "My Awesome Article",
-      author_id: ExMachina.TestRepo.one!(User).id,
-      visits: nil,
+      "title" => "My Awesome Article",
+      "author_id" => ExMachina.TestRepo.one!(User).id,
+      "visits" => nil,
     }
   end
 
@@ -75,9 +75,9 @@ defmodule ExMachina.EctoTest do
     not_loaded = %{__struct__: Ecto.Association.NotLoaded}
 
     assert TestFactory.params_with_assocs(:article, editor: not_loaded) == %{
-      title: "My Awesome Article",
-      author_id: ExMachina.TestRepo.one!(User).id,
-      visits: nil,
+      "title" => "My Awesome Article",
+      "author_id" => ExMachina.TestRepo.one!(User).id,
+      "visits" => nil,
     }
   end
 
@@ -85,10 +85,10 @@ defmodule ExMachina.EctoTest do
     assert has_association_in_schema?(ExMachina.User, :articles)
 
     assert TestFactory.params_with_assocs(:user) == %{
-      admin: false,
-      name: "John Doe",
-      net_worth: nil,
-      password: nil,
+      "admin" => false,
+      "name" => "John Doe",
+      "net_worth" => nil,
+      "password" => nil,
     }
   end
 
