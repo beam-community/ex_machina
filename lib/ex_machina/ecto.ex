@@ -71,6 +71,7 @@ defmodule ExMachina.Ecto do
   def params_for(module, factory_name, attrs \\ %{}) do
     module.build(factory_name, attrs)
     |> drop_ecto_fields
+    |> drop_fields_with_nil_values
   end
 
   @doc """
@@ -90,6 +91,7 @@ defmodule ExMachina.Ecto do
     module.build(factory_name, attrs)
     |> insert_belongs_to_assocs(module)
     |> drop_ecto_fields
+    |> drop_fields_with_nil_values
   end
 
   defp insert_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}, module) do
@@ -132,5 +134,11 @@ defmodule ExMachina.Ecto do
       nil -> map
       {name, _type} -> Map.delete(map, name)
     end
+  end
+
+  defp drop_fields_with_nil_values(map) do
+    map
+    |> Enum.reject(fn({_, value}) -> value == nil end)
+    |> Enum.into(%{})
   end
 end
