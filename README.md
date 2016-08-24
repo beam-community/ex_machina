@@ -129,7 +129,7 @@ build_list(3, :comment, attrs)
 # `insert*` returns an inserted comment. Only works with ExMachina.Ecto
 # Associated records defined on the factory are inserted as well.
 insert(:comment, attrs)
-insert_pair(comment, attrs)
+insert_pair(:comment, attrs)
 insert_list(3, :comment, attrs)
 
 # `params_for` returns a plain map without any Ecto specific attributes.
