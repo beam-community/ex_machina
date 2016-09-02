@@ -1,6 +1,6 @@
 defmodule ExMachina.Sequence do
   def start_link do
-    Agent.start_link(fn -> HashDict.new end, name: __MODULE__)
+    Agent.start_link(fn -> %{} end, name: __MODULE__)
   end
 
   @doc """
@@ -23,7 +23,7 @@ defmodule ExMachina.Sequence do
      end
   """
   def reset do
-    Agent.update(__MODULE__, fn(_) -> HashDict.new end)
+    Agent.update(__MODULE__, fn(_) -> %{} end)
   end
 
   @doc false
@@ -44,8 +44,8 @@ defmodule ExMachina.Sequence do
   @doc false
   def next(sequence_name, formatter) do
     Agent.get_and_update(__MODULE__, fn(sequences) ->
-      current_value = HashDict.get(sequences, sequence_name, 0)
-      new_sequences = HashDict.put(sequences, sequence_name, current_value + 1)
+      current_value = Map.get(sequences, sequence_name, 0)
+      new_sequences = Map.put(sequences, sequence_name, current_value + 1)
       {formatter.(current_value), new_sequences}
     end)
   end
