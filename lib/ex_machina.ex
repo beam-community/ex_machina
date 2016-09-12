@@ -221,7 +221,7 @@ defmodule ExMachina do
   defmacro __before_compile__(_env) do
     # We are using line -1 because we don't want warnings coming from
     # save_record/1 when someone defines there own save_record/1 function.
-    quote line: -1 do
+    quote do
       @doc """
       Raises a helpful error if no factory is defined.
       """
