@@ -1,6 +1,6 @@
 defmodule ExMachina.Sequence do
   def start_link do
-    Agent.start_link(fn -> %{} end, name: __MODULE__)
+    Agent.start_link(fn -> Map.new end, name: __MODULE__)
   end
 
   @doc """
@@ -23,7 +23,7 @@ defmodule ExMachina.Sequence do
      end
   """
   def reset do
-    Agent.update(__MODULE__, fn(_) -> %{} end)
+    Agent.update(__MODULE__, fn(_) -> Map.new end)
   end
 
   @doc false
