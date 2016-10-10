@@ -23,6 +23,10 @@ defmodule ExMachina.Ecto do
           ExMachina.Ecto.params_for(__MODULE__, factory_name, attrs)
         end
 
+        def string_params_for(factory_name, attrs \\ %{}) do
+          ExMachina.Ecto.string_params_for(__MODULE__, factory_name, attrs)
+        end
+
         def params_with_assocs(factory_name, attrs \\ %{}) do
           ExMachina.Ecto.params_with_assocs(__MODULE__, factory_name, attrs)
         end
@@ -72,6 +76,31 @@ defmodule ExMachina.Ecto do
     module.build(factory_name, attrs)
     |> drop_ecto_fields
     |> drop_fields_with_nil_values
+  end
+
+  @doc """
+  Works like `params_for/2` but the keys of returned map are strings (instead
+  of atoms). This makes the function useful to be used in controller tests for
+  Phoenix applications where params of this form are expected.
+
+  ## Example
+
+      def user_factory do
+        %MyApp.User{name: "John Doe", admin: false}
+      end
+
+      # Returns %{"name" => "John Doe", "admin" => true}
+      string_params_for(:user, admin: true)
+  """
+  def string_params_for(module, factory_name, attrs \\ %{}) do
+    params_for(module, factory_name, attrs)
+    |> convert_key_atoms_to_strings
+  end
+
+  defp convert_key_atoms_to_strings(struct) do
+    for {key, value} <- struct,
+        into: Map.new(),
+      do: {to_string(key), value}
   end
 
   @doc """
