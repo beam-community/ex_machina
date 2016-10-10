@@ -31,6 +31,10 @@ defmodule ExMachina.Ecto do
           ExMachina.Ecto.params_with_assocs(__MODULE__, factory_name, attrs)
         end
 
+        def string_params_with_assocs(factory_name, attrs \\ %{}) do
+          ExMachina.Ecto.string_params_with_assocs(__MODULE__, factory_name, attrs)
+        end
+
         def fields_for(factory_name, attrs \\ %{}) do
           raise "fields_for/2 has been renamed to params_for/2."
         end
@@ -97,12 +101,6 @@ defmodule ExMachina.Ecto do
     |> convert_key_atoms_to_strings
   end
 
-  defp convert_key_atoms_to_strings(struct) do
-    for {key, value} <- struct,
-        into: Map.new(),
-      do: {to_string(key), value}
-  end
-
   @doc """
   Same as `params_for/2`, but inserts all belongs_to associations and sets the
   foreign keys.
@@ -121,6 +119,25 @@ defmodule ExMachina.Ecto do
     |> insert_belongs_to_assocs(module)
     |> drop_ecto_fields
     |> drop_fields_with_nil_values
+  end
+
+  @doc """
+  It is similar to `params_with_assocs/2`, but returned map keys are of type
+  string, so the result of this function can be safely used in controller tests
+  for Phoenix applications.
+
+  ## Example
+
+      def article_factory do
+        %MyApp.Article{title: "An Awesome Article", author: build(:author)}
+      end
+
+      # Inserts an author and returns %{"title" => "An Awesome Article", "author_id" => 12}
+      params_with_assocs(:article)
+  """
+  def string_params_with_assocs(module, factory_name, attrs \\ %{}) do
+    params_with_assocs(module, factory_name, attrs)
+    |> convert_key_atoms_to_strings
   end
 
   defp insert_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}, module) do
@@ -169,5 +186,11 @@ defmodule ExMachina.Ecto do
     map
     |> Enum.reject(fn({_, value}) -> value == nil end)
     |> Enum.into(%{})
+  end
+
+  defp convert_key_atoms_to_strings(struct) do
+    for {key, value} <- struct,
+        into: Map.new(),
+      do: {to_string(key), value}
   end
 end
