@@ -133,7 +133,7 @@ defmodule ExMachina.Ecto do
       end
 
       # Inserts an author and returns %{"title" => "An Awesome Article", "author_id" => 12}
-      params_with_assocs(:article)
+      string_params_with_assocs(:article)
   """
   def string_params_with_assocs(module, factory_name, attrs \\ %{}) do
     params_with_assocs(module, factory_name, attrs)
