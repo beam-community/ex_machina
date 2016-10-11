@@ -85,7 +85,7 @@ defmodule ExMachina.Ecto do
   @doc """
   Works like `params_for/2` but the keys of returned map are strings (instead
   of atoms). This makes the function useful to be used in controller tests for
-  Phoenix applications where params of this form are expected.
+  Phoenix applications where params with string keys are expected.
 
   ## Example
 
