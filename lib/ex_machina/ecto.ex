@@ -99,7 +99,7 @@ defmodule ExMachina.Ecto do
   """
   def string_params_for(module, factory_name, attrs \\ %{}) do
     params_for(module, factory_name, attrs)
-    |> convert_key_atoms_to_strings
+    |> convert_atom_keys_to_strings
   end
 
   @doc """
@@ -140,7 +140,7 @@ defmodule ExMachina.Ecto do
   """
   def string_params_with_assocs(module, factory_name, attrs \\ %{}) do
     params_with_assocs(module, factory_name, attrs)
-    |> convert_key_atoms_to_strings
+    |> convert_atom_keys_to_strings
   end
 
   defp insert_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}, module) do
@@ -191,7 +191,7 @@ defmodule ExMachina.Ecto do
     |> Enum.into(%{})
   end
 
-  defp convert_key_atoms_to_strings(struct) do
+  defp convert_atom_keys_to_strings(struct) do
     for {key, value} <- struct,
         into: Map.new(),
       do: {to_string(key), value}
