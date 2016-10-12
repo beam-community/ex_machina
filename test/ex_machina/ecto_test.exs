@@ -56,7 +56,7 @@ defmodule ExMachina.EctoTest do
     }
   end
 
-  test "string_params_for/2 produces maps similar to ones built with params_for/2, but the keys are of type string" do
+  test "string_params_for/2 produces maps similar to ones built with params_for/2, but the keys are strings" do
     assert TestFactory.string_params_for(:user) == %{
       "name" => "John Doe",
       "admin" => false,
