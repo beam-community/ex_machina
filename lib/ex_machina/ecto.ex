@@ -83,9 +83,10 @@ defmodule ExMachina.Ecto do
   end
 
   @doc """
-  Works like `params_for/2` but the keys of returned map are strings (instead
-  of atoms). This makes the function useful to be used in controller tests for
-  Phoenix applications where params with string keys are expected.
+  Similar to `params_for/2` but converts atom keys to strings in returned map.
+
+  The result of this function can be safely used in controller tests for Phoenix
+  web applications.
 
   ## Example
 
@@ -122,9 +123,11 @@ defmodule ExMachina.Ecto do
   end
 
   @doc """
-  It is similar to `params_with_assocs/2`, but returned map keys are of type
-  string, so the result of this function can be safely used in controller tests
-  for Phoenix applications.
+  Similar to `params_with_assocs/2` but converts atom keys to strings in
+  returned map.
+
+  The result of this function can be safely used in controller tests for Phoenix
+  web applications.
 
   ## Example
 
