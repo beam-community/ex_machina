@@ -34,6 +34,7 @@ defmodule ExMachina.EctoTest do
     assert TestFactory.params_for(:user) == %{
       name: "John Doe",
       admin: false,
+      articles: [],
     }
   end
 
@@ -44,16 +45,36 @@ defmodule ExMachina.EctoTest do
     }
   end
 
-  test "params_for/2 raises when passed a map" do
-    assert_raise ArgumentError, fn ->
-      TestFactory.params_for(:user_map)
-    end
-  end
-
   test "params_for/2 removes fields with nil values" do
     assert TestFactory.params_for(:user, admin: nil) == %{
-      name: "John Doe"
+      name: "John Doe",
+      articles: [],
     }
+  end
+
+  test "params_for/2 recursively strips has_many values" do
+    article = TestFactory.build(:article)
+
+    user_params = TestFactory.params_for(:user, articles: [article])
+
+    assert user_params[:articles] == [%{
+      title: article.title,
+    }]
+  end
+
+  test "params_for/2 recursively strips has_one values" do
+    article = TestFactory.build(:article)
+
+    user_params = TestFactory.params_for(:user, best_article: article)
+
+    assert user_params[:best_article] == %{title: article.title}
+  end
+
+  test "params_for/2 works with maps as has_many values" do
+    article = %{title: "Foobar"}
+    user_params = TestFactory.params_for(:user, articles: [article])
+
+    assert user_params.articles == [%{title: article.title}]
   end
 
   test "string_params_for/2 produces maps similar to ones built with params_for/2, but the keys are strings" do
@@ -81,13 +102,11 @@ defmodule ExMachina.EctoTest do
     }
   end
 
-  test "params_with_assocs/2 doesn't try to save has_many fields" do
-    assert has_association_in_schema?(ExMachina.User, :articles)
+  test "params_with_assocs/2 keeps has_many associations" do
+    article = TestFactory.build(:article)
+    user_params = TestFactory.params_with_assocs(:user, articles: [article])
 
-    assert TestFactory.params_with_assocs(:user) == %{
-      admin: false,
-      name: "John Doe",
-    }
+    assert user_params.articles == [%{title: article.title}]
   end
 
   test "params_with_assocs/2 removes fields with nil values" do
@@ -95,6 +114,7 @@ defmodule ExMachina.EctoTest do
 
     assert TestFactory.params_with_assocs(:user, admin: nil) == %{
       name: "John Doe",
+      articles: [],
     }
   end
 

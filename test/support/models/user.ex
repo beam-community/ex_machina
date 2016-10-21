@@ -8,5 +8,6 @@ defmodule ExMachina.User do
     field :password, :string, virtual: true
 
     has_many :articles, ExMachina.Article
+    has_one :best_article, ExMachina.Article
   end
 end
