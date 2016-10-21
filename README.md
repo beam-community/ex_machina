@@ -100,7 +100,6 @@ defmodule MyApp.Factory do
     %MyApp.Article{
       title: "Use ExMachina!",
       # associations are inserted when you call `insert`
-      comments: [build(:comment)],
       author: build(:user),
     }
   end
