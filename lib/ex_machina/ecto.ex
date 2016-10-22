@@ -192,8 +192,10 @@ defmodule ExMachina.Ecto do
   end
 
   defp convert_atom_keys_to_strings(struct) do
-    for {key, value} <- struct,
-        into: Map.new(),
-      do: {to_string(key), value}
+    Enum.reduce(
+      struct,
+      Map.new,
+      fn({key, value}, acc) -> Map.put(acc, to_string(key), value) end
+    )
   end
 end
