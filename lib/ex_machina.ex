@@ -144,6 +144,9 @@ defmodule ExMachina do
     end
   end
 
+  defp do_merge(record, %{__func__: func}=attrs) do
+    func.(do_merge(record, Map.delete(attrs, :__func__)))
+  end
   defp do_merge(%{__struct__: _} = record, attrs) do
     struct!(record, attrs)
   end

@@ -116,7 +116,14 @@ end
 Using factories ([check out the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details):
 
 ```elixir
-# `attrs` are automatically merged in for all build/insert functions.
+# `attrs` are automatically merged in for all build/insert functions. 
+# Note, a __func__ can be set in the attrs Map. This func will be 
+# executed after the object is created and the rest of the map has been
+# merged. Useful only if you need to alter the generated struct in a 
+# manner that won't work with struct! or Map.merge. 
+# eg: Suppose you need to set the prefix on an object before inserting it:
+insert(:user, %{__func__: fn(user) -> Ecto.put_meta(user, prefix: "prefix") end})
+
 
 # `build*` returns an unsaved comment.
 # Associated records defined on the factory are built.

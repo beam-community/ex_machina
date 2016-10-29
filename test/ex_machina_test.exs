@@ -71,6 +71,22 @@ defmodule ExMachinaTest do
     }
   end
 
+  test "build/2 invokes passed in proc" do
+    assert Factory.build(:user, %{__func__: fn(user) -> Map.put(user, :name, "Jim Doe") end}) == %{
+      id: 3,
+      name: "Jim Doe",
+      admin: false
+    }
+  end
+
+  test "build/2 invokes passed in proc, and merges the rest of the map as usual" do
+    assert Factory.build(:user, %{admin: true, __func__: fn(user) -> Map.put(user, :name, "Jim Doe") end}) == %{
+      id: 3,
+      name: "Jim Doe",
+      admin: true
+    }
+  end
+
   test "build/2 raises if passing invalid keys to a struct factory" do
     assert_raise KeyError, fn ->
       Factory.build(:struct, doesnt_exist: true)
