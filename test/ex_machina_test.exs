@@ -72,15 +72,15 @@ defmodule ExMachinaTest do
   end
 
   test "build/2 invokes passed in proc" do
-    assert Factory.build(:user, %{__func__: fn(user) -> Map.put(user, :name, "Jim Doe") end}) == %{
+    assert Factory.build(:user, fn(user) -> Map.put(user, :name, "Jim Doe") end) == %{
       id: 3,
       name: "Jim Doe",
       admin: false
     }
   end
 
-  test "build/2 invokes passed in proc, and merges the rest of the map as usual" do
-    assert Factory.build(:user, %{admin: true, __func__: fn(user) -> Map.put(user, :name, "Jim Doe") end}) == %{
+  test "build/3 invokes passed in proc, and merges the rest of the map as usual" do
+    assert Factory.build(:user, %{admin: true}, fn(user) -> Map.put(user, :name, "Jim Doe") end) == %{
       id: 3,
       name: "Jim Doe",
       admin: true
@@ -93,7 +93,18 @@ defmodule ExMachinaTest do
     end
   end
 
-  test "build_pair/2 builds 2 factories" do
+  test "build_pair/1 builds 2 factories" do
+    records = Factory.build_pair(:user)
+
+    expected_record = %{
+      id: 3,
+      name: "John Doe",
+      admin: false
+    }
+    assert records == [expected_record, expected_record]
+  end
+
+  test "build_pair/2 builds 2 factories merging the map" do
     records = Factory.build_pair(:user, admin: true)
 
     expected_record = %{
@@ -104,12 +115,67 @@ defmodule ExMachinaTest do
     assert records == [expected_record, expected_record]
   end
 
-  test "build_list/3 builds the factory the passed in number of times" do
-    records = Factory.build_list(3, :user, admin: true)
+  test "build_pair/2 builds 2 factories running the func" do
+    records = Factory.build_pair(:user, fn(rec) -> Map.put(rec, :name, "Jim Doe") end)
+
+    expected_record = %{
+      id: 3,
+      name: "Jim Doe",
+      admin: false
+    }
+    assert records == [expected_record, expected_record]
+  end
+
+  test "build_pair/3 builds 2 factories" do
+    records = Factory.build_pair(:user, [admin: true], fn(rec) -> Map.put(rec, :name, "Jim Doe") end)
+
+    expected_record = %{
+      id: 3,
+      name: "Jim Doe",
+      admin: true
+    }
+    assert records == [expected_record, expected_record]
+  end
+
+  test "build_list/2 builds the factory the passed in number of times" do
+    records = Factory.build_list(3, :user)
 
     expected_record = %{
       id: 3,
       name: "John Doe",
+      admin: false
+    }
+    assert records == [expected_record, expected_record, expected_record]
+  end
+
+  test "build_list/3 builds the factory the passed in number of times merging map" do
+    records = Factory.build_list(3, :user, %{admin: true})
+
+    expected_record = %{
+      id: 3,
+      name: "John Doe",
+      admin: true
+    }
+    assert records == [expected_record, expected_record, expected_record]
+  end
+
+  test "build_list/3 builds the factory the passed in number of times running the func" do
+    records = Factory.build_list(3, :user, fn(rec) -> Map.put(rec, :name, "Jim Doe") end)
+
+    expected_record = %{
+      id: 3,
+      name: "Jim Doe",
+      admin: false
+    }
+    assert records == [expected_record, expected_record, expected_record]
+  end
+
+  test "build_list/4 builds the factory the passed in number of times" do
+    records = Factory.build_list(3, :user, %{admin: true}, fn(rec) -> Map.put(rec, :name, "Jim Doe") end)
+
+    expected_record = %{
+      id: 3,
+      name: "Jim Doe",
       admin: true
     }
     assert records == [expected_record, expected_record, expected_record]

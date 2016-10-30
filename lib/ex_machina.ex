@@ -38,16 +38,28 @@ defmodule ExMachina do
 
       import ExMachina, only: [sequence: 1, sequence: 2]
 
-      def build(factory_name, attrs \\ %{}) do
-        ExMachina.build(__MODULE__, factory_name, attrs)
+      def build(factory_name, funcattr \\ %{}) do
+        ExMachina.build(__MODULE__, factory_name, funcattr)
       end
 
-      def build_pair(factory_name, attrs \\ %{}) do
-        ExMachina.build_pair(__MODULE__, factory_name, attrs)
+      def build(factory_name, attrs, func) do
+        ExMachina.build(__MODULE__, factory_name, attrs, func)
       end
 
-      def build_list(number_of_factories, factory_name, attrs \\ %{}) do
-        ExMachina.build_list(__MODULE__, number_of_factories, factory_name, attrs)
+      def build_pair(factory_name, funcattr \\ %{}) do
+        ExMachina.build_pair(__MODULE__, factory_name, funcattr)
+      end
+
+      def build_pair(factory_name, attrs, func) do
+        ExMachina.build_pair(__MODULE__, factory_name, attrs, func)
+      end
+
+      def build_list(number_of_factories, factory_name, funcattr \\ %{}) do
+        ExMachina.build_list(__MODULE__, number_of_factories, factory_name, funcattr)
+      end
+
+      def build_list(number_of_factories, factory_name, attrs, func) do
+        ExMachina.build_list(__MODULE__, number_of_factories, factory_name, attrs, func)
       end
 
       def create(_) do
@@ -133,26 +145,33 @@ defmodule ExMachina do
 
       # Returns %{name: "John Doe", admin: true}
       build(:user, admin: true)
+
+      # Returns %{name: "Jim Doe", admin: false}
+      build(:user, fn(user) -> Map.put(user, :name, "Jim Doe") end)
+
+      # Returns %{name: "Jim Doe", admin: true}
+      build(:user, %{admin: true}, fn(user) -> Map.put(user, :name, "Jim Doe") end)
   """
-  def build(module, factory_name, attrs \\ %{}) do
+  def build(module, factory_name, func)  when is_function(func), do: build(module, factory_name, %{}, func)
+  def build(module, factory_name, attrs) when is_map(attrs) or is_list(attrs), do: build(module, factory_name, attrs, &identity/1)
+  def build(module, factory_name, attrs, func) do
     attrs = Enum.into(attrs, %{})
     function_name = Atom.to_string(factory_name) <> "_factory" |> String.to_atom
     if Code.ensure_loaded?(module) && function_exported?(module, function_name, 0) do
-      apply(module, function_name, []) |> do_merge(attrs)
+      apply(module, function_name, []) |> do_merge(attrs) |> func.()
     else
       raise UndefinedFactoryError, factory_name
     end
   end
 
-  defp do_merge(record, %{__func__: func}=attrs) do
-    func.(do_merge(record, Map.delete(attrs, :__func__)))
-  end
   defp do_merge(%{__struct__: _} = record, attrs) do
     struct!(record, attrs)
   end
   defp do_merge(record, attrs) do
     Map.merge(record, attrs)
   end
+
+  defp identity(obj), do: obj
 
   @doc """
   Builds and returns 2 records with the passed in factory_name and attrs
@@ -161,9 +180,13 @@ defmodule ExMachina do
 
       # Returns a list of 2 users
       build_pair(:user)
+)
   """
-  def build_pair(module, factory_name, attrs \\ %{}) do
-    ExMachina.build_list(module, 2, factory_name, attrs)
+  def build_pair(module, factory_name, funcattrs) do
+    ExMachina.build_list(module, 2, factory_name, funcattrs)
+  end
+  def build_pair(module, factory_name, attrs, func) do
+    ExMachina.build_list(module, 2, factory_name, attrs, func)
   end
 
   @doc """
@@ -174,9 +197,15 @@ defmodule ExMachina do
       # Returns a list of 3 users
       build_list(3, :user)
   """
-  def build_list(module, number_of_factories, factory_name, attrs \\ %{}) do
+  def build_list(module, number_of_factories, factory_name, func) when is_function(func) do
+    build_list(module, number_of_factories, factory_name, %{}, func)
+  end
+  def build_list(module, number_of_factories, factory_name, attrs) when is_map(attrs) or is_list(attrs) do
+    build_list(module, number_of_factories, factory_name, attrs, &identity/1)
+  end
+  def build_list(module, number_of_factories, factory_name, attrs, func) do
     Enum.map(1..number_of_factories, fn(_) ->
-      ExMachina.build(module, factory_name, attrs)
+      ExMachina.build(module, factory_name, attrs, func)
     end)
   end
 
