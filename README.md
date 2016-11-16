@@ -140,8 +140,8 @@ params_for(:comment, attrs)
 # This is only available when using `ExMachina.Ecto`.
 params_with_assocs(:comment, attrs)
 
-# For controller tests in Phoenix, there are two functions that generate params
-# of expected format - the keys of generated maps are strings.
+# Use `string_params_for` to generate maps with string keys. This can be useful
+# for Phoenix controller tests.
 string_params_for(:comment, attrs)
 string_params_with_assocs(:comment, attrs)
 ```
