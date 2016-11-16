@@ -50,22 +50,27 @@ defmodule ExMachina do
         ExMachina.build_list(__MODULE__, number_of_factories, factory_name, attrs)
       end
 
+      @spec create(any) :: no_return
       def create(_) do
         raise_function_replaced_error("create/1", "insert/1")
       end
 
+      @spec create(any, any) :: no_return
       def create(_, _) do
         raise_function_replaced_error("create/2", "insert/2")
       end
 
+      @spec create_pair(any, any) :: no_return
       def create_pair(_, _) do
         raise_function_replaced_error("create_pair/2", "insert_pair/2")
       end
 
+      @spec create_list(any, any, any) :: no_return
       def create_list(_, _, _) do
         raise_function_replaced_error("create_list/3", "insert_list/3")
       end
 
+      @spec raise_function_replaced_error(String.t, String.t) :: no_return
       defp raise_function_replaced_error(old_function, new_function) do
         raise """
         #{old_function} has been removed.
@@ -182,6 +187,7 @@ defmodule ExMachina do
       @doc """
       Raises a helpful error if no factory is defined.
       """
+      @spec factory(any) :: no_return
       def factory(factory_name) do
         raise UndefinedFactoryError, factory_name
       end
