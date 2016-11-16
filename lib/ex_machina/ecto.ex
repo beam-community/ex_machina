@@ -67,6 +67,8 @@ defmodule ExMachina.Ecto do
   If you want belongs_to associations to be inserted, use
   `params_with_assocs/2`.
 
+  If you want params with string keys use `string_params_for/3`.
+
   ## Example
 
       def user_factory do
@@ -105,6 +107,8 @@ defmodule ExMachina.Ecto do
   @doc """
   Same as `params_for/2`, but inserts all belongs_to associations and sets the
   foreign keys.
+
+  If you want params with string keys use `string_params_with_assocs/3`.
 
   ## Example
 
