@@ -23,8 +23,16 @@ defmodule ExMachina.Ecto do
           ExMachina.Ecto.params_for(__MODULE__, factory_name, attrs)
         end
 
+        def string_params_for(factory_name, attrs \\ %{}) do
+          ExMachina.Ecto.string_params_for(__MODULE__, factory_name, attrs)
+        end
+
         def params_with_assocs(factory_name, attrs \\ %{}) do
           ExMachina.Ecto.params_with_assocs(__MODULE__, factory_name, attrs)
+        end
+
+        def string_params_with_assocs(factory_name, attrs \\ %{}) do
+          ExMachina.Ecto.string_params_with_assocs(__MODULE__, factory_name, attrs)
         end
 
         def fields_for(factory_name, attrs \\ %{}) do
@@ -75,6 +83,26 @@ defmodule ExMachina.Ecto do
   end
 
   @doc """
+  Similar to `params_for/2` but converts atom keys to strings in returned map.
+
+  The result of this function can be safely used in controller tests for Phoenix
+  web applications.
+
+  ## Example
+
+      def user_factory do
+        %MyApp.User{name: "John Doe", admin: false}
+      end
+
+      # Returns %{"name" => "John Doe", "admin" => true}
+      string_params_for(:user, admin: true)
+  """
+  def string_params_for(module, factory_name, attrs \\ %{}) do
+    params_for(module, factory_name, attrs)
+    |> convert_atom_keys_to_strings
+  end
+
+  @doc """
   Same as `params_for/2`, but inserts all belongs_to associations and sets the
   foreign keys.
 
@@ -92,6 +120,27 @@ defmodule ExMachina.Ecto do
     |> insert_belongs_to_assocs(module)
     |> drop_ecto_fields
     |> drop_fields_with_nil_values
+  end
+
+  @doc """
+  Similar to `params_with_assocs/2` but converts atom keys to strings in
+  returned map.
+
+  The result of this function can be safely used in controller tests for Phoenix
+  web applications.
+
+  ## Example
+
+      def article_factory do
+        %MyApp.Article{title: "An Awesome Article", author: build(:author)}
+      end
+
+      # Inserts an author and returns %{"title" => "An Awesome Article", "author_id" => 12}
+      string_params_with_assocs(:article)
+  """
+  def string_params_with_assocs(module, factory_name, attrs \\ %{}) do
+    params_with_assocs(module, factory_name, attrs)
+    |> convert_atom_keys_to_strings
   end
 
   defp insert_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}, module) do
@@ -140,5 +189,13 @@ defmodule ExMachina.Ecto do
     map
     |> Enum.reject(fn({_, value}) -> value == nil end)
     |> Enum.into(%{})
+  end
+
+  defp convert_atom_keys_to_strings(struct) do
+    Enum.reduce(
+      struct,
+      Map.new,
+      fn({key, value}, acc) -> Map.put(acc, to_string(key), value) end
+    )
   end
 end

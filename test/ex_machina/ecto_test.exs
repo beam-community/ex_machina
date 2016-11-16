@@ -56,6 +56,13 @@ defmodule ExMachina.EctoTest do
     }
   end
 
+  test "string_params_for/2 produces maps similar to ones built with params_for/2, but the keys are strings" do
+    assert TestFactory.string_params_for(:user) == %{
+      "name" => "John Doe",
+      "admin" => false,
+    }
+  end
+
   test "params_with_assocs/2 inserts belongs_tos that are set by the factory" do
     assert has_association_in_schema?(ExMachina.Article, :editor)
 
@@ -88,6 +95,15 @@ defmodule ExMachina.EctoTest do
 
     assert TestFactory.params_with_assocs(:user, admin: nil) == %{
       name: "John Doe",
+    }
+  end
+
+  test "string_params_with_assocs/2 behaves like params_with_assocs/2 but the keys of the map are strings" do
+    assert has_association_in_schema?(ExMachina.Article, :editor)
+
+    assert TestFactory.string_params_with_assocs(:article) == %{
+      "title" => "My Awesome Article",
+      "author_id" => ExMachina.TestRepo.one!(User).id,
     }
   end
 
