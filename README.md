@@ -185,6 +185,85 @@ the same directory. This can be helpful if you need to create factories that are
 used for different repos, your factory module is getting too big, or if you have
 different ways of saving the record for different types of factories.
 
+### How to split your factories into different files
+
+We will assume that you use factories only in test environment. If you use them in all environments, just adjust directory structure.
+
+> Start by creating main factory module in `test/support/factory.ex` and name it `MyApp.Factory`.
+
+```elixir
+# test/support/factory.ex
+defmodule MyApp.Factory do
+  use ExMachina.Ecto, repo: MyApp.Repo
+
+  use MyApp.ArticleFactory
+end
+```
+
+`MyApp.ArticleFactory` will be the first factory we will create. Create separate directory for factories, like `test/factories`. Here is how to create a factory:
+
+```elixir
+# test/factories/article_factory.ex
+defmodule MyApp.ArticleFactory do
+  defmacro __using__(_opts) do
+    quote do
+
+      def article_factory do
+        %MyApp.Article{
+          title: "My awesome article!",
+          body: "Still working on it!"
+        }
+      end
+
+    end
+  end
+end
+```
+
+That way you can split you giant factory file into many small files. But what about name conflicts? Use pattern matching to avoid them!
+
+```elixir
+# test/factories/post_factory.ex
+defmodule MyApp.PostFactory do
+  defmacro __using__(_opts) do
+    quote do
+
+      def post_factory do
+        %MyApp.Post{
+          body: "Example body"
+        }
+      end
+
+      def with_comments(%MyApp.Post{} = post) do
+        insert_pair(:comment, post: post)
+        post
+      end
+    end
+  end
+end
+
+# test/factories/video_factory.ex
+defmodule MyApp.VideoFactory do
+  defmacro __using__(_opts) do
+    quote do
+
+      def video_factory do
+        %MyApp.Video{
+          url: "example_url"
+        }
+      end
+
+      def with_comments(%MyApp.Video{} = video) do
+        insert_pair(:comment, video: video)
+        video
+      end
+    end
+  end
+end
+```
+
+This way you can assure that you do not have any scoping problems with your methods.
+
 ## Ecto Associations
 
 ExMachina will automatically save any associations when you call any of the
