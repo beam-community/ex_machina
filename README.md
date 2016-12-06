@@ -185,11 +185,11 @@ the same directory. This can be helpful if you need to create factories that are
 used for different repos, your factory module is getting too big, or if you have
 different ways of saving the record for different types of factories.
 
-### How to split your factories into different files
+### Splitting factories into separate files
 
-We will assume that you use factories only in test environment. If you use them in all environments, just adjust directory structure.
+This example shows how to set up factories for testing environment. For setting them in all environments, please see _To install in all environments_ section
 
-> Start by creating main factory module in `test/support/factory.ex` and name it `MyApp.Factory`.
+> Start by creating main factory module in `test/support/factory.ex` and name it `MyApp.Factory`. The purpose of main factory is to allow you to include only single module in all tests.
 
 ```elixir
 # test/support/factory.ex
@@ -200,7 +200,7 @@ defmodule MyApp.Factory do
 end
 ```
 
-`MyApp.ArticleFactory` will be the first factory we will create. Create separate directory for factories, like `test/factories`. Here is how to create a factory:
+Main factory includes `MyApp.ArticleFactory`, so let's create it next. It might be useful to create separate directory for factories, like `test/factories`. Here is how to create a factory:
 
 ```elixir
 # test/factories/article_factory.ex
@@ -220,7 +220,7 @@ defmodule MyApp.ArticleFactory do
 end
 ```
 
-That way you can split you giant factory file into many small files. But what about name conflicts? Use pattern matching to avoid them!
+That way you can split your giant factory file into many small files. But what about name conflicts? Use pattern matching to avoid them!
 
 ```elixir
 # test/factories/post_factory.ex
