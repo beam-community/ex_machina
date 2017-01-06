@@ -151,7 +151,8 @@ defmodule ExMachina.Ecto do
   defp recursively_strip(record = %{__meta__: %{__struct__: Ecto.Schema.Metadata}}) do
     record
     |> strip_has_assocs
-    |> handle_belongs_to_assocs
+    |> set_persisted_belongs_to_ids
+    |> drop_belongs_to_assocs
     |> drop_ecto_fields
     |> drop_fields_with_nil_values
   end
@@ -187,7 +188,7 @@ defmodule ExMachina.Ecto do
     end
   end
 
-  defp handle_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
+  defp set_persisted_belongs_to_ids(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
     Enum.reduce(struct.__schema__(:associations), record, fn(association_name, record) ->
       association = struct.__schema__(:association, association_name)
 
@@ -197,11 +198,22 @@ defmodule ExMachina.Ecto do
             belongs_to = %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :loaded}} ->
               record
               |> set_belongs_to_primary_key(belongs_to, association)
-              |> Map.delete(association.field)
 
             _ ->
-              Map.delete(record, association.field)
+              record
           end
+        _ ->
+          record
+      end
+    end)
+  end
+
+  defp drop_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
+    Enum.reduce(struct.__schema__(:associations), record, fn(association_name, record) ->
+      case struct.__schema__(:association, association_name) do
+        %{__struct__: Ecto.Association.BelongsTo} ->
+          Map.delete(record, association_name)
+
         _ ->
           record
       end
