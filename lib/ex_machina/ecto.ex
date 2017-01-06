@@ -126,10 +126,32 @@ defmodule ExMachina.Ecto do
     |> recursively_strip
   end
 
+  @doc """
+  Similar to `params_with_assocs/2` but converts atom keys to strings in
+  returned map.
+
+  The result of this function can be safely used in controller tests for Phoenix
+  web applications.
+
+  ## Example
+
+      def article_factory do
+        %MyApp.Article{title: "An Awesome Article", author: build(:author)}
+      end
+
+      # Inserts an author and returns %{"title" => "An Awesome Article", "author_id" => 12}
+      string_params_with_assocs(:article)
+  """
+  def string_params_with_assocs(module, factory_name, attrs \\ %{}) do
+    params_with_assocs(module, factory_name, attrs)
+    |> convert_atom_keys_to_strings
+  end
+
+
   defp recursively_strip(record = %{__meta__: %{__struct__: Ecto.Schema.Metadata}}) do
     record
     |> strip_has_assocs
-    |> drop_belongs_to_assocs
+    |> handle_belongs_to_assocs
     |> drop_ecto_fields
     |> drop_fields_with_nil_values
   end
@@ -155,68 +177,63 @@ defmodule ExMachina.Ecto do
       %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :built}} ->
         assoc = recursively_strip(original_assoc)
         Map.put(record, association_name, assoc)
+
       %{__struct__: Ecto.Association.NotLoaded} ->
         Map.delete(record, association_name)
+
       _list ->
         assoc = Enum.map(original_assoc, &recursively_strip/1)
         Map.put(record, association_name, assoc)
     end
   end
 
-  defp drop_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
+  defp handle_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
     Enum.reduce(struct.__schema__(:associations), record, fn(association_name, record) ->
-      case struct.__schema__(:association, association_name) do
+      association = struct.__schema__(:association, association_name)
+
+      case association do
         %{__struct__: Ecto.Association.BelongsTo} ->
-          Map.delete(record, association_name)
+          case Map.get(record, association_name) do
+            belongs_to = %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :loaded}} ->
+              record
+              |> set_belongs_to_primary_key(belongs_to, association)
+              |> Map.delete(association.field)
+
+            _ ->
+              Map.delete(record, association.field)
+          end
         _ ->
           record
       end
     end)
   end
 
-  @doc """
-  Similar to `params_with_assocs/2` but converts atom keys to strings in
-  returned map.
+  defp set_belongs_to_primary_key(record, belongs_to, association) do
+    primary_key = Map.get(belongs_to, association.related_key)
 
-  The result of this function can be safely used in controller tests for Phoenix
-  web applications.
-
-  ## Example
-
-      def article_factory do
-        %MyApp.Article{title: "An Awesome Article", author: build(:author)}
-      end
-
-      # Inserts an author and returns %{"title" => "An Awesome Article", "author_id" => 12}
-      string_params_with_assocs(:article)
-  """
-  def string_params_with_assocs(module, factory_name, attrs \\ %{}) do
-    params_with_assocs(module, factory_name, attrs)
-    |> convert_atom_keys_to_strings
+    record
+    |> Map.put(association.owner_key, primary_key)
   end
 
   defp insert_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}, module) do
     Enum.reduce(struct.__schema__(:associations), record, fn(association_name, record) ->
       case struct.__schema__(:association, association_name) do
         association = %{__struct__: Ecto.Association.BelongsTo} ->
-          insert_built_belongs_to_assoc(
-            module,
-            association.owner_key,
-            association_name,
-            record
-          )
-          |> Map.delete(association_name)
+          insert_built_belongs_to_assoc(module, association, record)
+
         _ -> record
       end
     end)
   end
 
-  defp insert_built_belongs_to_assoc(module, foreign_key, association_name, record) do
-    case Map.get(record, association_name) do
+  defp insert_built_belongs_to_assoc(module, association, record) do
+    case Map.get(record, association.field) do
       built_relation = %{__meta__: %{state: :built}} ->
         relation = built_relation |> module.insert
-        Map.put(record, foreign_key, relation.id)
-      _ -> Map.delete(record, foreign_key)
+        set_belongs_to_primary_key(record, relation, association)
+
+      _ ->
+        Map.delete(record, association.owner_key)
     end
   end
 

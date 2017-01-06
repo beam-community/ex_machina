@@ -52,8 +52,35 @@ defmodule ExMachina.EctoTest do
     }
   end
 
-  test "params_for/2 recursively strips has_many values" do
-    article = TestFactory.build(:article)
+  test "params_for/2 keeps foreign keys for persisted belongs_to associations" do
+    editor = TestFactory.insert(:user)
+
+    article_params = TestFactory.params_for(
+      :article,
+      title: "foo",
+      editor: editor
+    )
+
+    assert article_params == %{
+      title: "foo",
+      editor_id: editor.id,
+    }
+  end
+
+  test "params_for/2 deletes unpersisted belongs_to associations" do
+    article_params = TestFactory.params_for(
+      :article,
+      title: "foo",
+      editor: TestFactory.build(:user)
+    )
+
+    assert article_params == %{
+      title: "foo",
+    }
+  end
+
+  test "params_for/2 recursively deletes unpersisted belongs_to associations" do
+    article = TestFactory.build(:article, editor: TestFactory.build(:user))
 
     user_params = TestFactory.params_for(:user, articles: [article])
 
@@ -62,7 +89,7 @@ defmodule ExMachina.EctoTest do
     }]
   end
 
-  test "params_for/2 recursively strips has_one values" do
+  test "params_for/2 deletes has_one associations" do
     article = TestFactory.build(:article)
 
     user_params = TestFactory.params_for(:user, best_article: article)
@@ -70,8 +97,9 @@ defmodule ExMachina.EctoTest do
     assert user_params[:best_article] == %{title: article.title}
   end
 
-  test "params_for/2 works with maps as has_many values" do
+  test "params_for/2 works with has_many associations containing maps" do
     article = %{title: "Foobar"}
+
     user_params = TestFactory.params_for(:user, articles: [article])
 
     assert user_params.articles == [%{title: article.title}]
@@ -81,6 +109,7 @@ defmodule ExMachina.EctoTest do
     assert TestFactory.string_params_for(:user) == %{
       "name" => "John Doe",
       "admin" => false,
+      "articles" => [],
     }
   end
 
@@ -104,6 +133,7 @@ defmodule ExMachina.EctoTest do
 
   test "params_with_assocs/2 keeps has_many associations" do
     article = TestFactory.build(:article)
+
     user_params = TestFactory.params_with_assocs(:user, articles: [article])
 
     assert user_params.articles == [%{title: article.title}]
