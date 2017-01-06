@@ -5,7 +5,7 @@ defmodule ExMachina.StrategyTest do
     use ExMachina.Strategy, function_name: :json_encode
 
     def handle_json_encode(record, opts) do
-      send self, {:handle_json_encode, record, opts}
+      send self(), {:handle_json_encode, record, opts}
     end
   end
 

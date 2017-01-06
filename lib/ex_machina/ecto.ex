@@ -13,7 +13,7 @@ defmodule ExMachina.Ecto do
   More in-depth examples are in the [README](README.html).
   """
   defmacro __using__(opts) do
-    verify_ecto_dep
+    verify_ecto_dep()
     if repo = Keyword.get(opts, :repo) do
       quote do
         use ExMachina
