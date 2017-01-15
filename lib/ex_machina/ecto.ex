@@ -150,9 +150,8 @@ defmodule ExMachina.Ecto do
 
   defp recursively_strip(record = %{__meta__: %{__struct__: Ecto.Schema.Metadata}}) do
     record
-    |> strip_has_assocs
     |> set_persisted_belongs_to_ids
-    |> drop_belongs_to_assocs
+    |> handle_assocs
     |> drop_ecto_fields
     |> drop_fields_with_nil_values
   end
@@ -160,31 +159,33 @@ defmodule ExMachina.Ecto do
     record
   end
 
-  defp strip_has_assocs(record = %{__struct__: struct}) do
+  defp handle_assocs(record = %{__struct__: struct}) do
     Enum.reduce(struct.__schema__(:associations), record, fn(association_name, record) ->
+
       case struct.__schema__(:association, association_name) do
-        %{__struct__: Ecto.Association.Has} ->
-          record
-          |> Map.get(association_name)
-          |> strip_assoc(record, association_name)
+        %{__struct__: Ecto.Association.BelongsTo} ->
+          Map.delete(record, association_name)
+
         _ ->
           record
+          |> Map.get(association_name)
+          |> handle_assoc(record, association_name)
       end
     end)
   end
 
-  defp strip_assoc(original_assoc, record, association_name) do
+  defp handle_assoc(original_assoc, record, association_name) do
     case original_assoc do
       %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :built}} ->
         assoc = recursively_strip(original_assoc)
         Map.put(record, association_name, assoc)
 
+      list when is_list(list) ->
+        has_many_assoc = Enum.map(original_assoc, &recursively_strip/1)
+        Map.put(record, association_name, has_many_assoc)
+
       %{__struct__: Ecto.Association.NotLoaded} ->
         Map.delete(record, association_name)
-
-      _list ->
-        assoc = Enum.map(original_assoc, &recursively_strip/1)
-        Map.put(record, association_name, assoc)
     end
   end
 
@@ -202,18 +203,6 @@ defmodule ExMachina.Ecto do
             _ ->
               record
           end
-        _ ->
-          record
-      end
-    end)
-  end
-
-  defp drop_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
-    Enum.reduce(struct.__schema__(:associations), record, fn(association_name, record) ->
-      case struct.__schema__(:association, association_name) do
-        %{__struct__: Ecto.Association.BelongsTo} ->
-          Map.delete(record, association_name)
-
         _ ->
           record
       end

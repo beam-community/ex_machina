@@ -89,7 +89,7 @@ defmodule ExMachina.EctoTest do
     }]
   end
 
-  test "params_for/2 deletes has_one associations" do
+  test "params_for/2 converts has_one associations to params" do
     article = TestFactory.build(:article)
 
     user_params = TestFactory.params_for(:user, best_article: article)
