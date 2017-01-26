@@ -82,13 +82,19 @@ defmodule ExMachina.EctoStrategy do
     case original_assoc do
       %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :built}} ->
         cast(original_assoc)
+
       %{__struct__: _} ->
         original_assoc
+
       %{} ->
         assoc_type = schema.__schema__(:association, assoc).related
         assoc_type |> struct |> Map.merge(original_assoc) |> cast
-      _list ->
+
+      list when is_list(list)->
         Enum.map(original_assoc, &(cast(&1)))
+
+      nil ->
+        nil
     end
   end
 end

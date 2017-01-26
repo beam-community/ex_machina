@@ -65,6 +65,12 @@ defmodule ExMachina.EctoStrategyTest do
     assert user.id != nil
   end
 
+  test "insert/1 sets nil values" do
+    model = TestFactory.insert(:article, author: nil)
+
+    assert model.author == nil
+  end
+
   test "insert/1 casts bare maps" do
     model = TestFactory.insert(:article, author: %{net_worth: 300})
 
