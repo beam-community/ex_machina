@@ -152,7 +152,8 @@ string_params_with_assocs(:comment, attrs)
 # Example of use in Phoenix with a factory that uses ExMachina.Ecto
 defmodule MyApp.MyModuleTest do
   use MyApp.ConnCase
-  # You can also import this in your MyApp.ConnCase if using Phoenix
+  # You can also import this in your MyApp.ConnCase (inside the using block)
+  # if using Phoenix
   import MyApp.Factory
 
   test "shows comments for an article" do
