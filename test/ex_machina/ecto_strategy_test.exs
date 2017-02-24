@@ -60,15 +60,17 @@ defmodule ExMachina.EctoStrategyTest do
   end
 
   test "insert/1 casts embedded associations" do
-    editor = %ExMachina.Editor{name: "Paul"}
-    link = %ExMachina.Link{url: "wow"}
+    author = %ExMachina.Author{name: "Paul", salary: 10.3}
+    link = %ExMachina.Link{url: "wow", rating: 4.5}
 
     comment = TestFactory.insert :comment_with_embedded_assocs,
-      editor: editor,
+      author: author,
       links: [link]
 
-    assert comment.editor.name == editor.name
+    assert comment.author.name == author.name
+    assert comment.author.salary == Decimal.new(author.salary)
     assert List.first(comment.links).url == link.url
+    assert List.first(comment.links).rating == Decimal.new(link.rating)
   end
 
   test "insert/1 ignores virtual fields" do
