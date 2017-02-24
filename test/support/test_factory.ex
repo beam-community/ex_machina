@@ -23,6 +23,10 @@ defmodule ExMachina.TestFactory do
     }
   end
 
+  def comment_with_embedded_assocs_factory do
+    %ExMachina.Comment{}
+  end
+
   def invalid_cast_factory do
     %ExMachina.InvalidCast{}
   end

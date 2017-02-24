@@ -15,5 +15,10 @@ defmodule ExMachina.TestRepo.Migrations.MigrateAll do
       add :publisher_id, :integer
       add :visits, :decimal
     end
+
+    create table(:comments) do
+      add :editor, :map
+      add :links, {:array, :map}, default: []
+    end
   end
 end
