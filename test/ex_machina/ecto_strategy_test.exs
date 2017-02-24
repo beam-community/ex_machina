@@ -59,6 +59,18 @@ defmodule ExMachina.EctoStrategyTest do
     assert List.first(model.articles).visits == Decimal.new(10)
   end
 
+  test "insert/1 casts embedded associations" do
+    editor = %ExMachina.Editor{name: "Paul"}
+    link = %ExMachina.Link{url: "wow"}
+
+    comment = TestFactory.insert :comment_with_embedded_assocs,
+      editor: editor,
+      links: [link]
+
+    assert comment.editor.name == editor.name
+    assert List.first(comment.links).url == link.url
+  end
+
   test "insert/1 ignores virtual fields" do
     user = TestFactory.insert(:user, password: "foo")
 
