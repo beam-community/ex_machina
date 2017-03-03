@@ -187,47 +187,43 @@ different ways of saving the record for different types of factories.
 
 ### Splitting factories into separate files
 
-This example shows how to set up factories for testing environment. For setting them in all environments, please see _To install in all environments_ section
+This example shows how to set up factories for the testing environment. For setting them in all environments, please see the _To install in all environments_ section
 
-> Start by creating main factory module in `test/support/factory.ex` and name it `MyApp.Factory`. The purpose of main factory is to allow you to include only single module in all tests.
+> Start by creating main factory module in `test/support/factory.ex` and name it `MyApp.Factory`. The purpose of the main factory is to allow you to include only a single module in all tests.
 
 ```elixir
 # test/support/factory.ex
 defmodule MyApp.Factory do
   use ExMachina.Ecto, repo: MyApp.Repo
-
   use MyApp.ArticleFactory
 end
 ```
 
-Main factory includes `MyApp.ArticleFactory`, so let's create it next. It might be useful to create separate directory for factories, like `test/factories`. Here is how to create a factory:
+The main factory includes `MyApp.ArticleFactory`, so let's create it next. It might be useful to create a separate directory for factories, like `test/factories`. Here is how to create a factory:
 
 ```elixir
 # test/factories/article_factory.ex
 defmodule MyApp.ArticleFactory do
   defmacro __using__(_opts) do
     quote do
-
       def article_factory do
         %MyApp.Article{
           title: "My awesome article!",
           body: "Still working on it!"
         }
       end
-
     end
   end
 end
 ```
 
-That way you can split your giant factory file into many small files. But what about name conflicts? Use pattern matching to avoid them!
+This way you can split your giant factory file into many small files. But what about name conflicts? Use pattern matching to avoid them!
 
 ```elixir
 # test/factories/post_factory.ex
 defmodule MyApp.PostFactory do
   defmacro __using__(_opts) do
     quote do
-
       def post_factory do
         %MyApp.Post{
           body: "Example body"
@@ -246,7 +242,6 @@ end
 defmodule MyApp.VideoFactory do
   defmacro __using__(_opts) do
     quote do
-
       def video_factory do
         %MyApp.Video{
           url: "example_url"
@@ -261,8 +256,6 @@ defmodule MyApp.VideoFactory do
   end
 end
 ```
-
-This way you can assure that you do not have any scoping problems with your methods.
 
 ## Ecto Associations
 
