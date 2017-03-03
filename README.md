@@ -185,6 +185,78 @@ the same directory. This can be helpful if you need to create factories that are
 used for different repos, your factory module is getting too big, or if you have
 different ways of saving the record for different types of factories.
 
+### Splitting factories into separate files
+
+This example shows how to set up factories for the testing environment. For setting them in all environments, please see the _To install in all environments_ section
+
+> Start by creating main factory module in `test/support/factory.ex` and name it `MyApp.Factory`. The purpose of the main factory is to allow you to include only a single module in all tests.
+
+```elixir
+# test/support/factory.ex
+defmodule MyApp.Factory do
+  use ExMachina.Ecto, repo: MyApp.Repo
+  use MyApp.ArticleFactory
+end
+```
+
+The main factory includes `MyApp.ArticleFactory`, so let's create it next. It might be useful to create a separate directory for factories, like `test/factories`. Here is how to create a factory:
+
+```elixir
+# test/factories/article_factory.ex
+defmodule MyApp.ArticleFactory do
+  defmacro __using__(_opts) do
+    quote do
+      def article_factory do
+        %MyApp.Article{
+          title: "My awesome article!",
+          body: "Still working on it!"
+        }
+      end
+    end
+  end
+end
+```
+
+This way you can split your giant factory file into many small files. But what about name conflicts? Use pattern matching to avoid them!
+
+```elixir
+# test/factories/post_factory.ex
+defmodule MyApp.PostFactory do
+  defmacro __using__(_opts) do
+    quote do
+      def post_factory do
+        %MyApp.Post{
+          body: "Example body"
+        }
+      end
+
+      def with_comments(%MyApp.Post{} = post) do
+        insert_pair(:comment, post: post)
+        post
+      end
+    end
+  end
+end
+
+# test/factories/video_factory.ex
+defmodule MyApp.VideoFactory do
+  defmacro __using__(_opts) do
+    quote do
+      def video_factory do
+        %MyApp.Video{
+          url: "example_url"
+        }
+      end
+
+      def with_comments(%MyApp.Video{} = video) do
+        insert_pair(:comment, video: video)
+        video
+      end
+    end
+  end
+end
+```
+
 ## Ecto Associations
 
 ExMachina will automatically save any associations when you call any of the
