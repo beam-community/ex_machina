@@ -116,20 +116,38 @@ end
 Using factories ([check out the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details):
 
 ```elixir
-# `attrs` are automatically merged in for all build/insert functions.
+# `attrs` are automatically merged in for all build/insert functions. 
+
 
 # `build*` returns an unsaved comment.
 # Associated records defined on the factory are built.
 attrs = %{body: "A comment!"} # attrs is optional. Also accepts a keyword list.
+func = fn(comment) -> Map.put(comment, :text, "different text") end # func is optional
 build(:comment, attrs)
+build(:comment, func)
+build(:comment, attrs, func)
+
 build_pair(:comment, attrs)
+build_pair(:comment, func)
+build_pair(:comment, attrs, func)
+
 build_list(3, :comment, attrs)
+build_list(3, :comment, func)
+build_list(3, :comment, attrs, func)
 
 # `insert*` returns an inserted comment. Only works with ExMachina.Ecto
 # Associated records defined on the factory are inserted as well.
 insert(:comment, attrs)
+insert(:comment, func)
+insert(:comment, func, attrs)
+
 insert_pair(:comment, attrs)
+insert_pair(:comment, func)
+insert_pair(:comment, func, attrs)
+
 insert_list(3, :comment, attrs)
+insert_list(3, :comment, func)
+insert_list(3, :comment, func, attrs)
 
 # `params_for` returns a plain map without any Ecto specific attributes.
 # This is only available when using `ExMachina.Ecto`.
