@@ -117,6 +117,13 @@ defmodule ExMachina.EctoTest do
     assert comment_params.links == [%{url: "https://thoughtbot.com", rating: 5}, %{url: "https://github.com", rating: 4}]
   end
 
+  test "params_for/2 handles nested embeds" do
+    links = [%ExMachina.Link{url: "https://thoughtbot.com", rating: 5, metadata: %ExMachina.Metadata{text: "foo"}}]
+    comment_params = TestFactory.params_for(:comment_with_embedded_assocs, links: links)
+    assert List.first(comment_params.links).metadata == %{text: "foo"}
+  end
+
+
   test "string_params_for/2 produces maps similar to ones built with params_for/2, but the keys are strings" do
     assert TestFactory.string_params_for(:user) == %{
       "name" => "John Doe",
