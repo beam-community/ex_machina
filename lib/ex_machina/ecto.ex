@@ -156,7 +156,14 @@ defmodule ExMachina.Ecto do
     record
     |> set_persisted_belongs_to_ids
     |> handle_assocs
+    |> handle_embeds
     |> drop_ecto_fields
+    |> drop_fields_with_nil_values
+  end
+
+  defp recursively_strip(embedded_record = %{__struct__: _}) do
+    embedded_record
+    |> Map.from_struct
     |> drop_fields_with_nil_values
   end
 
@@ -188,6 +195,27 @@ defmodule ExMachina.Ecto do
 
       %{__struct__: Ecto.Association.NotLoaded} ->
         Map.delete(record, association_name)
+    end
+  end
+
+  defp handle_embeds(record = %{__struct__: struct}) do
+    Enum.reduce(struct.__schema__(:embeds), record, fn(embed_name, record) ->
+      record
+      |> Map.get(embed_name)
+      |> handle_embed(record, embed_name)
+    end)
+  end
+
+  defp handle_embed(original_embed, record, embed_name) do
+    case original_embed do
+      %{__struct__: _} ->
+        embed = recursively_strip(original_embed)
+        Map.put(record, embed_name, embed)
+      list when is_list(list) ->
+        embeds_many = Enum.map(original_embed, &recursively_strip/1)
+        Map.put(record, embed_name, embeds_many)
+      nil ->
+        Map.delete(record, embed_name)
     end
   end
 
