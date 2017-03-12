@@ -43,10 +43,10 @@ defmodule ExMachina.Sequence do
 
   @doc false
   def next(sequence_name, formatter) do
-    Agent.get_and_update(__MODULE__, fn(sequences) ->
+    Agent.get_and_update __MODULE__, fn(sequences) ->
       current_value = Map.get(sequences, sequence_name, 0)
       new_sequences = Map.put(sequences, sequence_name, current_value + 1)
       {formatter.(current_value), new_sequences}
-    end)
+    end
   end
 end

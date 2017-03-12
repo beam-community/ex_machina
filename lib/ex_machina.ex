@@ -177,9 +177,9 @@ defmodule ExMachina do
       build_list(3, :user)
   """
   def build_list(module, number_of_factories, factory_name, attrs \\ %{}) do
-    Enum.map(1..number_of_factories, fn(_) ->
+    Enum.map 1..number_of_factories, fn(_) ->
       ExMachina.build(module, factory_name, attrs)
-    end)
+    end
   end
 
   defmacro __before_compile__(_env) do

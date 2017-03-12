@@ -190,7 +190,7 @@ defmodule ExMachina.Ecto do
   end
 
   defp set_persisted_belongs_to_ids(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
-    Enum.reduce(struct.__schema__(:associations), record, fn(association_name, record) ->
+    Enum.reduce struct.__schema__(:associations), record, fn(association_name, record) ->
       association = struct.__schema__(:association, association_name)
 
       case association do
@@ -206,7 +206,7 @@ defmodule ExMachina.Ecto do
         _ ->
           record
       end
-    end)
+    end
   end
 
   defp set_belongs_to_primary_key(record, belongs_to, association) do
@@ -263,10 +263,8 @@ defmodule ExMachina.Ecto do
   end
 
   defp convert_atom_keys_to_strings(struct) do
-    Enum.reduce(
-      struct,
-      Map.new,
-      fn({key, value}, acc) -> Map.put(acc, to_string(key), value) end
-    )
+    Enum.reduce struct, Map.new, fn({key, value}, acc) ->
+      Map.put(acc, to_string(key), value)
+    end
   end
 end
