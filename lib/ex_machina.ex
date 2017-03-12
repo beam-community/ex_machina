@@ -184,9 +184,7 @@ defmodule ExMachina do
 
   defmacro __before_compile__(_env) do
     quote do
-      @doc """
-      Raises a helpful error if no factory is defined.
-      """
+      @doc "Raises a helpful error if no factory is defined."
       @spec factory(any) :: no_return
       def factory(factory_name) do
         raise UndefinedFactoryError, factory_name
