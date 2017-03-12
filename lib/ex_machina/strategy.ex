@@ -48,9 +48,7 @@ defmodule ExMachina.Strategy do
   defmacro __using__(function_name: function_name) do
     quote do
       @doc false
-      def function_name do
-        unquote(function_name)
-      end
+      def function_name, do: unquote(function_name)
 
       defmacro __using__(opts) do
         custom_strategy_module = __MODULE__

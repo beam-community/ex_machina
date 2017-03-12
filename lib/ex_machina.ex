@@ -189,9 +189,7 @@ defmodule ExMachina do
     quote do
       @doc "Raises a helpful error if no factory is defined."
       @spec factory(any) :: no_return
-      def factory(factory_name) do
-        raise UndefinedFactoryError, factory_name
-      end
+      def factory(factory_name), do: raise UndefinedFactoryError, factory_name
     end
   end
 end

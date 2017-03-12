@@ -28,9 +28,7 @@ defmodule ExMachina.Sequence do
 
   @doc false
   def next(sequence_name) when is_binary(sequence_name) do
-    next sequence_name, fn(n)->
-      sequence_name <> to_string(n)
-    end
+    next sequence_name, &(sequence_name <> to_string(&1))
   end
 
   @doc false
