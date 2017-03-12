@@ -141,7 +141,7 @@ defmodule ExMachina do
   """
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
-    function_name = Atom.to_string(factory_name) <> "_factory" |> String.to_atom
+    function_name = build_function_name(factory_name)
     if Code.ensure_loaded?(module) && function_exported?(module, function_name, 0) do
       apply(module, function_name, []) |> do_merge(attrs)
     else
@@ -149,12 +149,15 @@ defmodule ExMachina do
     end
   end
 
-  defp do_merge(%{__struct__: _} = record, attrs) do
-    struct!(record, attrs)
+  defp build_function_name(factory_name) do
+    factory_name
+    |> Atom.to_string
+    |> Kernal.<>("_factory")
+    |> String.to_atom
   end
-  defp do_merge(record, attrs) do
-    Map.merge(record, attrs)
-  end
+
+  defp do_merge(%{__struct__: _} = record, attrs), do: struct!(record, attrs)
+  defp do_merge(record, attrs), do: Map.merge(record, attrs)
 
   @doc """
   Builds and returns 2 records with the passed in factory_name and attrs

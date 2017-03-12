@@ -142,7 +142,8 @@ defmodule ExMachina.Strategy do
   end
 
   defp underscore(name) do
-    Regex.split(~r/(?=[A-Z])/, name)
+    ~r/(?=[A-Z])/
+    |> Regex.split(name)
     |> Enum.join("_")
   end
 end
