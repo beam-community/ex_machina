@@ -91,11 +91,23 @@ defmodule ExMachina.EctoStrategyTest do
     assert model.author.net_worth == Decimal.new(300)
   end
 
+  test "insert/1 casts lists of bare maps" do
+    model = TestFactory.insert(:article, comments: [%{author: %{name: "John Doe", salary: 300}}])
+
+    assert hd(model.comments).author.salary == Decimal.new(300)
+  end
+
   test "insert/1 casts bare maps for embeds" do
     model = TestFactory.insert(:comment_with_embedded_assocs, author: %{salary: 300})
 
     assert model.author.salary == Decimal.new(300)
   end
+
+  test "insert/1 casts lists of bare maps for embeds" do
+    model = TestFactory.insert(:comment_with_embedded_assocs, links: [%{url: "http://thoughtbot.com", rating: 5}])
+    assert hd(model.links).rating == Decimal.new(5)
+  end
+
 
   test "insert/1 casts associations recursively" do
     editor = TestFactory.build(:user, net_worth: 300)

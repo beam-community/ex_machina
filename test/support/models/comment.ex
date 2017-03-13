@@ -2,6 +2,7 @@ defmodule ExMachina.Comment do
   use Ecto.Schema
 
   schema "comments" do
+    belongs_to :article, ExMachina.Article
     embeds_one :author, ExMachina.Author
     embeds_many :links, ExMachina.Link
   end
