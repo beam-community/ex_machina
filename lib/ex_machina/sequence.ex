@@ -28,9 +28,7 @@ defmodule ExMachina.Sequence do
 
   @doc false
   def next(sequence_name) when is_binary(sequence_name) do
-    next sequence_name, fn(n)->
-      sequence_name <> to_string(n)
-    end
+    next sequence_name, &(sequence_name <> to_string(&1))
   end
 
   @doc false
@@ -43,10 +41,10 @@ defmodule ExMachina.Sequence do
 
   @doc false
   def next(sequence_name, formatter) do
-    Agent.get_and_update(__MODULE__, fn(sequences) ->
+    Agent.get_and_update __MODULE__, fn(sequences) ->
       current_value = Map.get(sequences, sequence_name, 0)
       new_sequences = Map.put(sequences, sequence_name, current_value + 1)
       {formatter.(current_value), new_sequences}
-    end)
+    end
   end
 end

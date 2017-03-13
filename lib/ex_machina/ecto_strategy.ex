@@ -96,8 +96,7 @@ defmodule ExMachina.EctoStrategy do
       list when is_list(list)->
         Enum.map(original_assoc, &(cast(&1)))
 
-      nil ->
-        nil
+      nil -> nil
     end
   end
 
