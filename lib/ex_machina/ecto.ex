@@ -81,7 +81,8 @@ defmodule ExMachina.Ecto do
       params_for(:user, admin: true)
   """
   def params_for(module, factory_name, attrs \\ %{}) do
-    module.build(factory_name, attrs)
+    factory_name
+    |> module.build(attrs)
     |> recursively_strip
   end
 
@@ -162,8 +163,7 @@ defmodule ExMachina.Ecto do
   defp recursively_strip(record), do: recrod
 
   defp handle_assocs(record = %{__struct__: struct}) do
-    Enum.reduce(struct.__schema__(:associations), record, fn(association_name, record) ->
-
+    Enum.reduce struct.__schema__(:associations), record, fn(association_name, record) ->
       case struct.__schema__(:association, association_name) do
         %{__struct__: Ecto.Association.BelongsTo} ->
           Map.delete(record, association_name)
@@ -173,7 +173,7 @@ defmodule ExMachina.Ecto do
           |> Map.get(association_name)
           |> handle_assoc(record, association_name)
       end
-    end)
+    end
   end
 
   defp handle_assoc(original_assoc, record, association_name) do
@@ -213,14 +213,14 @@ defmodule ExMachina.Ecto do
   end
 
   defp insert_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}, module) do
-    Enum.reduce(struct.__schema__(:associations), record, fn(association_name, record) ->
+    Enum.reduce struct.__schema__(:associations), record, fn(association_name, record) ->
       case struct.__schema__(:association, association_name) do
         association = %{__struct__: Ecto.Association.BelongsTo} ->
           insert_built_belongs_to_assoc(module, association, record)
 
         _ -> record
       end
-    end)
+    end
   end
 
   defp insert_built_belongs_to_assoc(module, association, record) do
