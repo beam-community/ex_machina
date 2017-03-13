@@ -121,7 +121,7 @@ defmodule ExMachina.EctoStrategyTest do
   end
 
   test "insert/1 raises a friendly error when casting invalid types" do
-    message = ~r/Failed to cast `invalid` of type Elixir.ExMachina.InvalidType/
+    message = ~r/Failed to cast `:invalid` of type ExMachina.InvalidType/
     assert_raise RuntimeError, message, fn ->
       TestFactory.insert(:invalid_cast, invalid: :invalid)
     end

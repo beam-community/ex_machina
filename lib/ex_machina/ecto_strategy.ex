@@ -63,7 +63,7 @@ defmodule ExMachina.EctoStrategy do
       {:ok, value} ->
         value
       _ ->
-        raise "Failed to cast `#{value}` of type #{field_type} in #{inspect struct}."
+        raise "Failed to cast `#{inspect value}` of type #{inspect field_type} in #{inspect struct}."
     end
   end
 
