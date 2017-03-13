@@ -37,7 +37,6 @@ defmodule ExMachina.Mixfile do
       {:ex_doc, "~> 0.9", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
       {:ecto, "~> 2.1", optional: true},
-      {:ecto, "~> 2.1", only: [:dev, :test]},
       {:postgrex, ">= 0.0.0", only: [:test]},
       {:poison, "~> 3.0", only: :test}
     ]
