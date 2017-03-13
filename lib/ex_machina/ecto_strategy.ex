@@ -49,9 +49,12 @@ defmodule ExMachina.EctoStrategy do
   defp cast_field(field, %{__struct__: schema} = struct) do
     field_type = schema.__schema__(:type, field)
     virtual_field? = !field_type
+    embed_type = schema.__schema__(:embed, field)
+    embed_field? = !!embed_type
+
     value = Map.get(struct, field)
 
-    if virtual_field? do
+    if virtual_field? || embed_field? do
       value
     else
       cast_value(field_type, value, struct)
@@ -90,7 +93,8 @@ defmodule ExMachina.EctoStrategy do
         cast(original_assoc)
 
       %{} ->
-        assoc_type = schema.__schema__(:association, assoc).related
+        assoc_reflection = schema.__schema__(:association, assoc) || schema.__schema__(:embed, assoc)
+        assoc_type = assoc_reflection.related
         assoc_type |> struct |> Map.merge(original_assoc) |> cast
 
       list when is_list(list)->
