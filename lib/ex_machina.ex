@@ -152,7 +152,7 @@ defmodule ExMachina do
   defp build_function_name(factory_name) do
     factory_name
     |> Atom.to_string
-    |> Kernal.<>("_factory")
+    |> Kernel.<>("_factory")
     |> String.to_atom
   end
 

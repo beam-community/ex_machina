@@ -160,7 +160,7 @@ defmodule ExMachina.Ecto do
     |> drop_fields_with_nil_values
   end
 
-  defp recursively_strip(record), do: recrod
+  defp recursively_strip(record), do: record
 
   defp handle_assocs(record = %{__struct__: struct}) do
     Enum.reduce struct.__schema__(:associations), record, fn(association_name, record) ->
