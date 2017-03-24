@@ -22,5 +22,15 @@ defmodule ExMachina.Link do
   embedded_schema do
     field :url
     field :rating, :decimal
+    embeds_one :metadata, ExMachina.Metadata
+  end
+end
+
+defmodule ExMachina.Metadata do
+  use Ecto.Schema
+
+  embedded_schema do
+    field :image_url, :string
+    field :text, :string
   end
 end

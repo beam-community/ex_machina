@@ -152,10 +152,11 @@ defmodule ExMachina.Ecto do
   end
 
 
-  defp recursively_strip(record = %{__meta__: %{__struct__: Ecto.Schema.Metadata}}) do
+  defp recursively_strip(record = %{__struct__: _}) do
     record
     |> set_persisted_belongs_to_ids
     |> handle_assocs
+    |> handle_embeds
     |> drop_ecto_fields
     |> drop_fields_with_nil_values
   end
@@ -191,7 +192,28 @@ defmodule ExMachina.Ecto do
     end
   end
 
-  defp set_persisted_belongs_to_ids(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
+  defp handle_embeds(record = %{__struct__: struct}) do
+    Enum.reduce(struct.__schema__(:embeds), record, fn(embed_name, record) ->
+      record
+      |> Map.get(embed_name)
+      |> handle_embed(record, embed_name)
+    end)
+  end
+
+  defp handle_embed(original_embed, record, embed_name) do
+    case original_embed do
+      %{__struct__: _} ->
+        embed = recursively_strip(original_embed)
+        Map.put(record, embed_name, embed)
+      list when is_list(list) ->
+        embeds_many = Enum.map(original_embed, &recursively_strip/1)
+        Map.put(record, embed_name, embeds_many)
+      nil ->
+        Map.delete(record, embed_name)
+    end
+  end
+
+  defp set_persisted_belongs_to_ids(record = %{__struct__: struct}) do
     Enum.reduce struct.__schema__(:associations), record, fn(association_name, record) ->
       association = struct.__schema__(:association, association_name)
 
@@ -212,7 +234,7 @@ defmodule ExMachina.Ecto do
     Map.put(record, association.owner_key, primary_key)
   end
 
-  defp insert_belongs_to_assocs(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}, module) do
+  defp insert_belongs_to_assocs(record = %{__struct__: struct}, module) do
     Enum.reduce struct.__schema__(:associations), record, fn(association_name, record) ->
       case struct.__schema__(:association, association_name) do
         association = %{__struct__: Ecto.Association.BelongsTo} ->
@@ -235,7 +257,7 @@ defmodule ExMachina.Ecto do
   end
 
   @doc false
-  def drop_ecto_fields(record = %{__struct__: struct, __meta__: %{__struct__: Ecto.Schema.Metadata}}) do
+  def drop_ecto_fields(record = %{__struct__: struct}) do
     record
     |> Map.from_struct
     |> Map.delete(:__meta__)
