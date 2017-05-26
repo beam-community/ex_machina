@@ -50,11 +50,11 @@ defmodule ExMachina.EctoStrategy do
     field_type = schema.__schema__(:type, field)
     virtual_field? = !field_type
     embed_type = schema.__schema__(:embed, field)
-    embed_field? = !!embed_type
+    embedded_field? = !!embed_type
 
     value = Map.get(struct, field)
 
-    if virtual_field? || embed_field? do
+    if virtual_field? || embedded_field? do
       value
     else
       cast_value(field_type, value, struct)
@@ -74,14 +74,15 @@ defmodule ExMachina.EctoStrategy do
     assocs = get_schema_assocs(schema)
 
     Enum.reduce(assocs, struct, fn(assoc, struct) ->
-      original_value = Map.get(struct, assoc)
-      casted_value = if is_list(original_value) do
-        Enum.map(original_value, &(cast_assoc(&1, assoc, struct)))
-      else
-        cast_assoc(original_value, assoc, struct)
-      end
+      casted_value = Map.get(struct, assoc)
+                   |> cast_assoc(assoc, struct)
+
       Map.put(struct, assoc, casted_value)
     end)
+  end
+
+  defp cast_assoc(original_value, assoc, struct) when is_list(original_value) do
+    Enum.map(original_value, &(cast_assoc(&1, assoc, struct)))
   end
 
   defp cast_assoc(original_value, assoc, %{__struct__: schema}) do
