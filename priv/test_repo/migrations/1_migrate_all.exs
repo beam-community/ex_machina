@@ -17,6 +17,7 @@ defmodule ExMachina.TestRepo.Migrations.MigrateAll do
     end
 
     create table(:comments) do
+      add :article_id, :integer
       add :author, :map
       add :links, {:array, :map}, default: []
     end
