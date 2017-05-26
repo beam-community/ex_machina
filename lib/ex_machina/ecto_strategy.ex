@@ -80,24 +80,24 @@ defmodule ExMachina.EctoStrategy do
     end)
   end
 
-  defp cast_assoc(original_value, assoc, %{__struct__: schema} = struct) do
-    case original_value do
-      original_value when is_list(original_value) ->
-        Enum.map(original_value, &(cast_assoc(&1, assoc, struct)))
+  defp cast_assoc(original_assoc, assoc_key, %{__struct__: schema} = struct) do
+    case original_assoc do
+      has_or_embeds_many when is_list(has_or_embeds_many) ->
+        Enum.map(has_or_embeds_many, &(cast_assoc(&1, assoc_key, struct)))
 
       %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :built}} ->
-        cast(original_value)
+        cast(original_assoc)
 
       %{__struct__: Ecto.Association.NotLoaded} ->
-        original_value
+        original_assoc
 
       %{__struct__: _} ->
-        cast(original_value)
+        cast(original_assoc)
 
       %{} ->
-        assoc_reflection = schema.__schema__(:association, assoc) || schema.__schema__(:embed, assoc)
+        assoc_reflection = schema.__schema__(:association, assoc_key) || schema.__schema__(:embed, assoc_key)
         assoc_type = assoc_reflection.related
-        assoc_type |> struct() |> Map.merge(original_value) |> cast
+        assoc_type |> struct() |> Map.merge(original_assoc) |> cast()
 
       nil -> nil
     end
