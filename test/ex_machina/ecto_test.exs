@@ -132,6 +132,41 @@ defmodule ExMachina.EctoTest do
     }
   end
 
+  test "string_params_for/2 converts has_one association into map with strings as keys" do
+    article = TestFactory.build(:article)
+
+    user_params = TestFactory.string_params_for(:user, best_article: article)
+
+    assert user_params["best_article"] == %{"title" => article.title}
+  end
+
+  test "string_params_for/2 converts has_many associations into a list of maps with strings as keys" do
+    article = TestFactory.build(:article, title: "Foo")
+
+    user_params = TestFactory.string_params_for(:user, articles: [article])
+
+    assert user_params["articles"] == [%{"title" => article.title}]
+  end
+
+  test "string_params_for/2 converts embeds_one into a map with strings as keys" do
+    author = %ExMachina.Author{name: "Author", salary: 1.0}
+
+    comment_params = TestFactory.string_params_for(:comment_with_embedded_assocs, author: author)
+
+    assert comment_params["author"] == %{"name" => "Author", "salary" => 1.0}
+  end
+
+  test "string_params_for/2 converts embeds_many into a list of maps with strings as keys" do
+    links = [%ExMachina.Link{url: "https://thoughtbot.com", rating: 5}, %ExMachina.Link{url: "https://github.com", rating: 4}]
+
+    comment_params = TestFactory.string_params_for(:comment_with_embedded_assocs, links: links)
+
+    assert comment_params["links"] == [
+      %{"url" => "https://thoughtbot.com", "rating" => 5},
+      %{"url" => "https://github.com", "rating" => 4}
+    ]
+  end
+
   test "params_with_assocs/2 inserts belongs_tos that are set by the factory" do
     assert has_association_in_schema?(ExMachina.Article, :editor)
 
