@@ -50,11 +50,11 @@ defmodule ExMachina.EctoStrategy do
     field_type = schema.__schema__(:type, field)
     virtual_field? = !field_type
     embed_type = schema.__schema__(:embed, field)
-    embed_field? = !!embed_type
+    embedded_field? = !!embed_type
 
     value = Map.get(struct, field)
 
-    if virtual_field? || embed_field? do
+    if virtual_field? || embedded_field? do
       value
     else
       cast_value(field_type, value, struct)
@@ -74,31 +74,30 @@ defmodule ExMachina.EctoStrategy do
     assocs = get_schema_assocs(schema)
 
     Enum.reduce(assocs, struct, fn(assoc, struct) ->
-      original_value = Map.get(struct, assoc)
-      casted_value = if is_list(original_value) do
-        Enum.map(original_value, &(cast_assoc(&1, assoc, struct)))
-      else
-        cast_assoc(original_value, assoc, struct)
-      end
+      casted_value = struct |> Map.get(assoc) |> cast_assoc(assoc, struct)
+
       Map.put(struct, assoc, casted_value)
     end)
   end
 
-  defp cast_assoc(original_value, assoc, %{__struct__: schema}) do
-    case original_value do
+  defp cast_assoc(original_assoc, assoc_key, %{__struct__: schema} = struct) do
+    case original_assoc do
+      has_or_embeds_many when is_list(has_or_embeds_many) ->
+        Enum.map(has_or_embeds_many, &(cast_assoc(&1, assoc_key, struct)))
+
       %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :built}} ->
-        cast(original_value)
+        cast(original_assoc)
 
       %{__struct__: Ecto.Association.NotLoaded} ->
-        original_value
+        original_assoc
 
       %{__struct__: _} ->
-        cast(original_value)
+        cast(original_assoc)
 
       %{} ->
-        assoc_reflection = schema.__schema__(:association, assoc) || schema.__schema__(:embed, assoc)
+        assoc_reflection = schema.__schema__(:association, assoc_key) || schema.__schema__(:embed, assoc_key)
         assoc_type = assoc_reflection.related
-        assoc_type |> struct |> Map.merge(original_value) |> cast
+        assoc_type |> struct() |> Map.merge(original_assoc) |> cast()
 
       nil -> nil
     end
