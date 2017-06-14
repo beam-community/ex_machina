@@ -31,8 +31,8 @@ defmodule ExMachina.EctoStrategy do
 
     record
     |> cast_all_fields
-    |> cast_all_assocs(field_set_by_parent)
     |> skip_already_set_assoc(parent_assoc)
+    |> cast_all_assocs(nil)
   end
 
   defp assoc_set_by_parent(%{__struct__: schema}, field_set_by_parent) do
