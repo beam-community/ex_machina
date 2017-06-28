@@ -12,6 +12,13 @@ defmodule ExMachina.SequenceTest do
     assert "joe1" == Sequence.next(:name, &"joe#{&1}")
   end
 
+  test "traverses a list each time it is called" do
+    assert "A" == Sequence.next(:name, ["A", "B", "C"])
+    assert "B" == Sequence.next(:name, ["A", "B", "C"])
+    assert "C" == Sequence.next(:name, ["A", "B", "C"])
+    assert "A" == Sequence.next(:name, ["A", "B", "C"])
+  end
+
   test "updates different sequences independently" do
     assert "joe0" == Sequence.next(:name, &"joe#{&1}")
     assert "joe1" == Sequence.next(:name, &"joe#{&1}")

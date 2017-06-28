@@ -15,6 +15,15 @@ defmodule ExMachina.Sequence do
 
       ExMachina.Sequence.next("joe") # resets so the return value is "joe0"
 
+  You can use list as well
+
+      ExMachina.Sequence.next(["A", "B"]) # "A"
+      ExMachina.Sequence.next(["A", "B"]) # "B"
+
+      Sequence.reset
+
+      ExMachina.Sequence.next(["A", "B"]) # resets so the return value is "A"
+
   If you want to reset sequences at the beginning of every test, put it in a
   `setup` block in your test.
 
@@ -37,6 +46,18 @@ defmodule ExMachina.Sequence do
       ArgumentError,
       "Sequence name must be a string, got #{inspect sequence_name} instead"
     )
+  end
+
+  @doc false
+  def next(sequence_name, [_|_] = list) do
+    length = length(list)
+    Agent.get_and_update __MODULE__, fn(sequences) ->
+      current_value = Map.get(sequences, sequence_name, 0)
+      index = rem(current_value, length)
+      new_sequences = Map.put(sequences, sequence_name, index + 1)
+      {value, _} = List.pop_at(list, index)
+      {value, new_sequences}
+    end
   end
 
   @doc false

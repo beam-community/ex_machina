@@ -93,6 +93,7 @@ defmodule MyApp.Factory do
     %MyApp.User{
       name: "Jane Smith",
       email: sequence(:email, &"email-#{&1}@example.com"),
+      role: sequence(:role, ["admin", "user", "other"]),
     }
   end
 
