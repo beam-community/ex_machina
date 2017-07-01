@@ -4,7 +4,7 @@ defmodule ExMachinaTest do
   defmodule Factory do
     use ExMachina
 
-    def user_factory do
+    factory :user do
       %{
         id: 3,
         name: "John Doe",
@@ -12,19 +12,19 @@ defmodule ExMachinaTest do
       }
     end
 
-    def email_factory do
+    factory :email do
       %{
         email: sequence(:email, &"me-#{&1}@foo.com")
       }
     end
 
-    def article_factory do
+    factory :article do
       %{
         title: sequence("Post Title")
       }
     end
 
-    def struct_factory do
+    factory :struct do
       %{
         __struct__: Foo.Bar
       }

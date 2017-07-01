@@ -137,9 +137,10 @@ defmodule ExMachina do
       end
   """
   defmacro factory(name, do: generator) do
-    name = build_function_name(name)
-    
-    quote do
+    quote bind_quoted: [name: name, generator: generator] do
+      name = ExMachina.build_function_name(name)
+      generator = Macro.escape(generator)
+
       def unquote(name)(), do: unquote(generator)
     end
   end
@@ -165,7 +166,7 @@ defmodule ExMachina do
     end
   end
 
-  defp build_function_name(factory_name) do
+  def build_function_name(factory_name) do
     factory_name
     |> Atom.to_string
     |> Kernel.<>("_factory")
