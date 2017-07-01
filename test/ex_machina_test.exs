@@ -29,6 +29,16 @@ defmodule ExMachinaTest do
         __struct__: Foo.Bar
       }
     end
+
+    factory :comment do
+      %{
+        text: "Maybe factory_for is better"
+      }
+    end
+  end
+
+  test "factory/2 creates a function for build" do
+    assert "Maybe factory_for is better" = Factory.build(:comment).text
   end
 
   test "sequence/2 sequences a value" do
