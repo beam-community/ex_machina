@@ -13,7 +13,14 @@ defmodule ExMachina.EnterpriseTest do
     use ExMachina.Factory
 
     machine :paper do
-      %{paper: true}
+      %{
+        paper: true,
+        type: Japan.something()
+      }
+    end
+
+    def something do
+      "Something"
     end
   end
 
@@ -24,12 +31,12 @@ defmodule ExMachina.EnterpriseTest do
   end
 
   test "simple factories should be able to build" do
-    assert Japan.build(:paper) == %{paper: true}
+    assert Japan.build(:paper) == %{paper: true, type: "Something"}
     assert China.build(:iron) == %{iron: true}
   end
 
   test "`use Factory` should define __using__ with factories" do
-    assert Company.build(:paper) == %{paper: true}
+    assert Company.build(:paper) == %{paper: true, type: "Something"}
     assert Company.build(:iron) == %{iron: true}
   end
 end

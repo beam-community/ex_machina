@@ -137,11 +137,14 @@ defmodule ExMachina do
       end
   """
   defmacro factory(name, do: generator) do
-    quote bind_quoted: [name: name, generator: generator] do
+    quote bind_quoted: [
+      name: Macro.escape(name, unquote: true),
+      generator: Macro.escape(generator, unquote: true)
+    ] do
       name = ExMachina.build_function_name(name)
-      generator = Macro.escape(generator)
+      body = generator
 
-      def unquote(name)(), do: unquote(generator)
+      def unquote(name)(), do: unquote(body)
     end
   end
   @doc """

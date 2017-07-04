@@ -15,22 +15,30 @@ defmodule ExMachina.Factory do
   end
 
   defmacro __before_compile__(_opts) do
-    quote do
+    quote unquote: false do
       defmacro __using__(_opts) do
         quote do
-          factories = unquote(Macro.escape(@factories))
-          IO.puts "Factories for #{unquote(__MODULE__)} -> #{inspect factories}"
-          for {name, generator} <- factories do
-            factory name, do: generator
+          @local_factories unquote(Macro.escape(@factories))
+
+          definitions = quote unquote: false do
+            factories = @local_factories
+            for {name, generator} <- factories do
+              factory unquote(name), do: unquote(generator)
+            end
           end
+
+          Code.eval_quoted definitions, [], __ENV__
         end
       end
     end
   end
 
   defmacro machine(name, do: generator) do
-    quote do
-      @factories [{unquote(name), unquote(generator)} | @factories]
+    quote bind_quoted: [
+      name: Macro.escape(name, unquote: true),
+      generator: Macro.escape(generator, unquote: true)
+    ] do
+      @factories [{name, generator} | @factories]
       factory unquote(name), do: unquote(generator)
     end
   end
