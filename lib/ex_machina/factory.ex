@@ -23,7 +23,7 @@ defmodule ExMachina.Factory do
           definitions = quote unquote: false do
             factories = @local_factories
             for {name, generator} <- factories do
-              factory unquote(name), do: unquote(generator)
+              machine unquote(name), do: unquote(generator)
             end
           end
 
@@ -33,13 +33,13 @@ defmodule ExMachina.Factory do
     end
   end
 
-  defmacro machine(name, do: generator) do
+  defmacro factory(name, do: generator) do
     quote bind_quoted: [
       name: Macro.escape(name, unquote: true),
       generator: Macro.escape(generator, unquote: true)
     ] do
       @factories [{name, generator} | @factories]
-      factory unquote(name), do: unquote(generator)
+      machine unquote(name), do: unquote(generator)
     end
   end
 end

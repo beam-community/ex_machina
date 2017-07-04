@@ -36,7 +36,7 @@ defmodule ExMachina do
     quote do
       @before_compile unquote(__MODULE__)
 
-      import ExMachina, only: [sequence: 1, sequence: 2, factory: 2]
+      import ExMachina, only: [sequence: 1, sequence: 2, machine: 2]
 
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
@@ -132,11 +132,11 @@ defmodule ExMachina do
 
   ## Example
       # Will generate a user_factory function
-      factory :user do
+      machine :user do
         %{username: sequence("user")}
       end
   """
-  defmacro factory(name, do: generator) do
+  defmacro machine(name, do: generator) do
     quote bind_quoted: [
       name: Macro.escape(name, unquote: true),
       generator: Macro.escape(generator, unquote: true)

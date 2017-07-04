@@ -4,7 +4,7 @@ defmodule ExMachina.EnterpriseTest do
   defmodule China do
     use ExMachina.Factory
 
-    machine :iron do
+    factory :iron do
       %{iron: true}
     end
   end
@@ -12,7 +12,7 @@ defmodule ExMachina.EnterpriseTest do
   defmodule Japan do
     use ExMachina.Factory
 
-    machine :paper do
+    factory :paper do
       %{
         paper: true,
         type: Japan.something()
