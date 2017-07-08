@@ -19,24 +19,9 @@ defmodule ExMachina.Factory do
   Hook to define module's __using__ macro
   """
   defmacro __before_compile__(_opts) do
-    quote unquote: false do
+    quote do
       defmacro __using__(_opts) do
-        quote do
-          @local_factories unquote(Macro.escape(@factories))
-
-          # TODO: The definitions were wrapped inside a function and latter on evaluated
-          # because I couldn't find a way to bind_quoted que @factories attribute
-          # and access it. It seems that Elixir defines the bind_quoted in the context
-          # of __using__, then we cannot access it from the exported quoted expression
-          definitions = quote unquote: false do
-            factories = @local_factories
-            for {name, generator} <- factories do
-              machine unquote(name), do: unquote(generator)
-            end
-          end
-
-          Code.eval_quoted definitions, [], __ENV__
-        end
+        @factories
       end
     end
   end
@@ -45,11 +30,19 @@ defmodule ExMachina.Factory do
   Create a local factory and register it to be exported by __using__
   """
   defmacro factory(name, do: generator) do
+    factory = generate_factory(name, generator)
+
+    quote do
+      @factories [unquote(Macro.escape(factory)) | @factories]
+      unquote(factory)
+    end
+  end
+
+  def generate_factory(name, generator) do
     quote bind_quoted: [
       name: Macro.escape(name, unquote: true),
       generator: Macro.escape(generator, unquote: true)
     ] do
-      @factories [{name, generator} | @factories]
       machine unquote(name), do: unquote(generator)
     end
   end
