@@ -111,6 +111,12 @@ defmodule ExMachina.EctoTest do
     assert comment_params.author == %{name: "Author", salary: 1.0}
   end
 
+  test "params_for/2 accepts maps for embeds" do
+    author = %{name: "Author", salary: 1.0}
+    comment_params = TestFactory.params_for(:comment_with_embedded_assocs, author: author)
+    assert comment_params.author == %{name: "Author", salary: 1.0}
+  end
+
   test "params_for/2 converts embeds_many into a list of maps" do
     links = [%ExMachina.Link{url: "https://thoughtbot.com", rating: 5}, %ExMachina.Link{url: "https://github.com", rating: 4}]
     comment_params = TestFactory.params_for(:comment_with_embedded_assocs, links: links)
