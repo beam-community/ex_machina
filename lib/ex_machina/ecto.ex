@@ -202,7 +202,7 @@ defmodule ExMachina.Ecto do
 
   defp handle_embed(original_embed, record, embed_name) do
     case original_embed do
-      %{__struct__: _} ->
+      %{} ->
         embed = recursively_strip(original_embed)
         Map.put(record, embed_name, embed)
       list when is_list(list) ->
