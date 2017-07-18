@@ -4,7 +4,7 @@ defmodule ExMachinaTest do
   defmodule Factory do
     use ExMachina
 
-    def user_factory do
+    machine :user do
       %{
         id: 3,
         name: "John Doe",
@@ -12,23 +12,33 @@ defmodule ExMachinaTest do
       }
     end
 
-    def email_factory do
+    machine :email do
       %{
         email: sequence(:email, &"me-#{&1}@foo.com")
       }
     end
 
-    def article_factory do
+    machine :article do
       %{
         title: sequence("Post Title")
       }
     end
 
-    def struct_factory do
+    machine :struct do
       %{
         __struct__: Foo.Bar
       }
     end
+
+    machine :comment do
+      %{
+        text: "Maybe factory_for is better"
+      }
+    end
+  end
+
+  test "factory/2 creates a function for build" do
+    assert "Maybe factory_for is better" = Factory.build(:comment).text
   end
 
   test "sequence/2 sequences a value" do

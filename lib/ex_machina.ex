@@ -36,7 +36,7 @@ defmodule ExMachina do
     quote do
       @before_compile unquote(__MODULE__)
 
-      import ExMachina, only: [sequence: 1, sequence: 2]
+      import ExMachina, only: [sequence: 1, sequence: 2, machine: 2]
 
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
@@ -128,6 +128,26 @@ defmodule ExMachina do
   def sequence(name, formatter), do: ExMachina.Sequence.next(name, formatter)
 
   @doc """
+  Creates a function following the requirement of build/3
+
+  ## Example
+      # Will generate a user_factory function
+      machine :user do
+        %{username: sequence("user")}
+      end
+  """
+  defmacro machine(name, do: generator) do
+    quote bind_quoted: [
+      name: Macro.escape(name, unquote: true),
+      generator: Macro.escape(generator, unquote: true)
+    ] do
+      name = ExMachina.build_function_name(name)
+      body = generator
+
+      def unquote(name)(), do: unquote(body)
+    end
+  end
+  @doc """
   Builds a factory with the passed in factory_name and attrs
 
   ## Example
@@ -149,7 +169,7 @@ defmodule ExMachina do
     end
   end
 
-  defp build_function_name(factory_name) do
+  def build_function_name(factory_name) do
     factory_name
     |> Atom.to_string
     |> Kernel.<>("_factory")
