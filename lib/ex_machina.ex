@@ -46,8 +46,8 @@ defmodule ExMachina do
         ExMachina.build_pair(__MODULE__, factory_name, attrs)
       end
 
-      def build_list(number_of_factories, factory_name, attrs \\ %{}) do
-        ExMachina.build_list(__MODULE__, number_of_factories, factory_name, attrs)
+      def build_list(number_of_records, factory_name, attrs \\ %{}) do
+        ExMachina.build_list(__MODULE__, number_of_records, factory_name, attrs)
       end
 
       @spec create(any) :: no_return
@@ -179,10 +179,11 @@ defmodule ExMachina do
       # Returns a list of 3 users
       build_list(3, :user)
   """
-  def build_list(module, number_of_factories, factory_name, attrs \\ %{}) do
-    Enum.map 1..number_of_factories, fn(_) ->
+  def build_list(module, number_of_records, factory_name, attrs \\ %{}) do
+    Stream.repeatedly(fn ->
       ExMachina.build(module, factory_name, attrs)
-    end
+    end)
+    |> Enum.take(number_of_records)
   end
 
   defmacro __before_compile__(_env) do

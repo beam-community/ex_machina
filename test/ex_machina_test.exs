@@ -99,6 +99,10 @@ defmodule ExMachinaTest do
     assert records == [expected_record, expected_record, expected_record]
   end
 
+  test "build_list/3 handles the number 0" do
+    assert [] = Factory.build_list(0, :user)
+  end
+
   test "raises helpful error when using old create functions" do
     assert_raise RuntimeError, ~r/create\/1 has been removed/, fn ->
       Factory.create(:user)
