@@ -75,9 +75,10 @@ defmodule ExMachina.Strategy do
           end
 
           def unquote(:"#{function_name}_list")(number_of_records, factory_name, attrs \\ %{}) do
-            Enum.map 1..number_of_records, fn(_) ->
+            Stream.repeatedly(fn ->
               unquote(function_name)(factory_name, attrs)
-            end
+            end)
+            |> Enum.take(number_of_records)
           end
         end
       end

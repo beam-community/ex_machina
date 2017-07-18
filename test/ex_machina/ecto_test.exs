@@ -30,6 +30,10 @@ defmodule ExMachina.EctoTest do
     assert [%User{}, %User{}, %User{}] = TestFactory.insert_list(3, :user, admin: true)
   end
 
+  test "insert_list/3 handles the number 0" do
+    assert [] = TestFactory.insert_list(0, :user)
+  end
+
   test "params_for/2 removes Ecto specific fields" do
     assert TestFactory.params_for(:user) == %{
       name: "John Doe",
