@@ -2,7 +2,7 @@ defmodule ExMachina do
   @moduledoc """
   Defines functions for generating data
 
-  In depth examples are in the [README](README.html)
+  In depth examples are in the [README](readme.html)
   """
 
   defmodule UndefinedFactoryError do
@@ -87,7 +87,9 @@ defmodule ExMachina do
   end
 
   @doc """
-  Shortcut for creating unique string values. Similar to sequence/2
+  Shortcut for creating unique string values. Similar to sequence/2.
+
+  This is automatically imported into a model factory when you `use ExMachina`.
 
   If you need to customize the returned string, see `ExMachina.sequence/2`.
 
@@ -111,10 +113,21 @@ defmodule ExMachina do
         }
       end
   """
+  @spec sequence(String.t) :: String.t
+
   def sequence(name), do: ExMachina.Sequence.next(name)
 
   @doc """
-  Create sequences for generating unique values
+  Create sequences for generating unique values.
+
+  This is automatically imported into a model factory when you `use ExMachina`.
+
+  The `name` can be any term, although it is typically an atom describing the
+  sequence. Each time a sequence is called with the same `name`, its number is
+  incremented by one.
+
+  The `formatter` function takes the sequence number, and returns a sequential
+  representation of that number – typically a formatted string.
 
   ## Examples
 
@@ -125,10 +138,15 @@ defmodule ExMachina do
         }
       end
   """
+
+  @spec sequence(any, (integer -> any)) :: any
   def sequence(name, formatter), do: ExMachina.Sequence.next(name, formatter)
 
   @doc """
-  Builds a factory with the passed in factory_name and attrs
+  Builds a factory with the passed-in `factory_name` and `attrs`.
+
+  This will defer to the `[factory_name]_factory/0` callback defined in the
+  factory module in which it is `use`d.
 
   ## Example
 
@@ -139,6 +157,9 @@ defmodule ExMachina do
       # Returns %{name: "John Doe", admin: true}
       build(:user, admin: true)
   """
+  @callback build(factory_name :: atom, attrs :: keyword | map) :: any
+
+  @doc false
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
     function_name = build_function_name(factory_name)
@@ -160,25 +181,34 @@ defmodule ExMachina do
   defp do_merge(record, attrs), do: Map.merge(record, attrs)
 
   @doc """
-  Builds and returns 2 records with the passed in factory_name and attrs
+  Builds and returns 2 records with the passed in `factory_name` and `attrs`.
+
+  This is just an alias for `build_list(2, factory_name, attrs)`.
 
   ## Example
 
       # Returns a list of 2 users
       build_pair(:user)
   """
+  @callback build_pair(factory_name :: atom, attrs :: keyword | map) :: [any]
+
+  @doc false
   def build_pair(module, factory_name, attrs \\ %{}) do
     ExMachina.build_list(module, 2, factory_name, attrs)
   end
 
   @doc """
-  Builds and returns X records with the passed in factory_name and attrs
+  Builds and returns any number of records with the passed in `factory_name`
+  and `attrs`.
 
   ## Example
 
       # Returns a list of 3 users
       build_list(3, :user)
   """
+  @callback build_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: [any]
+
+  @doc false
   def build_list(module, number_of_records, factory_name, attrs \\ %{}) do
     Stream.repeatedly(fn ->
       ExMachina.build(module, factory_name, attrs)
