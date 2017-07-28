@@ -10,7 +10,7 @@ defmodule ExMachina.Ecto do
   * Adds a `params_for` function that is useful for working with changesets or
     sending params to API endpoints.
 
-  More in-depth examples are in the [README](README.html).
+  More in-depth examples are in the [README](readme.html).
   """
   defmacro __using__(opts) do
     verify_ecto_dep()
@@ -55,6 +55,27 @@ defmodule ExMachina.Ecto do
         "Please add ecto to your dependencies."
     end
   end
+
+  @doc """
+  Builds a factory and inserts it into the database.
+
+  The arguments are the same as `c:ExMachina.build/2`.
+  """
+  @callback insert(factory_name :: atom, attrs :: keyword | map) :: any
+
+  @doc """
+  Builds two factories and inserts them into the database.
+
+  The arguments are the same as `c:ExMachina.build_pair/2`.
+  """
+  @callback insert_pair(factory_name :: atom, attrs :: keyword | map) :: [any]
+
+  @doc """
+  Builds many factories and inserts them into the database.
+
+  The arguments are the same as `c:ExMachina.build_list/3`.
+  """
+  @callback insert_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: [any]
 
   @doc """
   Builds a factory with the passed in factory_name and returns its fields
