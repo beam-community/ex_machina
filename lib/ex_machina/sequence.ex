@@ -1,4 +1,12 @@
 defmodule ExMachina.Sequence do
+  @moduledoc """
+  Module for generating sequential values.
+
+  Use `ExMachina.sequence/1` or `ExMachina.sequence/2` to generate
+  sequential values instead of calling this module directly.
+  """
+
+  @doc false
   def start_link do
     Agent.start_link(fn -> Map.new end, name: __MODULE__)
   end
@@ -11,17 +19,19 @@ defmodule ExMachina.Sequence do
       ExMachina.Sequence.next("joe") # "joe0"
       ExMachina.Sequence.next("joe") # "joe1"
 
-      Sequence.reset
+      ExMachina.Sequence.reset
 
       ExMachina.Sequence.next("joe") # resets so the return value is "joe0"
 
   If you want to reset sequences at the beginning of every test, put it in a
   `setup` block in your test.
 
-     setup do
-       ExMachina.Sequence.reset
-     end
+      setup do
+        ExMachina.Sequence.reset
+      end
   """
+
+  @spec reset() :: :ok
   def reset do
     Agent.update(__MODULE__, fn(_) -> Map.new end)
   end

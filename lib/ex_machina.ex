@@ -87,11 +87,12 @@ defmodule ExMachina do
   end
 
   @doc """
-  Shortcut for creating unique string values. Similar to sequence/2.
+  Shortcut for creating unique string values. 
 
   This is automatically imported into a model factory when you `use ExMachina`.
 
-  If you need to customize the returned string, see `ExMachina.sequence/2`.
+  This is equivalent to `sequence(name, &"\#{name}\#{&1}")`. If you need to
+  customize the returned string, see `sequence/2`.
 
   Note that sequences keep growing and are *not* reset by ExMachina. Most of the
   time you won't need to reset the sequence, but when you do need to reset them,
@@ -143,7 +144,7 @@ defmodule ExMachina do
   def sequence(name, formatter), do: ExMachina.Sequence.next(name, formatter)
 
   @doc """
-  Builds a factory with the passed-in `factory_name` and `attrs`.
+  Builds a single factory.
 
   This will defer to the `[factory_name]_factory/0` callback defined in the
   factory module in which it is `use`d.
@@ -181,7 +182,7 @@ defmodule ExMachina do
   defp do_merge(record, attrs), do: Map.merge(record, attrs)
 
   @doc """
-  Builds and returns 2 records with the passed in `factory_name` and `attrs`.
+  Builds two factories.
 
   This is just an alias for `build_list(2, factory_name, attrs)`.
 
@@ -190,7 +191,7 @@ defmodule ExMachina do
       # Returns a list of 2 users
       build_pair(:user)
   """
-  @callback build_pair(factory_name :: atom, attrs :: keyword | map) :: [any]
+  @callback build_pair(factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc false
   def build_pair(module, factory_name, attrs \\ %{}) do
@@ -198,15 +199,14 @@ defmodule ExMachina do
   end
 
   @doc """
-  Builds and returns any number of records with the passed in `factory_name`
-  and `attrs`.
+  Builds any number of factories.
 
   ## Example
 
       # Returns a list of 3 users
       build_list(3, :user)
   """
-  @callback build_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: [any]
+  @callback build_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc false
   def build_list(module, number_of_records, factory_name, attrs \\ %{}) do

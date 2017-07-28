@@ -68,29 +68,29 @@ defmodule ExMachina.Ecto do
 
   The arguments are the same as `c:ExMachina.build_pair/2`.
   """
-  @callback insert_pair(factory_name :: atom, attrs :: keyword | map) :: [any]
+  @callback insert_pair(factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc """
   Builds many factories and inserts them into the database.
 
   The arguments are the same as `c:ExMachina.build_list/3`.
   """
-  @callback insert_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: [any]
+  @callback insert_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc """
-  Builds a factory with the passed in factory_name and returns its fields
+  Builds a factory and returns only its fields.
 
   This is only for use with Ecto models.
 
   Will return a map with the fields and virtual fields, but without the Ecto
-  metadata, the primary key, or any belongs_to associations. This will
-  recursively act on has_one associations and Ecto structs found in has_many
-  associations.
+  metadata, the primary key, or any `belongs_to` associations. This will
+  recursively act on `has_one` associations and Ecto structs found in
+  `has_many` associations.
 
-  If you want belongs_to associations to be inserted, use
-  `params_with_assocs/2`.
+  If you want `belongs_to` associations to be inserted, use
+  `c:params_with_assocs/2`.
 
-  If you want params with string keys use `string_params_for/3`.
+  If you want params with string keys use `c:string_params_for/2`.
 
   ## Example
 
@@ -101,6 +101,9 @@ defmodule ExMachina.Ecto do
       # Returns %{name: "John Doe", admin: true}
       params_for(:user, admin: true)
   """
+  @callback params_for(factory_name :: atom, attrs :: keyword | map) :: %{optional(atom) => any}
+
+  @doc false
   def params_for(module, factory_name, attrs \\ %{}) do
     factory_name
     |> module.build(attrs)
@@ -108,7 +111,7 @@ defmodule ExMachina.Ecto do
   end
 
   @doc """
-  Similar to `params_for/2` but converts atom keys to strings in returned map.
+  Similar to `c:params_for/2` but converts atom keys to strings in returned map.
 
   The result of this function can be safely used in controller tests for Phoenix
   web applications.
@@ -122,6 +125,9 @@ defmodule ExMachina.Ecto do
       # Returns %{"name" => "John Doe", "admin" => true}
       string_params_for(:user, admin: true)
   """
+  @callback string_params_for(factory_name :: atom, attrs :: keyword | map) :: %{optional(String.t) => any}
+
+  @doc false
   def string_params_for(module, factory_name, attrs \\ %{}) do
     module
     |> params_for(factory_name, attrs)
@@ -129,10 +135,10 @@ defmodule ExMachina.Ecto do
   end
 
   @doc """
-  Same as `params_for/2`, but inserts all belongs_to associations and sets the
-  foreign keys.
+  Similar to `c:params_for/2` but inserts all `belongs_to` associations and
+  sets the foreign keys.
 
-  If you want params with string keys use `string_params_with_assocs/3`.
+  If you want params with string keys use `c:string_params_with_assocs/2`.
 
   ## Example
 
@@ -143,6 +149,9 @@ defmodule ExMachina.Ecto do
       # Inserts an author and returns %{title: "An Awesome Article", author_id: 12}
       params_with_assocs(:article)
   """
+  @callback params_with_assocs(factory_name :: atom, attrs :: keyword | map) :: %{optional(atom) => any}
+
+  @doc false
   def params_with_assocs(module, factory_name, attrs \\ %{}) do
     factory_name
     |> module.build(attrs)
@@ -151,7 +160,7 @@ defmodule ExMachina.Ecto do
   end
 
   @doc """
-  Similar to `params_with_assocs/2` but converts atom keys to strings in
+  Similar to `c:params_with_assocs/2` but converts atom keys to strings in
   returned map.
 
   The result of this function can be safely used in controller tests for Phoenix
@@ -166,6 +175,9 @@ defmodule ExMachina.Ecto do
       # Inserts an author and returns %{"title" => "An Awesome Article", "author_id" => 12}
       string_params_with_assocs(:article)
   """
+  @callback string_params_with_assocs(factory_name :: atom, attrs :: keyword | map) :: %{optional(String.t) => any}
+
+  @doc false
   def string_params_with_assocs(module, factory_name, attrs \\ %{}) do
     module
     |> params_with_assocs(factory_name, attrs)

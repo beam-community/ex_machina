@@ -131,7 +131,9 @@ defmodule ExMachina.Strategy do
         end
       end
   """
-  def name_from_struct(%{__struct__: struct_name}) do
+
+  @spec name_from_struct(struct) :: atom
+  def name_from_struct(%{__struct__: struct_name} = _struct) do
     struct_name
     |> Module.split
     |> List.last
