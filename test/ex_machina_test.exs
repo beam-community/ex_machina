@@ -132,11 +132,9 @@ defmodule ExMachinaTest do
   end
 
   defmodule FactoryB do
-    use ExMachina
-
     def comment_factory do
       %{
-        user: sequence(:user, &"User ##{&1}"),
+        user: "New user",
         comment: "Something interesting"
       }
     end
@@ -146,8 +144,8 @@ defmodule ExMachinaTest do
     use ExMachina, import: [FactoryA, FactoryB]
   end
 
-  test "new_build/2 will try imported factories if not found" do
-    assert "Something interesting" == FactoryC.new_build(:comment).comment
-    assert "Post Title0" == FactoryC.new_build(:article).title
+  test "build/2 will try imported factories if not found" do
+    assert "Something interesting" == FactoryC.build(:comment).comment
+    assert "Post Title0" == FactoryC.build(:article).title
   end
 end

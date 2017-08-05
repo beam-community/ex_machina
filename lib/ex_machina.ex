@@ -35,24 +35,21 @@ defmodule ExMachina do
   defmacro __using__(opts) do
     quote do
       @before_compile unquote(__MODULE__)
-      @imported_factories Keyword.get(unquote(opts), :import, [])
+
+      imported_factories = unquote(opts) || []
+      @imported_factories Keyword.get(imported_factories, :import, [])
 
       import ExMachina, only: [sequence: 1, sequence: 2]
 
       def build(factory_name, attrs \\ %{}) do
-        ExMachina.build(__MODULE__, factory_name, attrs)
+        ExMachina.build(__MODULE__, @imported_factories, factory_name, attrs)
       end
-
-      def new_build(factory_name, attrs \\ %{}) do
-        ExMachina.new_build(__MODULE__, @imported_factories, factory_name, attrs)
-      end
-
       def build_pair(factory_name, attrs \\ %{}) do
-        ExMachina.build_pair(__MODULE__, factory_name, attrs)
+        ExMachina.build_pair(__MODULE__, @imported_factories, factory_name, attrs)
       end
 
       def build_list(number_of_records, factory_name, attrs \\ %{}) do
-        ExMachina.build_list(__MODULE__, number_of_records, factory_name, attrs)
+        ExMachina.build_list(__MODULE__, @imported_factories, number_of_records, factory_name, attrs)
       end
 
       @spec create(any) :: no_return
@@ -150,25 +147,6 @@ defmodule ExMachina do
   @spec sequence(any, (integer -> any)) :: any
   def sequence(name, formatter), do: ExMachina.Sequence.next(name, formatter)
 
-  def new_build(module, fallbacks, factory_name, attrs \\ %{}) do
-    attrs = Enum.into(attrs, %{})
-    function_name = build_function_name(factory_name)
-
-    if Code.ensure_loaded?(module) do
-      cond do
-        function_exported?(module, function_name, 0) ->
-          apply(module, function_name, []) |> do_merge(attrs)
-        fallbacks == [] ->
-          raise UndefinedFactoryError, "#{module}.#{factory_name}"
-        true ->
-          [head | tail] = fallbacks
-          new_build(head, tail, factory_name, attrs)
-        end
-    else
-      raise UndefinedFactoryError, "#{module}.#{factory_name}"
-    end
-  end
-
   @doc """
   Builds a single factory.
 
@@ -187,16 +165,35 @@ defmodule ExMachina do
   @callback build(factory_name :: atom, attrs :: keyword | map) :: any
 
   @doc false
-  def build(module, factory_name, attrs \\ %{}) do
+  def build(module, fallbacks, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
     function_name = build_function_name(factory_name)
 
-    if Code.ensure_loaded?(module) && function_exported?(module, function_name, 0) do
-      apply(module, function_name, []) |> do_merge(attrs)
+    if Code.ensure_loaded?(module) do
+      cond do
+        function_exported?(module, function_name, 0) ->
+          apply(module, function_name, []) |> do_merge(attrs)
+        fallbacks == [] ->
+          raise UndefinedFactoryError, "#{module}.#{factory_name}"
+        true ->
+          [head | tail] = fallbacks
+          build(head, tail, factory_name, attrs)
+        end
     else
-      raise UndefinedFactoryError, factory_name
+      raise UndefinedFactoryError, "#{module}.#{factory_name}"
     end
   end
+
+  # def build(module, factory_name, attrs \\ %{}) do
+  #   attrs = Enum.into(attrs, %{})
+  #   function_name = build_function_name(factory_name)
+  #
+  #   if Code.ensure_loaded?(module) && function_exported?(module, function_name, 0) do
+  #     apply(module, function_name, []) |> do_merge(attrs)
+  #   else
+  #     raise UndefinedFactoryError, factory_name
+  #   end
+  # end
 
   defp build_function_name(factory_name) do
     factory_name
@@ -221,8 +218,8 @@ defmodule ExMachina do
   @callback build_pair(factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc false
-  def build_pair(module, factory_name, attrs \\ %{}) do
-    ExMachina.build_list(module, 2, factory_name, attrs)
+  def build_pair(module, fallbacks, factory_name, attrs \\ %{}) do
+    ExMachina.build_list(module, fallbacks, 2, factory_name, attrs)
   end
 
   @doc """
@@ -236,9 +233,9 @@ defmodule ExMachina do
   @callback build_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc false
-  def build_list(module, number_of_records, factory_name, attrs \\ %{}) do
+  def build_list(module, fallbacks, number_of_records, factory_name, attrs \\ %{}) do
     Stream.repeatedly(fn ->
-      ExMachina.build(module, factory_name, attrs)
+      ExMachina.build(module, fallbacks, factory_name, attrs)
     end)
     |> Enum.take(number_of_records)
   end
