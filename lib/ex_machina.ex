@@ -41,8 +41,12 @@ defmodule ExMachina do
 
       import ExMachina, only: [sequence: 1, sequence: 2]
 
+      def builder(factory_name, attrs \\ %{}) do
+        ExMachina.builder(__MODULE__, @imported_factories, factory_name, attrs)
+      end
+
       def build(factory_name, attrs \\ %{}) do
-        ExMachina.build(__MODULE__, @imported_factories, factory_name, attrs)
+        ExMachina.build(__MODULE__, factory_name, attrs)
       end
       def build_pair(factory_name, attrs \\ %{}) do
         ExMachina.build_pair(__MODULE__, @imported_factories, factory_name, attrs)
@@ -165,22 +169,32 @@ defmodule ExMachina do
   @callback build(factory_name :: atom, attrs :: keyword | map) :: any
 
   @doc false
-  def build(module, fallbacks, factory_name, attrs \\ %{}) do
+  def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
     function_name = build_function_name(factory_name)
+
+    if Code.ensure_loaded?(module) do
+      apply(module, :builder, [function_name, attrs])
+    else
+      raise UndefinedFactoryError, "#{module}.#{factory_name}"
+    end
+  end
+
+  def builder(module, fallbacks, function_name, attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{})
 
     if Code.ensure_loaded?(module) do
       cond do
         function_exported?(module, function_name, 0) ->
           apply(module, function_name, []) |> do_merge(attrs)
         fallbacks == [] ->
-          raise UndefinedFactoryError, "#{module}.#{factory_name}"
+          raise UndefinedFactoryError, "#{module}.#{function_name}"
         true ->
           [head | tail] = fallbacks
-          build(head, tail, factory_name, attrs)
+          builder(head, tail, function_name, attrs)
         end
     else
-      raise UndefinedFactoryError, "#{module}.#{factory_name}"
+      raise UndefinedFactoryError, "#{module}.#{function_name}"
     end
   end
 
@@ -235,7 +249,7 @@ defmodule ExMachina do
   @doc false
   def build_list(module, fallbacks, number_of_records, factory_name, attrs \\ %{}) do
     Stream.repeatedly(fn ->
-      ExMachina.build(module, fallbacks, factory_name, attrs)
+      ExMachina.build(module, factory_name, attrs)
     end)
     |> Enum.take(number_of_records)
   end
