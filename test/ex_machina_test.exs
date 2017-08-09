@@ -121,31 +121,33 @@ defmodule ExMachinaTest do
     end
   end
 
-  defmodule FactoryA do
-    use ExMachina
+  describe "factory importing" do
+    defmodule FactoryA do
+      use ExMachina
 
-    def article_factory do
-      %{
-        title: sequence(:factory_article, &"Post Title#{&1}")
-      }
+      def article_factory do
+        %{
+          title: sequence(:factory_article, &"Post Title#{&1}")
+        }
+      end
     end
-  end
 
-  defmodule FactoryB do
-    def comment_factory do
-      %{
-        user: "New user",
-        comment: "Something interesting"
-      }
+    defmodule FactoryB do
+      def comment_factory do
+        %{
+          user: "New user",
+          comment: "Something interesting"
+        }
+      end
     end
-  end
 
-  defmodule FactoryC do
-    use ExMachina, import: [FactoryA, FactoryB]
-  end
+    defmodule FactoryC do
+      use ExMachina, import: [FactoryA, FactoryB]
+    end
 
-  test "build/2 will try imported factories if not found" do
-    assert "Something interesting" == FactoryC.build(:comment).comment
-    assert "Post Title0" == FactoryC.build(:article).title
+    test "build/2 will try imported factories if not found" do
+      assert "Something interesting" == FactoryC.build(:comment).comment
+      assert "Post Title0" == FactoryC.build(:article).title
+    end
   end
 end

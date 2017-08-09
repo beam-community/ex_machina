@@ -33,16 +33,15 @@ defmodule ExMachina do
   def start(_type, _args), do: ExMachina.Sequence.start_link
 
   defmacro __using__(opts) do
+    imported_factories = Keyword.get(opts, :import, [])
+
     quote do
       @before_compile unquote(__MODULE__)
-
-      imported_factories = unquote(opts) || []
-      @imported_factories Keyword.get(imported_factories, :import, [])
 
       import ExMachina, only: [sequence: 1, sequence: 2]
 
       def builder(factory_name, attrs \\ %{}) do
-        ExMachina.builder(__MODULE__, @imported_factories, factory_name, attrs)
+        ExMachina.builder(__MODULE__, unquote(imported_factories), factory_name, attrs)
       end
 
       def build(factory_name, attrs \\ %{}) do

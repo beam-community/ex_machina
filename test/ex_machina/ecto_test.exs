@@ -232,4 +232,23 @@ defmodule ExMachina.EctoTest do
   defp has_association_in_schema?(model, association_name) do
     Enum.member?(model.__schema__(:associations), association_name)
   end
+
+  describe "factory importing" do
+    defmodule FactoryX do
+      use ExMachina.Ecto, repo: ExMachina.TestRepo, import: [TestFactory]
+
+      def custom_user_factory do
+        %ExMachina.User{
+          name: "John Doe",
+          admin: false,
+          articles: []
+        }
+      end
+    end
+
+    test "insert/2 will try imported factories if not found" do
+      assert %User{} = FactoryX.insert(:user)
+      assert %User{} = FactoryX.insert(:custom_user)
+    end
+  end
 end
