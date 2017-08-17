@@ -124,7 +124,7 @@ defmodule ExMachina.EctoStrategyTest do
 
     refute Enum.member?(publisher_fields, :name)
 
-    publisher = TestFactory.build(:user, name: "name")
+    publisher = Map.merge(TestFactory.build(:publisher), %{name: "name"})
     model = TestFactory.insert(:article, publisher: publisher)
 
     assert model.publisher.name == "name"
