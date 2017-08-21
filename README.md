@@ -105,6 +105,16 @@ defmodule MyApp.Factory do
     }
   end
 
+  # derived factory
+  def featured_article_factory do
+    struct!(
+      article_factory(),
+      %{
+        featured: true,
+      }
+    )
+  end
+
   def comment_factory do
     %MyApp.Comment{
       text: "It's great!",
