@@ -16,6 +16,10 @@ defmodule ExMachina.TestFactory do
     }
   end
 
+  def publisher_factory do
+    %ExMachina.Publisher{}
+  end
+
   def article_factory do
     %ExMachina.Article{
       title: "My Awesome Article",
