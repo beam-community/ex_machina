@@ -303,6 +303,7 @@ defmodule ExMachina.Ecto do
     case struct.__schema__(:autogenerate_id) do
       {name, _source, _type} -> Map.delete(map, name)
       {name, _type} -> Map.delete(map, name)
+      {name, _source, _type} -> Map.delete(map, name)
       nil -> map
     end
   end
