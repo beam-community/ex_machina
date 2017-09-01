@@ -7,6 +7,23 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.1.0]
+
+### Added
+
+- Support bare maps in embeds https://github.com/thoughtbot/ex_machina/commit/efd4e7c6125843d20b8dd07d91ded6240ecaf5ef
+- Handle nested structures in `string_params_for/2` https://github.com/thoughtbot/ex_machina/pull/224
+
+### Fixed
+
+- Handle the number `0` in `*_list` functions https://github.com/thoughtbot/ex_machina/commit/012e957e7ab1e22eca18b62e8f3fcc2a98a7f286
+
+### Improved
+
+- Miscellaneous documentation improvements.
+
+[2.1.0]: https://github.com/thoughtbot/ex_machina/compare/v2.0.0...v2.1.0
+
 ## [2.0.0]
 
 ### Added
