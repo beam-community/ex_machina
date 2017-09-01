@@ -14,7 +14,7 @@ defmodule ExMachina.EctoStrategy do
 
   def handle_insert(%{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record, %{repo: repo}) do
     record
-    |> cast
+    |> cast(nil)
     |> repo.insert!
   end
 
@@ -26,10 +26,29 @@ defmodule ExMachina.EctoStrategy do
     raise "expected :repo to be given to ExMachina.EctoStrategy"
   end
 
-  defp cast(record) do
+  defp cast(record, field_set_by_parent) do
+    parent_assoc = assoc_set_by_parent(record, field_set_by_parent)
+
     record
     |> cast_all_fields
-    |> cast_all_assocs
+    |> skip_already_set_assoc(parent_assoc)
+    |> cast_all_assocs(nil)
+  end
+
+  defp assoc_set_by_parent(%{__struct__: schema}, field_set_by_parent) do
+    if field_set_by_parent do
+      schema.__schema__(:associations)
+      |> Enum.find(fn(assoc) ->
+        foreign_key =
+          :association
+          |> schema.__schema__(assoc)
+          |> Map.get(:owner_key, nil)
+        foreign_key == field_set_by_parent end)
+    end
+  end
+
+  defp skip_already_set_assoc(record, parent_assoc) do
+    Map.delete(record, parent_assoc)
   end
 
   defp cast_all_fields(struct) do
@@ -70,37 +89,49 @@ defmodule ExMachina.EctoStrategy do
     end
   end
 
-  defp cast_all_assocs(%{__struct__: schema} = struct) do
+  defp cast_all_assocs(%{__struct__: schema} = struct, field_set_by_parent) do
     assocs = get_schema_assocs(schema)
 
     Enum.reduce(assocs, struct, fn(assoc, struct) ->
-      casted_value = struct |> Map.get(assoc) |> cast_assoc(assoc, struct)
+      casted_value = struct |> Map.get(assoc) |> cast_assoc(assoc, struct, field_set_by_parent)
 
       Map.put(struct, assoc, casted_value)
     end)
   end
 
-  defp cast_assoc(original_assoc, assoc_key, %{__struct__: schema} = struct) do
+  defp cast_assoc(original_assoc, assoc_key, %{__struct__: schema} = struct, field_set_by_parent) do
     case original_assoc do
       has_or_embeds_many when is_list(has_or_embeds_many) ->
-        Enum.map(has_or_embeds_many, &(cast_assoc(&1, assoc_key, struct)))
-
-      %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :built}} ->
-        cast(original_assoc)
+        Enum.map(has_or_embeds_many,
+          &(cast_assoc(&1, assoc_key, struct, foreign_key(schema, assoc_key))))
 
       %{__struct__: Ecto.Association.NotLoaded} ->
         original_assoc
 
       %{__struct__: _} ->
-        cast(original_assoc)
+        cast(original_assoc, field_set_by_parent)
 
       %{} ->
-        assoc_reflection = schema.__schema__(:association, assoc_key) || schema.__schema__(:embed, assoc_key)
-        assoc_type = assoc_reflection.related
-        assoc_type |> struct() |> Map.merge(original_assoc) |> cast()
+        schema
+        |> assoc_type(assoc_key)
+        |> struct()
+        |> Map.merge(original_assoc)
+        |> cast(field_set_by_parent)
 
       nil -> nil
     end
+  end
+
+  defp foreign_key(schema, assoc_key) do
+    assoc_reflection = schema.__schema__(:association, assoc_key)
+    if assoc_reflection do
+      assoc_reflection.related_key
+    end
+  end
+
+  defp assoc_type(schema, assoc_key) do
+    assoc_reflection = schema.__schema__(:association, assoc_key) || schema.__schema__(:embed, assoc_key)
+    assoc_reflection.related
   end
 
   defp get_schema_assocs(schema) do
