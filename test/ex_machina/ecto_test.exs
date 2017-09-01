@@ -142,6 +142,14 @@ defmodule ExMachina.EctoTest do
     }
   end
 
+  test "string_params_for/2 converts structs into maps with strings as keys" do
+    net_worth = %Money{amount: 2_000}
+
+    user_params = TestFactory.string_params_for(:user, net_worth: net_worth)
+
+    assert user_params["net_worth"] == %{"amount" => 2_000}
+  end
+
   test "string_params_for/2 converts has_one association into map with strings as keys" do
     article = TestFactory.build(:article)
 
