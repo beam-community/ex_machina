@@ -26,7 +26,7 @@ defmodule ExMachina.EctoStrategy do
     raise "expected :repo to be given to ExMachina.EctoStrategy"
   end
 
-  defp cast(record) do
+  def cast(record) do
     record
     |> cast_all_fields
     |> cast_all_embeds
