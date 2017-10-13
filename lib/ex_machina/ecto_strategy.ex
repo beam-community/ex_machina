@@ -34,9 +34,9 @@ defmodule ExMachina.EctoStrategy do
   end
 
   defp cast_all_fields(%{__struct__: schema} = struct) do
-    field_keys = schema_fields(schema)
-
-    Enum.reduce(field_keys, struct, fn(field_key, struct) ->
+    schema
+    |> schema_fields()
+    |> Enum.reduce(struct, fn(field_key, struct) ->
       casted_value = cast_field(field_key, struct)
 
       Map.put(struct, field_key, casted_value)
@@ -60,10 +60,10 @@ defmodule ExMachina.EctoStrategy do
   end
 
   defp cast_all_embeds(%{__struct__: schema} = struct) do
-    embed_keys = schema_embeds(schema)
-
-    Enum.reduce(embed_keys, struct, fn(embed_key, struct) ->
-      casted_value = Map.get(struct, embed_key) |> cast_embed(embed_key, struct)
+    schema
+    |> schema_embeds()
+    |> Enum.reduce(struct, fn(embed_key, struct) ->
+      casted_value = struct |> Map.get(embed_key) |> cast_embed(embed_key, struct)
 
       Map.put(struct, embed_key, casted_value)
     end)
@@ -73,13 +73,10 @@ defmodule ExMachina.EctoStrategy do
     Enum.map(embeds_many, &(cast_embed(&1, embed_key, struct)))
   end
   defp cast_embed(embed, embed_key, %{__struct__: schema}) do
-    case embed do
-      %{} ->
-        embedding_reflection = schema.__schema__(:embed, embed_key)
-        embed_type = embedding_reflection.related
-        struct(embed_type) |> Map.merge(embed) |> cast()
-
-      nil -> nil
+    if embed do
+      embedding_reflection = schema.__schema__(:embed, embed_key)
+      embed_type = embedding_reflection.related
+      embed_type |> struct() |> Map.merge(embed) |> cast()
     end
   end
 
@@ -87,7 +84,7 @@ defmodule ExMachina.EctoStrategy do
     assoc_keys = schema_associations(schema)
 
     Enum.reduce(assoc_keys, struct, fn(assoc_key, struct) ->
-      casted_value = Map.get(struct, assoc_key) |> cast_assoc(assoc_key, struct)
+      casted_value = struct |> Map.get(assoc_key) |> cast_assoc(assoc_key, struct)
 
       Map.put(struct, assoc_key, casted_value)
     end)
@@ -110,14 +107,14 @@ defmodule ExMachina.EctoStrategy do
       %{} ->
         assoc_reflection = schema.__schema__(:association, assoc_key)
         assoc_type = assoc_reflection.related
-        struct(assoc_type) |> Map.merge(assoc) |> cast()
+        assoc_type |> struct() |> Map.merge(assoc) |> cast()
 
       nil -> nil
     end
   end
 
   defp schema_fields(schema) do
-    schema_non_virtual_fields(schema)  -- schema_embeds(schema)
+    schema_non_virtual_fields(schema) -- schema_embeds(schema)
   end
 
   defp schema_non_virtual_fields(schema) do
