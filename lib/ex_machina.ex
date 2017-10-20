@@ -135,7 +135,9 @@ defmodule ExMachina do
       def user_factory do
         %{
           # Will generate "me-0@example.com" then "me-1@example.com", etc.
-          email: sequence(:email, &"me-\#{&1}@foo.com")
+          email: sequence(:email, &"me-\#{&1}@foo.com"),
+          # Will generate "admin" then "user", "other", "admin" etc.
+          role: sequence(:role, ["admin", "user", "other"])
         }
       end
   """
