@@ -185,6 +185,14 @@ defmodule ExMachina.EctoTest do
     ]
   end
 
+  test "nil_params_for/2 produces maps similar to ones built with params_for/2, but the values are nil" do
+    assert TestFactory.nil_params_for(:user) == %{
+      name: nil,
+      admin: nil,
+      articles: nil
+    }
+  end
+
   test "params_with_assocs/2 inserts belongs_tos that are set by the factory" do
     assert has_association_in_schema?(ExMachina.Article, :editor)
 

@@ -27,6 +27,10 @@ defmodule ExMachina.Ecto do
           ExMachina.Ecto.string_params_for(__MODULE__, factory_name, attrs)
         end
 
+        def nil_params_for(factory_name) do
+          ExMachina.Ecto.nil_params_for(__MODULE__, factory_name)
+        end
+
         def params_with_assocs(factory_name, attrs \\ %{}) do
           ExMachina.Ecto.params_with_assocs(__MODULE__, factory_name, attrs)
         end
@@ -132,6 +136,28 @@ defmodule ExMachina.Ecto do
     module
     |> params_for(factory_name, attrs)
     |> convert_atom_keys_to_strings
+  end
+
+  @doc """
+  Similar to `c:params_for/2` but converts all values to nil in returned map.
+
+  ## Example
+
+      def user_factory do
+        %MyApp.User{name: "John Doe", admin: false}
+      end
+
+      # Returns %{name: => nil, admin: => nil}
+      nil_params_for(:user)
+  """
+  @callback nil_params_for(factory_name :: atom) :: %{optional(atom) => any}
+
+  @doc false
+  def nil_params_for(module, factory_name) do
+    module
+    |> params_for(factory_name, %{})
+    |> Enum.map(fn{k, _v} -> {k, nil} end)
+    |> Map.new
   end
 
   @doc """
