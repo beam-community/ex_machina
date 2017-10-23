@@ -156,7 +156,7 @@ defmodule ExMachina.Ecto do
   def nil_params_for(module, factory_name) do
     module
     |> params_for(factory_name, %{})
-    |> Enum.map( fn{k, _v} -> {k, nil} end )
+    |> Enum.map(fn{k, _v} -> {k, nil} end)
     |> Map.new
   end
 
