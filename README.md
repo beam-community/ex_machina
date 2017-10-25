@@ -370,4 +370,4 @@ to design, develop, and grow your product.
 ## Inspiration
 
 * [Fixtures for Ecto](http://blog.danielberkompas.com/elixir/2015/07/16/fixtures-for-ecto.html)
-* [Factory Girl](https://github.com/thoughtbot/factory_girl)
+* [Factory Bot](https://github.com/thoughtbot/factory_bot)
