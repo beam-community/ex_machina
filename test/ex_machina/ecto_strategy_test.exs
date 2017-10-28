@@ -27,6 +27,7 @@ defmodule ExMachina.EctoStrategyTest do
 
   test "insert/1 raises if a map is passed" do
     message = "%{foo: \"bar\"} is not an Ecto model. Use `build` instead"
+
     assert_raise ArgumentError, message, fn ->
       TestFactory.insert(%{foo: "bar"})
     end
@@ -34,6 +35,7 @@ defmodule ExMachina.EctoStrategyTest do
 
   test "insert/1 raises if a non-Ecto struct is passed" do
     message = "%{__struct__: Foo.Bar} is not an Ecto model. Use `build` instead"
+
     assert_raise ArgumentError, message, fn ->
       TestFactory.insert(%{__struct__: Foo.Bar})
     end
@@ -63,9 +65,12 @@ defmodule ExMachina.EctoStrategyTest do
     author = %ExMachina.Author{name: "Paul", salary: 10.3}
     link = %ExMachina.Link{url: "wow", rating: 4.5}
 
-    comment = TestFactory.insert :comment_with_embedded_assocs,
-      author: author,
-      links: [link]
+    comment =
+      TestFactory.insert(
+        :comment_with_embedded_assocs,
+        author: author,
+        links: [link]
+      )
 
     assert comment.author.name == author.name
     assert comment.author.salary == Decimal.new(author.salary)
@@ -104,10 +109,14 @@ defmodule ExMachina.EctoStrategyTest do
   end
 
   test "insert/1 casts lists of bare maps for embeds" do
-    model = TestFactory.insert(:comment_with_embedded_assocs, links: [%{url: "http://thoughtbot.com", rating: 5}])
+    model =
+      TestFactory.insert(
+        :comment_with_embedded_assocs,
+        links: [%{url: "http://thoughtbot.com", rating: 5}]
+      )
+
     assert hd(model.links).rating == Decimal.new(5)
   end
-
 
   test "insert/1 casts associations recursively" do
     editor = TestFactory.build(:user, net_worth: 300)
@@ -140,6 +149,7 @@ defmodule ExMachina.EctoStrategyTest do
 
   test "insert/1 raises a friendly error when casting invalid types" do
     message = ~r/Failed to cast `:invalid` of type ExMachina.InvalidType/
+
     assert_raise RuntimeError, message, fn ->
       TestFactory.insert(:invalid_cast, invalid: :invalid)
     end
@@ -147,8 +157,9 @@ defmodule ExMachina.EctoStrategyTest do
 
   test "insert/1 raises if attempting to insert already inserted record" do
     message = ~r/You called `insert` on a record that has already been inserted./
+
     assert_raise RuntimeError, message, fn ->
-      TestFactory.insert(:user, name: "Maximus") |> TestFactory.insert
+      TestFactory.insert(:user, name: "Maximus") |> TestFactory.insert()
     end
   end
 end

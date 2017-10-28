@@ -12,7 +12,7 @@ defmodule ExMachina.TestFactory do
     %ExMachina.User{
       name: "John Doe",
       admin: false,
-      articles: [],
+      articles: []
     }
   end
 
@@ -23,7 +23,7 @@ defmodule ExMachina.TestFactory do
   def article_factory do
     %ExMachina.Article{
       title: "My Awesome Article",
-      author: build(:user),
+      author: build(:user)
     }
   end
 

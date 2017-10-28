@@ -59,9 +59,10 @@ defmodule ExMachina.Strategy do
           def unquote(function_name)(already_built_record) when is_map(already_built_record) do
             opts = Map.new(unquote(opts)) |> Map.merge(%{factory_module: __MODULE__})
 
-            apply unquote(custom_strategy_module),
-              unquote(handle_response_function_name),
-              [already_built_record, opts]
+            apply(unquote(custom_strategy_module), unquote(handle_response_function_name), [
+              already_built_record,
+              opts
+            ])
           end
 
           def unquote(function_name)(factory_name, attrs \\ %{}) do
@@ -87,7 +88,7 @@ defmodule ExMachina.Strategy do
 
   defmacro __using__(opts) do
     raise """
-    expected function_name as an option, instead got #{inspect opts}.
+    expected function_name as an option, instead got #{inspect(opts)}.
 
     Example: use ExMachina.Strategy, function_name: :json_encode
     """
@@ -135,11 +136,11 @@ defmodule ExMachina.Strategy do
   @spec name_from_struct(struct) :: atom
   def name_from_struct(%{__struct__: struct_name} = _struct) do
     struct_name
-    |> Module.split
-    |> List.last
+    |> Module.split()
+    |> List.last()
     |> underscore
-    |> String.downcase
-    |> String.to_atom
+    |> String.downcase()
+    |> String.to_atom()
   end
 
   defp underscore(name) do

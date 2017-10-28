@@ -9,7 +9,7 @@ defmodule ExMachina.EctoStrategy do
 
      The record you attempted to insert:
 
-     #{inspect record, limit: :infinity}"
+     #{inspect(record, limit: :infinity)}"
   end
 
   def handle_insert(%{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record, %{repo: repo}) do
@@ -19,7 +19,7 @@ defmodule ExMachina.EctoStrategy do
   end
 
   def handle_insert(record, %{repo: _repo}) do
-    raise ArgumentError, "#{inspect record} is not an Ecto model. Use `build` instead"
+    raise ArgumentError, "#{inspect(record)} is not an Ecto model. Use `build` instead"
   end
 
   def handle_insert(_record, _opts) do
@@ -36,11 +36,11 @@ defmodule ExMachina.EctoStrategy do
   defp cast_all_fields(%{__struct__: schema} = struct) do
     schema
     |> schema_fields()
-    |> Enum.reduce(struct, fn(field_key, struct) ->
-      casted_value = cast_field(field_key, struct)
+    |> Enum.reduce(struct, fn field_key, struct ->
+         casted_value = cast_field(field_key, struct)
 
-      Map.put(struct, field_key, casted_value)
-    end)
+         Map.put(struct, field_key, casted_value)
+       end)
   end
 
   defp cast_field(field_key, %{__struct__: schema} = struct) do
@@ -54,24 +54,28 @@ defmodule ExMachina.EctoStrategy do
     case Ecto.Type.cast(field_type, value) do
       {:ok, value} ->
         value
+
       _ ->
-        raise "Failed to cast `#{inspect value}` of type #{inspect field_type} in #{inspect struct}."
+        raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{
+                inspect(struct)
+              }."
     end
   end
 
   defp cast_all_embeds(%{__struct__: schema} = struct) do
     schema
     |> schema_embeds()
-    |> Enum.reduce(struct, fn(embed_key, struct) ->
-      casted_value = struct |> Map.get(embed_key) |> cast_embed(embed_key, struct)
+    |> Enum.reduce(struct, fn embed_key, struct ->
+         casted_value = struct |> Map.get(embed_key) |> cast_embed(embed_key, struct)
 
-      Map.put(struct, embed_key, casted_value)
-    end)
+         Map.put(struct, embed_key, casted_value)
+       end)
   end
 
   defp cast_embed(embeds_many, embed_key, struct) when is_list(embeds_many) do
-    Enum.map(embeds_many, &(cast_embed(&1, embed_key, struct)))
+    Enum.map(embeds_many, &cast_embed(&1, embed_key, struct))
   end
+
   defp cast_embed(embed, embed_key, %{__struct__: schema}) do
     if embed do
       embedding_reflection = schema.__schema__(:embed, embed_key)
@@ -83,7 +87,7 @@ defmodule ExMachina.EctoStrategy do
   defp cast_all_assocs(%{__struct__: schema} = struct) do
     assoc_keys = schema_associations(schema)
 
-    Enum.reduce(assoc_keys, struct, fn(assoc_key, struct) ->
+    Enum.reduce(assoc_keys, struct, fn assoc_key, struct ->
       casted_value = struct |> Map.get(assoc_key) |> cast_assoc(assoc_key, struct)
 
       Map.put(struct, assoc_key, casted_value)
@@ -91,8 +95,9 @@ defmodule ExMachina.EctoStrategy do
   end
 
   defp cast_assoc(has_many_assoc, assoc_key, struct) when is_list(has_many_assoc) do
-    Enum.map(has_many_assoc, &(cast_assoc(&1, assoc_key, struct)))
+    Enum.map(has_many_assoc, &cast_assoc(&1, assoc_key, struct))
   end
+
   defp cast_assoc(assoc, assoc_key, %{__struct__: schema}) do
     case assoc do
       %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :built}} ->
@@ -109,7 +114,8 @@ defmodule ExMachina.EctoStrategy do
         assoc_type = assoc_reflection.related
         assoc_type |> struct() |> Map.merge(assoc) |> cast()
 
-      nil -> nil
+      nil ->
+        nil
     end
   end
 

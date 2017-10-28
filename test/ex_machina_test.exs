@@ -49,26 +49,26 @@ defmodule ExMachinaTest do
 
   test "build/2 returns the matching factory" do
     assert Factory.build(:user) == %{
-      id: 3,
-      name: "John Doe",
-      admin: false
-    }
+             id: 3,
+             name: "John Doe",
+             admin: false
+           }
   end
 
   test "build/2 merges passed in options as keyword list" do
     assert Factory.build(:user, admin: true) == %{
-      id: 3,
-      name: "John Doe",
-      admin: true
-    }
+             id: 3,
+             name: "John Doe",
+             admin: true
+           }
   end
 
   test "build/2 merges passed in options as a map" do
     assert Factory.build(:user, %{admin: true}) == %{
-      id: 3,
-      name: "John Doe",
-      admin: true
-    }
+             id: 3,
+             name: "John Doe",
+             admin: true
+           }
   end
 
   test "build/2 raises if passing invalid keys to a struct factory" do
@@ -85,6 +85,7 @@ defmodule ExMachinaTest do
       name: "John Doe",
       admin: true
     }
+
     assert records == [expected_record, expected_record]
   end
 
@@ -96,6 +97,7 @@ defmodule ExMachinaTest do
       name: "John Doe",
       admin: true
     }
+
     assert records == [expected_record, expected_record, expected_record]
   end
 
