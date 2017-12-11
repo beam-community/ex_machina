@@ -216,6 +216,9 @@ defmodule ExMachina.Ecto do
         assoc = recursively_strip(original_assoc)
         Map.put(record, association_name, assoc)
 
+      nil ->
+        Map.put(record, association_name, nil)
+
       list when is_list(list) ->
         has_many_assoc = Enum.map(original_assoc, &recursively_strip/1)
         Map.put(record, association_name, has_many_assoc)
