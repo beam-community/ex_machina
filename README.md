@@ -19,7 +19,9 @@ In `mix.exs`, add the ExMachina dependency:
 ```elixir
 def deps do
   # Get the latest from hex.pm. Works with Ecto 2.0
-  [{:ex_machina, "~> 2.1"}]
+  [
+    {:ex_machina, "~> 2.1"},
+  ]
 end
 ```
 
@@ -40,7 +42,9 @@ In `mix.exs`, add the ExMachina dependency:
 
 ```elixir
 def deps do
-  [{:ex_machina, "~> 2.1", only: :test}]
+  [
+    {:ex_machina, "~> 2.1", only: :test},
+  ]
 end
 ```
 
