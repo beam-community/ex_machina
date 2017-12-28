@@ -25,7 +25,7 @@ end
 
 And start the ExMachina application. For most projects (such as
 Phoenix apps) this will mean adding `:ex_machina` to the list of applications in
-`mix.exs`. You can skip this step if you are using Elixir 1.4
+`mix.exs`. You can skip this step if you are using Elixir 1.4 or later.
 
 ```elixir
 def application do
