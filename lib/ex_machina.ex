@@ -48,11 +48,11 @@ defmodule ExMachina do
         ExMachina.build(__MODULE__, factory_name, attrs)
       end
       def build_pair(factory_name, attrs \\ %{}) do
-        ExMachina.build_pair(__MODULE__, @imported_factories, factory_name, attrs)
+        ExMachina.build_pair(__MODULE__, factory_name, attrs)
       end
 
       def build_list(number_of_records, factory_name, attrs \\ %{}) do
-        ExMachina.build_list(__MODULE__, @imported_factories, number_of_records, factory_name, attrs)
+        ExMachina.build_list(__MODULE__, number_of_records, factory_name, attrs)
       end
 
       @spec create(any) :: no_return
@@ -231,8 +231,8 @@ defmodule ExMachina do
   @callback build_pair(factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc false
-  def build_pair(module, fallbacks, factory_name, attrs \\ %{}) do
-    ExMachina.build_list(module, fallbacks, 2, factory_name, attrs)
+  def build_pair(module, factory_name, attrs \\ %{}) do
+    ExMachina.build_list(module, 2, factory_name, attrs)
   end
 
   @doc """
@@ -246,7 +246,7 @@ defmodule ExMachina do
   @callback build_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc false
-  def build_list(module, fallbacks, number_of_records, factory_name, attrs \\ %{}) do
+  def build_list(module, number_of_records, factory_name, attrs \\ %{}) do
     Stream.repeatedly(fn ->
       ExMachina.build(module, factory_name, attrs)
     end)
