@@ -32,16 +32,21 @@ defmodule ExMachina do
   @doc false
   def start(_type, _args), do: ExMachina.Sequence.start_link
 
-  defmacro __using__(_opts) do
+  defmacro __using__(opts) do
+    imported_factories = Keyword.get(opts, :import, [])
+
     quote do
       @before_compile unquote(__MODULE__)
 
       import ExMachina, only: [sequence: 1, sequence: 2]
 
+      def builder(factory_name, attrs \\ %{}) do
+        ExMachina.builder(__MODULE__, unquote(imported_factories), factory_name, attrs)
+      end
+
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
       end
-
       def build_pair(factory_name, attrs \\ %{}) do
         ExMachina.build_pair(__MODULE__, factory_name, attrs)
       end
@@ -87,7 +92,7 @@ defmodule ExMachina do
   end
 
   @doc """
-  Shortcut for creating unique string values. 
+  Shortcut for creating unique string values.
 
   This is automatically imported into a model factory when you `use ExMachina`.
 
@@ -166,12 +171,42 @@ defmodule ExMachina do
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
     function_name = build_function_name(factory_name)
-    if Code.ensure_loaded?(module) && function_exported?(module, function_name, 0) do
-      apply(module, function_name, []) |> do_merge(attrs)
+
+    if Code.ensure_loaded?(module) do
+      apply(module, :builder, [function_name, attrs])
     else
-      raise UndefinedFactoryError, factory_name
+      raise UndefinedFactoryError, "#{module}.#{factory_name}"
     end
   end
+
+  def builder(module, fallbacks, function_name, attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{})
+
+    if Code.ensure_loaded?(module) do
+      cond do
+        function_exported?(module, function_name, 0) ->
+          apply(module, function_name, []) |> do_merge(attrs)
+        fallbacks == [] ->
+          raise UndefinedFactoryError, "#{module}.#{function_name}"
+        true ->
+          [head | tail] = fallbacks
+          builder(head, tail, function_name, attrs)
+        end
+    else
+      raise UndefinedFactoryError, "#{module}.#{function_name}"
+    end
+  end
+
+  # def build(module, factory_name, attrs \\ %{}) do
+  #   attrs = Enum.into(attrs, %{})
+  #   function_name = build_function_name(factory_name)
+  #
+  #   if Code.ensure_loaded?(module) && function_exported?(module, function_name, 0) do
+  #     apply(module, function_name, []) |> do_merge(attrs)
+  #   else
+  #     raise UndefinedFactoryError, factory_name
+  #   end
+  # end
 
   defp build_function_name(factory_name) do
     factory_name

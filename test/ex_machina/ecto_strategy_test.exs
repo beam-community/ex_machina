@@ -5,6 +5,7 @@ defmodule ExMachina.EctoStrategyTest do
   alias ExMachina.User
 
   defmodule FactoryWithNoRepo do
+    use ExMachina
     use ExMachina.EctoStrategy
 
     def whatever_factory do

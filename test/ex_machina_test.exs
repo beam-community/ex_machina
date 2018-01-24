@@ -120,4 +120,34 @@ defmodule ExMachinaTest do
       Factory.create_list(3, :user, admin: true)
     end
   end
+
+  describe "factory importing" do
+    defmodule FactoryA do
+      use ExMachina
+
+      def article_factory do
+        %{
+          title: sequence(:factory_article, &"Post Title#{&1}")
+        }
+      end
+    end
+
+    defmodule FactoryB do
+      def comment_factory do
+        %{
+          user: "New user",
+          comment: "Something interesting"
+        }
+      end
+    end
+
+    defmodule FactoryC do
+      use ExMachina, import: [FactoryA, FactoryB]
+    end
+
+    test "build/2 will try imported factories if not found" do
+      assert "Something interesting" == FactoryC.build(:comment).comment
+      assert "Post Title0" == FactoryC.build(:article).title
+    end
+  end
 end
