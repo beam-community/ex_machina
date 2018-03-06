@@ -142,9 +142,5 @@ defmodule ExMachina.Strategy do
     |> String.to_atom
   end
 
-  defp underscore(name) do
-    ~r/(?=[A-Z])/
-    |> Regex.split(name)
-    |> Enum.join("_")
-  end
+  defp underscore(name), do: Regex.replace(~r/(?<!^)(?=[A-Z])/, name, "_")
 end
