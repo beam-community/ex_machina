@@ -137,10 +137,8 @@ defmodule ExMachina.Strategy do
     struct_name
     |> Module.split
     |> List.last
-    |> underscore
+    |> Macro.underscore
     |> String.downcase
     |> String.to_atom
   end
-
-  defp underscore(name), do: Regex.replace(~r/(?<!^)(?=[A-Z])/, name, "_")
 end
