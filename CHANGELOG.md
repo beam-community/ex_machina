@@ -7,6 +7,21 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.2.0]
+
+### Added
+
+- Adds support for using lists in sequences ([#227]).
+
+### Fixed
+
+- Elixir 1.6.x changed the behavior of `Regex.split/3` which caused factory
+  names to break. Added a fix in ([#275]).
+
+[2.2.0]: https://github.com/thoughtbot/ex_machina/compare/v2.1.0...v2.2.0
+[#227]: https://github.com/thoughtbot/ex_machina/pull/227
+[#275]: https://github.com/thoughtbot/ex_machina/pull/275
+
 ## [2.1.0]
 
 ### Added
