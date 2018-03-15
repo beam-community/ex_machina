@@ -142,7 +142,7 @@ defmodule ExMachina do
       end
   """
 
-  @spec sequence(any, (integer -> any)) :: any
+  @spec sequence(any, (integer -> any) | nonempty_list) :: any
   def sequence(name, formatter), do: ExMachina.Sequence.next(name, formatter)
 
   @doc """
