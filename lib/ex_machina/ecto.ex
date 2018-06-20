@@ -34,10 +34,6 @@ defmodule ExMachina.Ecto do
         def string_params_with_assocs(factory_name, attrs \\ %{}) do
           ExMachina.Ecto.string_params_with_assocs(__MODULE__, factory_name, attrs)
         end
-
-        def fields_for(factory_name, attrs \\ %{}) do
-          raise "fields_for/2 has been renamed to params_for/2."
-        end
       end
     else
       raise ArgumentError,
