@@ -2,7 +2,7 @@ defmodule ExMachina.Mixfile do
   use Mix.Project
 
   @project_url "https://github.com/thoughtbot/ex_machina"
-  @version "2.2.0"
+  @version "2.2.1"
 
   def project() do
     [
@@ -12,9 +12,9 @@ defmodule ExMachina.Mixfile do
       description: "A factory library by the creators of FactoryGirl",
       source_url: @project_url,
       homepage_url: @project_url,
-      elixirc_paths: elixirc_paths(Mix.env),
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       package: package(),
       docs: [main: "readme", extras: ["README.md"]],
       deps: deps()
@@ -23,7 +23,7 @@ defmodule ExMachina.Mixfile do
 
   def application() do
     [
-      applications: app_list(Mix.env),
+      applications: app_list(Mix.env()),
       mod: {ExMachina, []}
     ]
   end
@@ -48,7 +48,7 @@ defmodule ExMachina.Mixfile do
       licenses: ["MIT"],
       links: %{
         "GitHub" => @project_url,
-        "Made by thoughtbot" => "https://thoughtbot.com/services/elixir-phoenix",
+        "Made by thoughtbot" => "https://thoughtbot.com/services/elixir-phoenix"
       }
     ]
   end
