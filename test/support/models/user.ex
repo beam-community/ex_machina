@@ -9,6 +9,6 @@ defmodule ExMachina.User do
 
     has_many :articles, ExMachina.Article, foreign_key: :author_id
     has_many :editors, through: [:articles, :editor]
-    has_one :best_article, ExMachina.Article
+    has_one :best_article, ExMachina.Article, foreign_key: :author_id
   end
 end
