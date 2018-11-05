@@ -2,7 +2,7 @@ defmodule ExMachina.Mixfile do
   use Mix.Project
 
   @project_url "https://github.com/thoughtbot/ex_machina"
-  @version "2.2.1"
+  @version "2.2.2"
 
   def project() do
     [
@@ -45,7 +45,7 @@ defmodule ExMachina.Mixfile do
 
   defp package() do
     [
-      maintainers: ["Josh Steiner", "Paul Smith"],
+      maintainers: ["Josh Steiner", "Paul Smith", "German Velasco"],
       licenses: ["MIT"],
       links: %{
         "GitHub" => @project_url,

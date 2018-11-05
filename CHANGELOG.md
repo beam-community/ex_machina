@@ -7,6 +7,12 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.2.2]
+
+- Adds support for Ecto 3.0 ([#301])
+
+[#301]: https://github.com/thoughtbot/ex_machina/pull/301
+
 ## [2.2.1]
 
 ### Fixed
