@@ -4,7 +4,7 @@ defmodule ExMachina.SequenceTest do
   alias ExMachina.Sequence
 
   setup do
-    Sequence.reset
+    Sequence.reset()
   end
 
   test "increments the sequence each time it is called" do
@@ -22,8 +22,8 @@ defmodule ExMachina.SequenceTest do
   test "updates different sequences independently" do
     assert "joe0" == Sequence.next(:name, &"joe#{&1}")
     assert "joe1" == Sequence.next(:name, &"joe#{&1}")
-    assert 0 == Sequence.next(:month, &(&1))
-    assert 1 == Sequence.next(:month, &(&1))
+    assert 0 == Sequence.next(:month, & &1)
+    assert 1 == Sequence.next(:month, & &1)
   end
 
   test "let's you quickly create sequences" do
@@ -40,7 +40,7 @@ defmodule ExMachina.SequenceTest do
   test "can reset sequences" do
     Sequence.next("joe")
 
-    Sequence.reset
+    Sequence.reset()
 
     assert "joe0" == Sequence.next("joe")
   end

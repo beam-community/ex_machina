@@ -14,6 +14,7 @@ defmodule ExMachina.Ecto do
   """
   defmacro __using__(opts) do
     verify_ecto_dep()
+
     if repo = Keyword.get(opts, :repo) do
       quote do
         use ExMachina
@@ -37,18 +38,18 @@ defmodule ExMachina.Ecto do
       end
     else
       raise ArgumentError,
-        """
-        expected :repo to be given as an option. Example:
+            """
+            expected :repo to be given as an option. Example:
 
-        use ExMachina.Ecto, repo: MyApp.Repo
-        """
+            use ExMachina.Ecto, repo: MyApp.Repo
+            """
     end
   end
 
   defp verify_ecto_dep do
     unless Code.ensure_loaded?(Ecto) do
       raise "You tried to use ExMachina.Ecto, but the Ecto module is not loaded. " <>
-        "Please add ecto to your dependencies."
+              "Please add ecto to your dependencies."
     end
   end
 
@@ -71,7 +72,11 @@ defmodule ExMachina.Ecto do
 
   The arguments are the same as `c:ExMachina.build_list/3`.
   """
-  @callback insert_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: list
+  @callback insert_list(
+              number_of_records :: integer,
+              factory_name :: atom,
+              attrs :: keyword | map
+            ) :: list
 
   @doc """
   Builds a factory and returns only its fields.
@@ -121,7 +126,9 @@ defmodule ExMachina.Ecto do
       # Returns %{"name" => "John Doe", "admin" => true}
       string_params_for(:user, admin: true)
   """
-  @callback string_params_for(factory_name :: atom, attrs :: keyword | map) :: %{optional(String.t) => any}
+  @callback string_params_for(factory_name :: atom, attrs :: keyword | map) :: %{
+              optional(String.t()) => any
+            }
 
   @doc false
   def string_params_for(module, factory_name, attrs \\ %{}) do
@@ -145,7 +152,9 @@ defmodule ExMachina.Ecto do
       # Inserts an author and returns %{title: "An Awesome Article", author_id: 12}
       params_with_assocs(:article)
   """
-  @callback params_with_assocs(factory_name :: atom, attrs :: keyword | map) :: %{optional(atom) => any}
+  @callback params_with_assocs(factory_name :: atom, attrs :: keyword | map) :: %{
+              optional(atom) => any
+            }
 
   @doc false
   def params_with_assocs(module, factory_name, attrs \\ %{}) do
@@ -171,7 +180,9 @@ defmodule ExMachina.Ecto do
       # Inserts an author and returns %{"title" => "An Awesome Article", "author_id" => 12}
       string_params_with_assocs(:article)
   """
-  @callback string_params_with_assocs(factory_name :: atom, attrs :: keyword | map) :: %{optional(String.t) => any}
+  @callback string_params_with_assocs(factory_name :: atom, attrs :: keyword | map) :: %{
+              optional(String.t()) => any
+            }
 
   @doc false
   def string_params_with_assocs(module, factory_name, attrs \\ %{}) do
@@ -179,7 +190,6 @@ defmodule ExMachina.Ecto do
     |> params_with_assocs(factory_name, attrs)
     |> convert_atom_keys_to_strings
   end
-
 
   defp recursively_strip(record = %{__struct__: _}) do
     record
@@ -193,7 +203,7 @@ defmodule ExMachina.Ecto do
   defp recursively_strip(record), do: record
 
   defp handle_assocs(record = %{__struct__: struct}) do
-    Enum.reduce struct.__schema__(:associations), record, fn(association_name, record) ->
+    Enum.reduce(struct.__schema__(:associations), record, fn association_name, record ->
       case struct.__schema__(:association, association_name) do
         %{__struct__: Ecto.Association.BelongsTo} ->
           Map.delete(record, association_name)
@@ -203,7 +213,7 @@ defmodule ExMachina.Ecto do
           |> Map.get(association_name)
           |> handle_assoc(record, association_name)
       end
-    end
+    end)
   end
 
   defp handle_assoc(original_assoc, record, association_name) do
@@ -225,7 +235,7 @@ defmodule ExMachina.Ecto do
   end
 
   defp handle_embeds(record = %{__struct__: struct}) do
-    Enum.reduce(struct.__schema__(:embeds), record, fn(embed_name, record) ->
+    Enum.reduce(struct.__schema__(:embeds), record, fn embed_name, record ->
       record
       |> Map.get(embed_name)
       |> handle_embed(record, embed_name)
@@ -237,16 +247,18 @@ defmodule ExMachina.Ecto do
       %{} ->
         embed = recursively_strip(original_embed)
         Map.put(record, embed_name, embed)
+
       list when is_list(list) ->
         embeds_many = Enum.map(original_embed, &recursively_strip/1)
         Map.put(record, embed_name, embeds_many)
+
       nil ->
         Map.delete(record, embed_name)
     end
   end
 
   defp set_persisted_belongs_to_ids(record = %{__struct__: struct}) do
-    Enum.reduce struct.__schema__(:associations), record, fn(association_name, record) ->
+    Enum.reduce(struct.__schema__(:associations), record, fn association_name, record ->
       association = struct.__schema__(:association, association_name)
 
       case association do
@@ -254,11 +266,15 @@ defmodule ExMachina.Ecto do
           case Map.get(record, association_name) do
             belongs_to = %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :loaded}} ->
               set_belongs_to_primary_key(record, belongs_to, association)
-            _ -> record
+
+            _ ->
+              record
           end
-        _ -> record
+
+        _ ->
+          record
       end
-    end
+    end)
   end
 
   defp set_belongs_to_primary_key(record, belongs_to, association) do
@@ -267,14 +283,15 @@ defmodule ExMachina.Ecto do
   end
 
   defp insert_belongs_to_assocs(record = %{__struct__: struct}, module) do
-    Enum.reduce struct.__schema__(:associations), record, fn(association_name, record) ->
+    Enum.reduce(struct.__schema__(:associations), record, fn association_name, record ->
       case struct.__schema__(:association, association_name) do
         association = %{__struct__: Ecto.Association.BelongsTo} ->
           insert_built_belongs_to_assoc(module, association, record)
 
-        _ -> record
+        _ ->
+          record
       end
-    end
+    end)
   end
 
   defp insert_built_belongs_to_assoc(module, association, record) do
@@ -291,7 +308,7 @@ defmodule ExMachina.Ecto do
   @doc false
   def drop_ecto_fields(record = %{__struct__: struct}) do
     record
-    |> Map.from_struct
+    |> Map.from_struct()
     |> Map.delete(:__meta__)
     |> drop_autogenerated_ids(struct)
   end
@@ -308,20 +325,23 @@ defmodule ExMachina.Ecto do
 
   defp drop_fields_with_nil_values(map) do
     map
-    |> Enum.reject(fn({_, value}) -> value == nil end)
+    |> Enum.reject(fn {_, value} -> value == nil end)
     |> Enum.into(%{})
   end
 
   defp convert_atom_keys_to_strings(values) when is_list(values) do
     Enum.map(values, &convert_atom_keys_to_strings/1)
   end
+
   defp convert_atom_keys_to_strings(%{__struct__: _} = record) when is_map(record) do
     Map.from_struct(record) |> convert_atom_keys_to_strings()
   end
+
   defp convert_atom_keys_to_strings(record) when is_map(record) do
-    Enum.reduce record, Map.new, fn({key, value}, acc) ->
+    Enum.reduce(record, Map.new(), fn {key, value}, acc ->
       Map.put(acc, to_string(key), convert_atom_keys_to_strings(value))
-    end
+    end)
   end
+
   defp convert_atom_keys_to_strings(value), do: value
 end

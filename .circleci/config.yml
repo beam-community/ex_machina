@@ -46,6 +46,8 @@ jobs:
           key: v1-build-cache
           paths: "_build"
 
+      - run: mix format --check-formatted
+
       - run:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
