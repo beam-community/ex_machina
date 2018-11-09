@@ -53,7 +53,7 @@ defmodule ExMachina.EctoStrategyTest do
   end
 
   test "insert/1 casts has_many associations" do
-    built_article = TestFactory.build(:article, visits: 10)
+    built_article = TestFactory.build(:article, visits: 10, author: nil)
     model = TestFactory.insert(:user, articles: [built_article])
 
     assert List.first(model.articles).visits == Decimal.new(10)
@@ -111,7 +111,7 @@ defmodule ExMachina.EctoStrategyTest do
 
   test "insert/1 casts associations recursively" do
     editor = TestFactory.build(:user, net_worth: 300)
-    article = TestFactory.build(:article, editor: editor)
+    article = TestFactory.build(:article, editor: editor, author: nil)
     author = TestFactory.insert(:user, articles: [article])
 
     assert List.first(author.articles).editor.net_worth == Decimal.new(300)

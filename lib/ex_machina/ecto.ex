@@ -34,10 +34,6 @@ defmodule ExMachina.Ecto do
         def string_params_with_assocs(factory_name, attrs \\ %{}) do
           ExMachina.Ecto.string_params_with_assocs(__MODULE__, factory_name, attrs)
         end
-
-        def fields_for(factory_name, attrs \\ %{}) do
-          raise "fields_for/2 has been renamed to params_for/2."
-        end
       end
     else
       raise ArgumentError,
@@ -215,6 +211,9 @@ defmodule ExMachina.Ecto do
       %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :built}} ->
         assoc = recursively_strip(original_assoc)
         Map.put(record, association_name, assoc)
+
+      nil ->
+        Map.put(record, association_name, nil)
 
       list when is_list(list) ->
         has_many_assoc = Enum.map(original_assoc, &recursively_strip/1)

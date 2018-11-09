@@ -19,13 +19,15 @@ In `mix.exs`, add the ExMachina dependency:
 ```elixir
 def deps do
   # Get the latest from hex.pm. Works with Ecto 2.0
-  [{:ex_machina, "~> 2.1"}]
+  [
+    {:ex_machina, "~> 2.2"},
+  ]
 end
 ```
 
 And start the ExMachina application. For most projects (such as
 Phoenix apps) this will mean adding `:ex_machina` to the list of applications in
-`mix.exs`. You can skip this step if you are using Elixir 1.4
+`mix.exs`. You can skip this step if you are using Elixir 1.4 or later.
 
 ```elixir
 def application do
@@ -40,7 +42,9 @@ In `mix.exs`, add the ExMachina dependency:
 
 ```elixir
 def deps do
-  [{:ex_machina, "~> 2.1", only: :test}]
+  [
+    {:ex_machina, "~> 2.2", only: :test},
+  ]
 end
 ```
 
@@ -98,11 +102,25 @@ defmodule MyApp.Factory do
   end
 
   def article_factory do
+    title = sequence(:title, &"Use ExMachina! (Part #{&1})")
+    # derived attribute
+    slug = MyApp.Article.title_to_slug(title)
     %MyApp.Article{
-      title: "Use ExMachina!",
+      title: title,
+      slug: slug,
       # associations are inserted when you call `insert`
       author: build(:user),
     }
+  end
+
+  # derived factory
+  def featured_article_factory do
+    struct!(
+      article_factory(),
+      %{
+        featured: true,
+      }
+    )
   end
 
   def comment_factory do

@@ -13,6 +13,7 @@ defmodule ExMachina.TestFactory do
       name: "John Doe",
       admin: false,
       articles: [],
+      best_article: nil,
     }
   end
 

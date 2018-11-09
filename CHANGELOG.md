@@ -7,6 +7,49 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.2.2]
+
+- Adds support for Ecto 3.0 ([#301])
+
+[#301]: https://github.com/thoughtbot/ex_machina/pull/301
+
+## [2.2.1]
+
+### Fixed
+
+- Fixes sequence typespec ([#278])
+
+### Removed
+
+- Removed `fields_for/2` function that would raise an error since 1.0.0 ([#287])
+
+### Docs
+
+- Adds example for derived attribute ([#264])
+- Adds example for dependent factory ([#239])
+
+
+[2.2.1]: https://github.com/thoughtbot/ex_machina/compare/v2.2.0...v2.2.1
+[#239]: https://github.com/thoughtbot/ex_machina/pull/239
+[#264]: https://github.com/thoughtbot/ex_machina/pull/264
+[#278]: https://github.com/thoughtbot/ex_machina/pull/278
+[#287]: https://github.com/thoughtbot/ex_machina/pull/287
+
+## [2.2.0]
+
+### Added
+
+- Adds support for using lists in sequences ([#227]).
+
+### Fixed
+
+- Elixir 1.6.x changed the behavior of `Regex.split/3` which caused factory
+  names to break. Added a fix in ([#275]).
+
+[2.2.0]: https://github.com/thoughtbot/ex_machina/compare/v2.1.0...v2.2.0
+[#227]: https://github.com/thoughtbot/ex_machina/pull/227
+[#275]: https://github.com/thoughtbot/ex_machina/pull/275
+
 ## [2.1.0]
 
 ### Added
