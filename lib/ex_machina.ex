@@ -13,16 +13,16 @@ defmodule ExMachina do
     defexception [:message]
 
     def exception(factory_name) do
-      message =
-        """
-        No factory defined for #{inspect factory_name}.
+      message = """
+      No factory defined for #{inspect(factory_name)}.
 
-        Please check for typos or define your factory:
+      Please check for typos or define your factory:
 
-            def #{factory_name}_factory do
-              ...
-            end
-        """
+          def #{factory_name}_factory do
+            ...
+          end
+      """
+
       %UndefinedFactoryError{message: message}
     end
   end
@@ -30,7 +30,7 @@ defmodule ExMachina do
   use Application
 
   @doc false
-  def start(_type, _args), do: ExMachina.Sequence.start_link
+  def start(_type, _args), do: ExMachina.Sequence.start_link()
 
   defmacro __using__(_opts) do
     quote do
@@ -70,7 +70,7 @@ defmodule ExMachina do
         raise_function_replaced_error("create_list/3", "insert_list/3")
       end
 
-      @spec raise_function_replaced_error(String.t, String.t) :: no_return
+      @spec raise_function_replaced_error(String.t(), String.t()) :: no_return
       defp raise_function_replaced_error(old_function, new_function) do
         raise """
         #{old_function} has been removed.
@@ -82,12 +82,12 @@ defmodule ExMachina do
         """
       end
 
-      defoverridable [create: 1, create: 2, create_pair: 2, create_list: 3]
+      defoverridable create: 1, create: 2, create_pair: 2, create_list: 3
     end
   end
 
   @doc """
-  Shortcut for creating unique string values. 
+  Shortcut for creating unique string values.
 
   This is automatically imported into a model factory when you `use ExMachina`.
 
@@ -114,7 +114,7 @@ defmodule ExMachina do
         }
       end
   """
-  @spec sequence(String.t) :: String.t
+  @spec sequence(String.t()) :: String.t()
 
   def sequence(name), do: ExMachina.Sequence.next(name)
 
@@ -157,15 +157,20 @@ defmodule ExMachina do
         %{name: "John Doe", admin: false}
       end
 
+      # Returns %{name: "John Doe", admin: false}
+      build(:user)
+
       # Returns %{name: "John Doe", admin: true}
       build(:user, admin: true)
   """
+  @callback build(factory_name :: atom) :: any
   @callback build(factory_name :: atom, attrs :: keyword | map) :: any
 
   @doc false
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
     function_name = build_function_name(factory_name)
+
     if Code.ensure_loaded?(module) && function_exported?(module, function_name, 0) do
       apply(module, function_name, []) |> do_merge(attrs)
     else
@@ -175,9 +180,9 @@ defmodule ExMachina do
 
   defp build_function_name(factory_name) do
     factory_name
-    |> Atom.to_string
+    |> Atom.to_string()
     |> Kernel.<>("_factory")
-    |> String.to_atom
+    |> String.to_atom()
   end
 
   defp do_merge(%{__struct__: _} = record, attrs), do: struct!(record, attrs)
@@ -193,6 +198,7 @@ defmodule ExMachina do
       # Returns a list of 2 users
       build_pair(:user)
   """
+  @callback build_pair(factory_name :: atom) :: list
   @callback build_pair(factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc false
@@ -208,7 +214,9 @@ defmodule ExMachina do
       # Returns a list of 3 users
       build_list(3, :user)
   """
-  @callback build_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: list
+  @callback build_list(number_of_records :: integer, factory_name :: atom) :: list
+  @callback build_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) ::
+              list
 
   @doc false
   def build_list(module, number_of_records, factory_name, attrs \\ %{}) do
@@ -222,7 +230,7 @@ defmodule ExMachina do
     quote do
       @doc "Raises a helpful error if no factory is defined."
       @spec factory(any) :: no_return
-      def factory(factory_name), do: raise UndefinedFactoryError, factory_name
+      def factory(factory_name), do: raise(UndefinedFactoryError, factory_name)
     end
   end
 end
