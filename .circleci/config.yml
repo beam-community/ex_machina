@@ -3,7 +3,7 @@ jobs:
   build:
     parallelism: 1
     docker:
-      - image: circleci/elixir:1.4
+      - image: circleci/elixir:1.7.4
         environment:
           MIX_ENV: test
       - image: circleci/postgres:9.5
@@ -45,6 +45,8 @@ jobs:
       - save_cache:
           key: v1-build-cache
           paths: "_build"
+
+      - run: mix format --check-formatted
 
       - run:
           name: Wait for DB
