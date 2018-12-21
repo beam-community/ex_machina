@@ -36,7 +36,7 @@ defmodule ExMachina do
     quote do
       @before_compile unquote(__MODULE__)
 
-      import ExMachina, only: [sequence: 1, sequence: 2]
+      import ExMachina, only: [sequence: 1, sequence: 2, merge_attributes: 2]
 
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
@@ -162,6 +162,29 @@ defmodule ExMachina do
 
       # Returns %{name: "John Doe", admin: true}
       build(:user, admin: true)
+
+
+  If you want full control over the factory attributes, you can define the
+  factory with `[factory_name]_factory/1`. Note that you will need to merge the
+  attributes passed if you want to emulate ExMachina's default behavior.
+
+  ## Example
+
+      def article_factory(attrs) do
+        title = Map.get(attrs, :title, "default title")
+        slug = Article.title_to_slug(title)
+
+        article = %Article{title: title, slug: slug}
+
+        # merge attributes on your own
+        merge_attributes(article, attrs)
+      end
+
+      # Returns %Article{title: "default title", slug: "default-title"}
+      build(:article)
+
+      # Returns %Article{title: "hello world", slug: "hello-world"}
+      build(:article, title: "hello world")
   """
   @callback build(factory_name :: atom) :: any
   @callback build(factory_name :: atom, attrs :: keyword | map) :: any
@@ -171,10 +194,15 @@ defmodule ExMachina do
     attrs = Enum.into(attrs, %{})
     function_name = build_function_name(factory_name)
 
-    if Code.ensure_loaded?(module) && function_exported?(module, function_name, 0) do
-      apply(module, function_name, []) |> do_merge(attrs)
-    else
-      raise UndefinedFactoryError, factory_name
+    cond do
+      factory_accepting_attributes_defined?(module, function_name) ->
+        apply(module, function_name, [attrs])
+
+      factory_without_attributes_defined?(module, function_name) ->
+        apply(module, function_name, []) |> merge_attributes(attrs)
+
+      true ->
+        raise UndefinedFactoryError, factory_name
     end
   end
 
@@ -185,8 +213,37 @@ defmodule ExMachina do
     |> String.to_atom()
   end
 
-  defp do_merge(%{__struct__: _} = record, attrs), do: struct!(record, attrs)
-  defp do_merge(record, attrs), do: Map.merge(record, attrs)
+  defp factory_accepting_attributes_defined?(module, function_name) do
+    Code.ensure_loaded?(module) && function_exported?(module, function_name, 1)
+  end
+
+  defp factory_without_attributes_defined?(module, function_name) do
+    Code.ensure_loaded?(module) && function_exported?(module, function_name, 0)
+  end
+
+  @doc """
+  Helper function to merge attributes into a factory that could be either a map
+  or a struct.
+
+  ## Example
+
+    # custom factory
+    def article_factory(attrs) do
+      title = Map.get(attrs, :title, "default title")
+
+      article = %Article{
+        title: title
+      }
+
+      merge_attributes(article, attrs)
+    end
+
+  Note that when trying to merge attributes into a struct, this function will
+  raise if one of the attributes is not defined in the struct.
+  """
+  @spec merge_attributes(struct | map, map) :: struct | map | no_return
+  def merge_attributes(%{__struct__: _} = record, attrs), do: struct!(record, attrs)
+  def merge_attributes(record, attrs), do: Map.merge(record, attrs)
 
   @doc """
   Builds two factories.

@@ -29,6 +29,24 @@ defmodule ExMachinaTest do
         __struct__: Foo.Bar
       }
     end
+
+    def comment_factory(attrs) do
+      %{name: name} = attrs
+
+      username = sequence(:username, &"#{name}-#{&1}")
+
+      comment = %{
+        author: "#{name} Doe",
+        username: username
+      }
+
+      merge_attributes(comment, attrs)
+    end
+
+    def room_number_factory(attrs) do
+      %{floor: floor_number} = attrs
+      sequence(:room_number, &"#{floor_number}0#{&1}")
+    end
   end
 
   test "sequence/2 sequences a value" do
@@ -75,6 +93,19 @@ defmodule ExMachinaTest do
     assert_raise KeyError, fn ->
       Factory.build(:struct, doesnt_exist: true)
     end
+  end
+
+  test "build/2 allows factories to have full control of provided arguments" do
+    assert Factory.build(:comment, name: "James") == %{
+             author: "James Doe",
+             username: "James-0",
+             name: "James"
+           }
+  end
+
+  test "build/2 allows custom (non-map) factories to be built" do
+    assert Factory.build(:room_number, floor: 5) == "500"
+    assert Factory.build(:room_number, floor: 5) == "501"
   end
 
   test "build_pair/2 builds 2 factories" do

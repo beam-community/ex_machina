@@ -165,6 +165,53 @@ string_params_for(:comment, attrs)
 string_params_with_assocs(:comment, attrs)
 ```
 
+## Full control of factory
+
+By default, ExMachina will merge the attributes you pass into build/insert into
+your factory. But if you want full control of your attributes, you can define
+your factory as accepting one argument, the attributes being passed into your
+factory.
+
+```elixir
+def custom_article_factory(attrs) do
+  title = Map.get(attrs, :title, "default title")
+
+  article = %Article{
+    author: "John Doe",
+    title: title
+  }
+
+  # merge attributes at the end to emulate ExMachina default behavior
+  merge_attributes(article, attrs)
+end
+```
+
+**NOTE** that in this case ExMachina will _not_ merge the attributes into your
+factory, and you will have to do this on your own if desired.
+
+### Non-map factories
+
+Because you have full control of the factory when defining it with one argument,
+you can build factories that are neither maps nor structs.
+
+```elixir
+# factory definition
+def room_number_factory(attrs) do
+  %{floor: floor_number} = attrs
+  sequence(:room_number, &"#{floor_number}0#{&1}")
+end
+
+# example usage
+build(:room_number, floor: 5)
+# => "500"
+
+build(:room_number, floor: 5)
+# => "501"
+```
+
+**NOTE** that you cannot use non-map factories with Ecto. So you cannot
+`insert(:room_number)`.
+
 ## Usage in a test
 
 ```elixir
