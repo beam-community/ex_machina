@@ -3,7 +3,7 @@ jobs:
   build:
     parallelism: 1
     docker:
-      - image: circleci/elixir:1.4
+      - image: circleci/elixir:1.7.4
         environment:
           MIX_ENV: test
       - image: circleci/postgres:9.5
@@ -22,29 +22,35 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - v1-mix-cache-{{ .Branch }}
-            - v1-mix-cache
+            - v2-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v2-mix-cache-{{ .Branch }}
+            - v2-mix-cache
       - restore_cache:
           keys:
-            - v1-build-cache-{{ .Branch }}
-            - v1-build-cache
+            - v2-build-cache-{{ .Branch }}-{{ checksum ".tool-versions" }}
+            - v2-build-cache-{{ .Branch }}
+            - v2-build-cache
       - run: mix do deps.get, compile --warnings-as-errors
       - save_cache:
-          key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          key: v2-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths: "deps"
       - save_cache:
-          key: v1-mix-cache-{{ .Branch }}
+          key: v2-mix-cache-{{ .Branch }}
           paths: "deps"
       - save_cache:
-          key: v1-mix-cache
+          key: v2-mix-cache
           paths: "deps"
       - save_cache:
-          key: v1-build-cache-{{ .Branch }}
+          key: v2-build-cache-{{ .Branch }}-{{ checksum ".tool-versions" }}
           paths: "_build"
       - save_cache:
-          key: v1-build-cache
+          key: v2-build-cache-{{ .Branch }}
           paths: "_build"
+      - save_cache:
+          key: v2-build-cache
+          paths: "_build"
+
+      - run: mix format --check-formatted
 
       - run:
           name: Wait for DB
