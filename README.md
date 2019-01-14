@@ -18,7 +18,7 @@ In `mix.exs`, add the ExMachina dependency:
 
 ```elixir
 def deps do
-  # Get the latest from hex.pm. Works with Ecto 2.0
+  # Get the latest from hex.pm. Works with Ecto 3.0
   [
     {:ex_machina, "~> 2.2"},
   ]
