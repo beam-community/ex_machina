@@ -20,12 +20,12 @@ defmodule ExMachina.Ecto do
         use ExMachina
         use ExMachina.EctoStrategy, repo: unquote(repo)
 
-        def params_for(factory_name, attrs \\ %{}) do
-          ExMachina.Ecto.params_for(__MODULE__, factory_name, attrs)
+        def params_for(factory_name_or_struct, attrs \\ %{}) do
+          ExMachina.Ecto.params_for(__MODULE__, factory_name_or_struct, attrs)
         end
 
-        def string_params_for(factory_name, attrs \\ %{}) do
-          ExMachina.Ecto.string_params_for(__MODULE__, factory_name, attrs)
+        def string_params_for(factory_name_or_struct, attrs \\ %{}) do
+          ExMachina.Ecto.string_params_for(__MODULE__, factory_name_or_struct, attrs)
         end
 
         def params_with_assocs(factory_name, attrs \\ %{}) do
@@ -82,7 +82,7 @@ defmodule ExMachina.Ecto do
             ) :: list
 
   @doc """
-  Builds a factory and returns only its fields.
+  Builds a factory and returns only its fields. May take built factory (Ecto struct).
 
   This is only for use with Ecto models.
 
@@ -107,12 +107,23 @@ defmodule ExMachina.Ecto do
 
       # Returns %{name: "John Doe", admin: false}
       params_for(:user)
+
+      # Returns %{name: "John Doe", admin: false}
+      build(:user) |> params_for
   """
-  @callback params_for(factory_name :: atom) :: %{optional(atom) => any}
-  @callback params_for(factory_name :: atom, attrs :: keyword | map) :: %{optional(atom) => any}
+  @callback params_for(factory_name_or_struct :: atom | map) :: %{optional(atom) => any}
+  @callback params_for(factory_name_or_struct :: atom | map, attrs :: keyword | map) :: %{
+              optional(atom) => any
+            }
 
   @doc false
-  def params_for(module, factory_name, attrs \\ %{}) do
+  def params_for(module, factory_name_or_struct, attrs \\ %{})
+
+  def params_for(_, %{__meta__: _} = ecto_struct, _) do
+    ecto_struct |> recursively_strip
+  end
+
+  def params_for(module, factory_name, attrs) do
     factory_name
     |> module.build(attrs)
     |> recursively_strip
@@ -132,16 +143,19 @@ defmodule ExMachina.Ecto do
 
       # Returns %{"name" => "John Doe", "admin" => true}
       string_params_for(:user, admin: true)
+
+      # Returns %{"name" => "John Doe", "admin" => true}
+      build(:user) |> string_params_for(admin: true)
   """
-  @callback string_params_for(factory_name :: atom) :: %{optional(String.t()) => any}
-  @callback string_params_for(factory_name :: atom, attrs :: keyword | map) :: %{
+  @callback string_params_for(factory_name_or_struct :: atom) :: %{optional(String.t()) => any}
+  @callback string_params_for(factory_name_or_struct :: atom, attrs :: keyword | map) :: %{
               optional(String.t()) => any
             }
 
   @doc false
-  def string_params_for(module, factory_name, attrs \\ %{}) do
+  def string_params_for(module, factory_name_or_struct, attrs \\ %{}) do
     module
-    |> params_for(factory_name, attrs)
+    |> params_for(factory_name_or_struct, attrs)
     |> convert_atom_keys_to_strings
   end
 
