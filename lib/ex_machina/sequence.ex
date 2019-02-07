@@ -25,12 +25,12 @@ defmodule ExMachina.Sequence do
 
   You can use list as well
 
-      ExMachina.Sequence.next(["A", "B"]) # "A"
-      ExMachina.Sequence.next(["A", "B"]) # "B"
+      ExMachina.Sequence.next("alphabet_sequence", ["A", "B"]) # "A"
+      ExMachina.Sequence.next("alphabet_sequence", ["A", "B"]) # "B"
 
       Sequence.reset
 
-      ExMachina.Sequence.next(["A", "B"]) # resets so the return value is "A"
+      ExMachina.Sequence.next("alphabet_sequence"["A", "B"]) # resets so the return value is "A"
 
   If you want to reset sequences at the beginning of every test, put it in a
   `setup` block in your test.
@@ -43,6 +43,45 @@ defmodule ExMachina.Sequence do
   @spec reset() :: :ok
   def reset do
     Agent.update(__MODULE__, fn _ -> Map.new() end)
+  end
+
+  @doc """
+  If a list is parsed, reset all sequences in the list to starts from 0 and remains other sequences
+  with the current index, otherwise will reset
+  a single sequence.
+
+  ## Example
+
+      Sequence.next(:alphabet, ["A", "B", "C"]) # "A"
+      Sequence.next(:alphabet, ["A", "B", "C"]) # "B"
+      Sequence.next(:numeric, [1, 2, 3]) # 1
+      Sequence.next(:numeric, [1, 2, 3]) # 2
+      Sequence.next("joe") # "joe0"
+      Sequence.next("joe") # "joe1"
+
+      ExMachina.Sequence.reset(["joe", :numeric])
+
+      ExMachina.Sequence.next(:numeric, [1, 2, 3]) # 1
+      ExMachina.Sequence.next("joe") # "joe0"
+      ExMachina.Sequence.next(:alphabet, ["A", "B", "C"]) # "C"
+
+      ExMachina.Sequence.reset(:alphabet)
+
+      ExMachina.Sequence.next(:alphabet, ["A", "B", "C"]) # "A"
+  """
+  
+  @spec reset(list()) :: :ok
+  def reset(sequence_names) when is_list(sequence_names) do
+    Agent.update(__MODULE__, fn sequences ->
+      Enum.reduce(sequence_names, sequences, &(Map.put(&2, &1, 0)))
+    end)    
+  end
+
+  @spec reset(any()) :: :ok
+  def reset(sequence_name) do
+    Agent.update(__MODULE__, fn sequences ->
+      Map.put(sequences, sequence_name, 0)
+    end)
   end
 
   @doc false
