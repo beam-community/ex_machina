@@ -72,9 +72,9 @@ defmodule ExMachina.EctoStrategyTest do
       )
 
     assert comment.author.name == author.name
-    assert comment.author.salary == Decimal.new(author.salary)
+    assert comment.author.salary == Decimal.from_float(author.salary)
     assert List.first(comment.links).url == link.url
-    assert List.first(comment.links).rating == Decimal.new(link.rating)
+    assert List.first(comment.links).rating == Decimal.from_float(link.rating)
   end
 
   test "insert/1 ignores virtual fields" do
