@@ -44,4 +44,24 @@ defmodule ExMachina.SequenceTest do
 
     assert "joe0" == Sequence.next("joe")
   end
+
+  test "can reset specific sequences" do
+    Sequence.next(:alphabet, ["A", "B", "C"])
+    Sequence.next(:alphabet, ["A", "B", "C"])
+    Sequence.next(:numeric, [1, 2, 3])
+    Sequence.next(:numeric, [1, 2, 3])
+    Sequence.next("joe")
+    Sequence.next("joe")
+
+    Sequence.reset(["joe", :numeric])
+
+    assert 1 == Sequence.next(:numeric, [1, 2, 3])
+    assert "joe0" == Sequence.next("joe")
+    assert "C" == Sequence.next(:alphabet, ["A", "B", "C"])
+
+    Sequence.reset(:alphabet)
+
+    assert "A" == Sequence.next(:alphabet, ["A", "B", "C"])
+    assert 2 == Sequence.next(:numeric, [1, 2, 3])
+  end
 end
