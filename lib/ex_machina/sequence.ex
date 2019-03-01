@@ -19,7 +19,7 @@ defmodule ExMachina.Sequence do
       ExMachina.Sequence.next("joe") # "joe0"
       ExMachina.Sequence.next("joe") # "joe1"
 
-      ExMachina.Sequence.reset
+      ExMachina.Sequence.reset()
 
       ExMachina.Sequence.next("joe") # resets so the return value is "joe0"
 
@@ -28,7 +28,7 @@ defmodule ExMachina.Sequence do
       ExMachina.Sequence.next("alphabet_sequence", ["A", "B"]) # "A"
       ExMachina.Sequence.next("alphabet_sequence", ["A", "B"]) # "B"
 
-      Sequence.reset
+      ExMachina.Sequence.reset()
 
       ExMachina.Sequence.next("alphabet_sequence"["A", "B"]) # resets so the return value is "A"
 
@@ -36,7 +36,7 @@ defmodule ExMachina.Sequence do
   `setup` block in your test.
 
       setup do
-        ExMachina.Sequence.reset
+        ExMachina.Sequence.reset()
       end
   """
 
@@ -46,35 +46,40 @@ defmodule ExMachina.Sequence do
   end
 
   @doc """
-  If a list is parsed, reset all sequences in the list to starts from 0 and remains other sequences
-  with the current index, otherwise will reset
-  a single sequence.
+  Reset specific sequences so long as they already exist. The sequences
+  specified will be reset to 0, while others will remain at their current index.
+
+  You can reset a single sequence,
 
   ## Example
 
-      Sequence.next(:alphabet, ["A", "B", "C"]) # "A"
-      Sequence.next(:alphabet, ["A", "B", "C"]) # "B"
-      Sequence.next(:numeric, [1, 2, 3]) # 1
-      Sequence.next(:numeric, [1, 2, 3]) # 2
-      Sequence.next("joe") # "joe0"
-      Sequence.next("joe") # "joe1"
+      ExMachina.Sequence.next(:alphabet, ["A", "B", "C"]) # "A"
+      ExMachina.Sequence.next(:alphabet, ["A", "B", "C"]) # "B"
+
+      ExMachina.Sequence.reset(:alphabet)
+
+      ExMachina.Sequence.next(:alphabet, ["A", "B", "C"]) # "A"
+
+  And you can also reset multiple sequences at once,
+
+  ## Example
+
+      ExMachina.Sequence.next(:numeric, [1, 2, 3]) # 1
+      ExMachina.Sequence.next(:numeric, [1, 2, 3]) # 2
+      ExMachina.Sequence.next("joe") # "joe0"
+      ExMachina.Sequence.next("joe") # "joe1"
 
       ExMachina.Sequence.reset(["joe", :numeric])
 
       ExMachina.Sequence.next(:numeric, [1, 2, 3]) # 1
       ExMachina.Sequence.next("joe") # "joe0"
-      ExMachina.Sequence.next(:alphabet, ["A", "B", "C"]) # "C"
-
-      ExMachina.Sequence.reset(:alphabet)
-
-      ExMachina.Sequence.next(:alphabet, ["A", "B", "C"]) # "A"
   """
-  
+
   @spec reset(list()) :: :ok
   def reset(sequence_names) when is_list(sequence_names) do
     Agent.update(__MODULE__, fn sequences ->
-      Enum.reduce(sequence_names, sequences, &(Map.put(&2, &1, 0)))
-    end)    
+      Enum.reduce(sequence_names, sequences, &Map.put(&2, &1, 0))
+    end)
   end
 
   @spec reset(any()) :: :ok
