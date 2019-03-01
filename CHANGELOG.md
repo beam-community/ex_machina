@@ -7,10 +7,33 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.3.0]
+
+### Added
+
+- Allows more control over factory definitions ([#333])
+- Adds ability to reset specific sequences ([#331])
+
+### Docs
+
+- Adds additional callbacks for functions with default params ([#319])
+
+## Updated dependencies
+
+- Bump ex_doc from 0.19.1 to 0.19.3
+- Bump ecto_sql from 3.0.0 to 3.0.5
+- Bump ecto from 3.0.0 to 3.0.5
+
+[2.3.0]: https://github.com/thoughtbot/ex_machina/compare/v2.2.2...v2.3.0
+[#333]: https://github.com/thoughtbot/ex_machina/pull/333
+[#331]: https://github.com/thoughtbot/ex_machina/pull/331
+[#319]: https://github.com/thoughtbot/ex_machina/pull/319
+
 ## [2.2.2]
 
 - Adds support for Ecto 3.0 ([#301])
 
+[2.2.2]: https://github.com/thoughtbot/ex_machina/compare/v2.2.1...v2.2.2
 [#301]: https://github.com/thoughtbot/ex_machina/pull/301
 
 ## [2.2.1]
