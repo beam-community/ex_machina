@@ -227,16 +227,16 @@ defmodule ExMachina do
 
   ## Example
 
-    # custom factory
-    def article_factory(attrs) do
-      title = Map.get(attrs, :title, "default title")
+      # custom factory
+      def article_factory(attrs) do
+        title = Map.get(attrs, :title, "default title")
 
-      article = %Article{
-        title: title
-      }
+        article = %Article{
+          title: title
+        }
 
-      merge_attributes(article, attrs)
-    end
+        merge_attributes(article, attrs)
+      end
 
   Note that when trying to merge attributes into a struct, this function will
   raise if one of the attributes is not defined in the struct.
