@@ -12,6 +12,14 @@ defmodule ExMachina.EctoStrategy do
      #{inspect(record, limit: :infinity)}"
   end
 
+  def handle_insert(_, %{repo: nil}) do
+    raise """
+    insert/1 is not available unless you provide the :repo option. Example:
+
+    use ExMachina.Ecto, repo: MyApp.Repo
+    """
+  end
+
   def handle_insert(%{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record, %{repo: repo}) do
     record
     |> cast
