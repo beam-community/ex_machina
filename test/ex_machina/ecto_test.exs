@@ -4,7 +4,7 @@ defmodule ExMachina.EctoTest do
   alias ExMachina.TestFactory
   alias ExMachina.User
 
-  test "insert raises helpful error message if no repo was provided" do
+  test "insert, insert_pair and insert_list raise helpful error messages if no repo was provided" do
     message = """
     insert/1 is not available unless you provide the :repo option. Example:
 
@@ -21,6 +21,14 @@ defmodule ExMachina.EctoTest do
 
     assert_raise RuntimeError, message, fn ->
       EctoWithNoRepoFactory.insert(:user)
+    end
+
+    assert_raise RuntimeError, message, fn ->
+      EctoWithNoRepoFactory.insert_pair(:user)
+    end
+
+    assert_raise RuntimeError, message, fn ->
+      EctoWithNoRepoFactory.insert_list(3, :user)
     end
   end
 
