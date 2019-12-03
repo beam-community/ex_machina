@@ -4,17 +4,48 @@ defmodule ExMachina.EctoTest do
   alias ExMachina.TestFactory
   alias ExMachina.User
 
-  test "raises helpful error message if no repo is provided" do
-    message = """
-    expected :repo to be given as an option. Example:
+  describe "when the :repo option is not provided" do
+    defmodule NoRepoTestFactory do
+      use ExMachina.Ecto
 
-    use ExMachina.Ecto, repo: MyApp.Repo
-    """
-
-    assert_raise ArgumentError, message, fn ->
-      defmodule EctoWithNoRepo do
-        use ExMachina.Ecto
+      def user_factory do
+        %ExMachina.User{
+          name: "John Doe",
+          admin: false
+        }
       end
+    end
+
+    test "insert, insert_pair and insert_list raise helpful error messages if no repo was provided" do
+      message = """
+      insert/1 is not available unless you provide the :repo option. Example:
+
+      use ExMachina.Ecto, repo: MyApp.Repo
+      """
+
+      assert_raise RuntimeError, message, fn ->
+        NoRepoTestFactory.insert(:user)
+      end
+
+      assert_raise RuntimeError, message, fn ->
+        NoRepoTestFactory.insert_pair(:user)
+      end
+
+      assert_raise RuntimeError, message, fn ->
+        NoRepoTestFactory.insert_list(3, :user)
+      end
+    end
+
+    test "params_for/1 still works as expected" do
+      user_params = NoRepoTestFactory.params_for(:user)
+
+      assert user_params == %{name: "John Doe", admin: false}
+    end
+
+    test "string_params_for/1 still works as expected" do
+      user_params = NoRepoTestFactory.string_params_for(:user)
+
+      assert user_params == %{"name" => "John Doe", "admin" => false}
     end
   end
 

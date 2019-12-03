@@ -15,34 +15,25 @@ defmodule ExMachina.Ecto do
   defmacro __using__(opts) do
     verify_ecto_dep()
 
-    if repo = Keyword.get(opts, :repo) do
-      quote do
-        use ExMachina
-        use ExMachina.EctoStrategy, repo: unquote(repo)
+    quote do
+      use ExMachina
+      use ExMachina.EctoStrategy, repo: unquote(Keyword.get(opts, :repo))
 
-        def params_for(factory_name, attrs \\ %{}) do
-          ExMachina.Ecto.params_for(__MODULE__, factory_name, attrs)
-        end
-
-        def string_params_for(factory_name, attrs \\ %{}) do
-          ExMachina.Ecto.string_params_for(__MODULE__, factory_name, attrs)
-        end
-
-        def params_with_assocs(factory_name, attrs \\ %{}) do
-          ExMachina.Ecto.params_with_assocs(__MODULE__, factory_name, attrs)
-        end
-
-        def string_params_with_assocs(factory_name, attrs \\ %{}) do
-          ExMachina.Ecto.string_params_with_assocs(__MODULE__, factory_name, attrs)
-        end
+      def params_for(factory_name, attrs \\ %{}) do
+        ExMachina.Ecto.params_for(__MODULE__, factory_name, attrs)
       end
-    else
-      raise ArgumentError,
-            """
-            expected :repo to be given as an option. Example:
 
-            use ExMachina.Ecto, repo: MyApp.Repo
-            """
+      def string_params_for(factory_name, attrs \\ %{}) do
+        ExMachina.Ecto.string_params_for(__MODULE__, factory_name, attrs)
+      end
+
+      def params_with_assocs(factory_name, attrs \\ %{}) do
+        ExMachina.Ecto.params_with_assocs(__MODULE__, factory_name, attrs)
+      end
+
+      def string_params_with_assocs(factory_name, attrs \\ %{}) do
+        ExMachina.Ecto.string_params_with_assocs(__MODULE__, factory_name, attrs)
+      end
     end
   end
 
