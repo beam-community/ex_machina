@@ -7,6 +7,15 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.4.0]
+
+### Added
+
+- Allow ExMachina.Ecto to be used without :repo option ([#370])
+
+[2.4.0]: https://github.com/thoughtbot/ex_machina/compare/v2.3.0...v2.4.0
+[#370]: https://github.com/thoughtbot/ex_machina/pull/370
+
 ## [2.3.0]
 
 ### Added

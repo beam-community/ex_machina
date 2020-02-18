@@ -20,7 +20,7 @@ In `mix.exs`, add the ExMachina dependency:
 def deps do
   # Get the latest from hex.pm. Works with Ecto 3.0
   [
-    {:ex_machina, "~> 2.3"},
+    {:ex_machina, "~> 2.4"},
   ]
 end
 ```
