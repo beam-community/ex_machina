@@ -43,7 +43,7 @@ In `mix.exs`, add the ExMachina dependency:
 ```elixir
 def deps do
   [
-    {:ex_machina, "~> 2.3", only: :test},
+    {:ex_machina, "~> 2.4", only: :test},
   ]
 end
 ```
