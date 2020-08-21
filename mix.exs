@@ -45,7 +45,7 @@ defmodule ExMachina.Mixfile do
 
   defp package() do
     [
-      maintainers: ["Josh Steiner", "Paul Smith", "German Velasco"],
+      maintainers: ["German Velasco"],
       licenses: ["MIT"],
       links: %{
         "GitHub" => @project_url,
