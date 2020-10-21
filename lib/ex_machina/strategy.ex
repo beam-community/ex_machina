@@ -52,7 +52,7 @@ defmodule ExMachina.Strategy do
 
       defmacro __using__(opts) do
         custom_strategy_module = __MODULE__
-        function_name = custom_strategy_module.function_name
+        function_name = custom_strategy_module.function_name()
         handle_response_function_name = :"handle_#{function_name}"
 
         quote do
