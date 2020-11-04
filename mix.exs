@@ -23,14 +23,10 @@ defmodule ExMachina.Mixfile do
 
   def application() do
     [
-      applications: app_list(Mix.env()),
+      extra_applications: [:logger],
       mod: {ExMachina, []}
     ]
   end
-
-  def app_list(:test), do: app_list() ++ [:ecto, :postgrex]
-  def app_list(_), do: app_list()
-  def app_list(), do: [:logger]
 
   defp deps() do
     [
