@@ -42,6 +42,10 @@ defmodule ExMachina do
         ExMachina.build(__MODULE__, factory_name, attrs)
       end
 
+      def build_lazy(factory_name, attrs \\ %{}) do
+        ExMachina.build_lazy(__MODULE__, factory_name, attrs)
+      end
+
       def build_pair(factory_name, attrs \\ %{}) do
         ExMachina.build_pair(__MODULE__, factory_name, attrs)
       end
@@ -189,9 +193,17 @@ defmodule ExMachina do
   @callback build(factory_name :: atom) :: any
   @callback build(factory_name :: atom, attrs :: keyword | map) :: any
 
+  def build_lazy(module, factory_name, attrs \\ %{}) do
+    fn -> build(module, factory_name, attrs) end
+  end
+
   @doc false
   def build(module, factory_name, attrs \\ %{}) do
-    attrs = Enum.into(attrs, %{})
+    attrs =
+      attrs
+      |> evaluate_lazy_factories()
+      |> Enum.into(%{})
+
     function_name = build_function_name(factory_name)
 
     cond do
@@ -204,6 +216,13 @@ defmodule ExMachina do
       true ->
         raise UndefinedFactoryError, factory_name
     end
+  end
+
+  defp evaluate_lazy_factories(attrs) do
+    Enum.map(attrs, fn
+      {k, v} when is_function(v) -> {k, v.()}
+      {_, _} = tuple -> tuple
+    end)
   end
 
   defp build_function_name(factory_name) do

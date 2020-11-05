@@ -12,6 +12,14 @@ defmodule ExMachinaTest do
       }
     end
 
+    def account_factory do
+      %{
+        private: true,
+        user: build(:user),
+        email: build(:email)
+      }
+    end
+
     def email_factory do
       %{
         email: sequence(:email, &"me-#{&1}@foo.com")
@@ -63,6 +71,27 @@ defmodule ExMachinaTest do
     assert_raise ExMachina.UndefinedFactoryError, fn ->
       Factory.build(:foo)
     end
+  end
+
+  test "build_lazy/2 returns a function to build the matching factory" do
+    fun = Factory.build_lazy(:user)
+
+    assert is_function(fun)
+
+    assert fun.() == %{id: 3, name: "John Doe", admin: false}
+  end
+
+  test "build/2 recursively builds nested build_lazy/2 structs" do
+    account = Factory.build(:account, user: Factory.build_lazy(:user))
+
+    assert account.user == Factory.build(:user)
+    assert account.user == Factory.build(:user)
+  end
+
+  test "build_list/2 recursively builds many nested build_lazy/2" do
+    [account1, account2] = Factory.build_pair(:account, email: Factory.build_lazy(:email))
+
+    assert account1.email != account2.email
   end
 
   test "build/2 returns the matching factory" do
