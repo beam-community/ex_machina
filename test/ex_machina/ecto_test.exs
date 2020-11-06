@@ -1,6 +1,7 @@
 defmodule ExMachina.EctoTest do
   use ExMachina.EctoCase
 
+  alias ExMachina.Article
   alias ExMachina.TestFactory
   alias ExMachina.User
 
@@ -49,6 +50,23 @@ defmodule ExMachina.EctoTest do
     end
   end
 
+  test "insert, insert_pair, insert_list can handle build_lazy structs" do
+    assert %Article{author: %User{}} =
+             TestFactory.insert(:article, author: TestFactory.build_lazy(:user))
+
+    [%Article{author: user1}, %Article{author: user2}] =
+      TestFactory.insert_pair(:article, author: TestFactory.build_lazy(:user))
+
+    assert user1 != user2
+
+    [article1, article2, article3] =
+      TestFactory.insert_list(3, :article, author: TestFactory.build_lazy(:user))
+
+    assert article1.author != article2.author
+    assert article2.author != article3.author
+    assert article3.author != article1.author
+  end
+
   test "insert, insert_pair and insert_list work as expected" do
     assert %User{} = TestFactory.build(:user) |> TestFactory.insert()
     assert %User{} = TestFactory.insert(:user)
@@ -66,11 +84,12 @@ defmodule ExMachina.EctoTest do
   end
 
   test "params_for/2 removes Ecto specific fields" do
-    assert TestFactory.params_for(:user) == %{
-             name: "John Doe",
-             admin: false,
-             articles: []
-           }
+    params = TestFactory.params_for(:user)
+
+    assert Map.has_key?(params, :name)
+    assert Map.has_key?(params, :admin)
+    assert Map.has_key?(params, :articles)
+    refute Map.has_key?(params, :__meta__)
   end
 
   test "params_for/2 leaves ids that are not auto-generated" do
@@ -81,10 +100,11 @@ defmodule ExMachina.EctoTest do
   end
 
   test "params_for/2 removes fields with nil values" do
-    assert TestFactory.params_for(:user, admin: nil) == %{
-             name: "John Doe",
-             articles: []
-           }
+    params = TestFactory.params_for(:user, admin: nil)
+
+    assert Map.has_key?(params, :name)
+    assert Map.has_key?(params, :articles)
+    refute Map.has_key?(params, :admin)
   end
 
   test "params_for/2 keeps foreign keys for persisted belongs_to associations" do
@@ -184,11 +204,11 @@ defmodule ExMachina.EctoTest do
   end
 
   test "string_params_for/2 produces maps similar to ones built with params_for/2, but the keys are strings" do
-    assert TestFactory.string_params_for(:user) == %{
-             "name" => "John Doe",
-             "admin" => false,
-             "articles" => []
-           }
+    string_params = TestFactory.string_params_for(:user)
+
+    assert Map.has_key?(string_params, "name")
+    assert Map.has_key?(string_params, "admin")
+    assert Map.has_key?(string_params, "articles")
   end
 
   test "string_params_for/2 converts structs into maps with strings as keys" do
@@ -266,10 +286,11 @@ defmodule ExMachina.EctoTest do
   test "params_with_assocs/2 removes fields with nil values" do
     assert has_association_in_schema?(ExMachina.User, :articles)
 
-    assert TestFactory.params_with_assocs(:user, admin: nil) == %{
-             name: "John Doe",
-             articles: []
-           }
+    params = TestFactory.params_with_assocs(:user, admin: nil)
+
+    assert Map.has_key?(params, :name)
+    assert Map.has_key?(params, :articles)
+    refute Map.has_key?(params, :admin)
   end
 
   test "string_params_with_assocs/2 behaves like params_with_assocs/2 but the keys of the map are strings" do

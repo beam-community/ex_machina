@@ -10,7 +10,7 @@ defmodule ExMachina.TestFactory do
 
   def user_factory do
     %ExMachina.User{
-      name: "John Doe",
+      name: sequence("John Doe"),
       admin: false,
       articles: [],
       best_article: nil
