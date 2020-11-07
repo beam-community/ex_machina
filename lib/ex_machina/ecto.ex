@@ -27,6 +27,10 @@ defmodule ExMachina.Ecto do
         ExMachina.Ecto.string_params_for(__MODULE__, factory_name, attrs)
       end
 
+      def change_for(factory_name, changeset, attrs \\ %{}) do
+        ExMachina.Ecto.change_for(__MODULE__, factory_name, changeset, attrs)
+      end
+
       def params_with_assocs(factory_name, attrs \\ %{}) do
         ExMachina.Ecto.params_with_assocs(__MODULE__, factory_name, attrs)
       end
@@ -134,6 +138,14 @@ defmodule ExMachina.Ecto do
     module
     |> params_for(factory_name, attrs)
     |> convert_atom_keys_to_strings
+  end
+
+  def change_for(module, factory_name, changeset, attrs) do
+    factory_module = module.build(factory_name).__struct__
+    new_struct = struct(factory_module)
+    changes = module.params_for(factory_name, attrs)
+
+    apply(factory_module, changeset, [new_struct, changes])
   end
 
   @doc """

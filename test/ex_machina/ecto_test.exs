@@ -237,6 +237,43 @@ defmodule ExMachina.EctoTest do
            ]
   end
 
+  test "change_for/3 creates a changeset with params in factory" do
+    assert %Ecto.Changeset{changes: changes} = TestFactory.change_for(:user, :changeset)
+    assert changes == %{name: "John Doe", admin: false}
+  end
+
+  test "change_for/3 sets changes passed in params to factory" do
+    assert %Ecto.Changeset{changes: changes} =
+             TestFactory.change_for(:user, :changeset, admin: true)
+
+    assert changes == %{name: "John Doe", admin: true}
+  end
+
+  test "change_for/3 allows for specifying changeset" do
+    assert %Ecto.Changeset{changes: changes} = TestFactory.change_for(:user, :role_changeset)
+
+    assert changes == %{admin: false}
+  end
+
+  test "change_for/3 keeps has_one built associations" do
+    article = TestFactory.build(:article, title: "The life of Gandalf the Gray")
+
+    assert %Ecto.Changeset{changes: changes} =
+             TestFactory.change_for(:user, :with_best_article, best_article: article)
+
+    assert %Ecto.Changeset{changes: article_changes} = changes.best_article
+    assert article_changes.title == article.title
+  end
+
+  test "change_for/3 drops belongs_to association" do
+    user = TestFactory.build(:user, name: "Gandalf the Gray")
+
+    assert %Ecto.Changeset{changes: changes} =
+             TestFactory.change_for(:article, :with_author, author: user)
+
+    refute Map.has_key?(changes, :author)
+  end
+
   test "params_with_assocs/2 inserts belongs_tos that are set by the factory" do
     assert has_association_in_schema?(ExMachina.Article, :editor)
 
