@@ -20,10 +20,14 @@ defmodule ExMachina.EctoStrategy do
     """
   end
 
+  def handle_insert(%{__struct__: Ecto.Changeset} = changeset, %{repo: repo}) do
+    repo.insert!(changeset)
+  end
+
   def handle_insert(%{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record, %{repo: repo}) do
     record
-    |> cast
-    |> repo.insert!
+    |> cast()
+    |> repo.insert!()
   end
 
   def handle_insert(record, %{repo: _repo}) do
@@ -36,9 +40,9 @@ defmodule ExMachina.EctoStrategy do
 
   defp cast(record) do
     record
-    |> cast_all_fields
-    |> cast_all_embeds
-    |> cast_all_assocs
+    |> cast_all_fields()
+    |> cast_all_embeds()
+    |> cast_all_assocs()
   end
 
   defp cast_all_fields(%{__struct__: schema} = struct) do

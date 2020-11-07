@@ -49,6 +49,15 @@ defmodule ExMachina.EctoTest do
     end
   end
 
+  test "insert" do
+    user =
+      TestFactory.change_for(:user, :changeset, net_worth: 1, password: "hello")
+      |> TestFactory.insert()
+
+    assert %User{name: "John Doe", admin: false} = user
+    assert is_integer(user.id)
+  end
+
   test "insert, insert_pair and insert_list work as expected" do
     assert %User{} = TestFactory.build(:user) |> TestFactory.insert()
     assert %User{} = TestFactory.insert(:user)
