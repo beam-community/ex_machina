@@ -12,11 +12,17 @@ defmodule ExMachinaTest do
       }
     end
 
+    def profile_factory do
+      %{
+        username: sequence("username"),
+        user: build(:user)
+      }
+    end
+
     def account_factory do
       %{
         private: true,
-        user: build(:user),
-        email: build(:email)
+        profile: build(:profile)
       }
     end
 
@@ -73,25 +79,24 @@ defmodule ExMachinaTest do
     end
   end
 
-  test "build_lazy/2 returns a function to build the matching factory" do
-    fun = Factory.build_lazy(:user)
+  test "build_lazy/2 returns a struct presentation of the factory to build" do
+    %ExMachina.Factory{} = factory = Factory.build_lazy(:user)
 
-    assert is_function(fun)
-
-    assert fun.() == %{id: 3, name: "John Doe", admin: false}
+    assert ExMachina.Factory.build(factory) == %{id: 3, name: "John Doe", admin: false}
   end
 
   test "build/2 recursively builds nested build_lazy/2 structs" do
-    account = Factory.build(:account, user: Factory.build_lazy(:user))
+    lazy_profile = Factory.build_lazy(:profile, user: Factory.build_lazy(:user))
+    account = Factory.build(:account, profile: lazy_profile)
 
-    assert account.user == Factory.build(:user)
-    assert account.user == Factory.build(:user)
+    assert %{username: _} = account.profile
+    assert %{name: "John Doe", admin: false} = account.profile.user
   end
 
   test "build_list/2 recursively builds many nested build_lazy/2" do
-    [account1, account2] = Factory.build_pair(:account, email: Factory.build_lazy(:email))
+    [account1, account2] = Factory.build_pair(:account, user: Factory.build_lazy(:user))
 
-    assert account1.email != account2.email
+    assert account1.profile.username != account2.profile.username
   end
 
   test "build/2 returns the matching factory" do

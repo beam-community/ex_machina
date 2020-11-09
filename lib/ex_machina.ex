@@ -194,7 +194,7 @@ defmodule ExMachina do
   @callback build(factory_name :: atom, attrs :: keyword | map) :: any
 
   def build_lazy(module, factory_name, attrs \\ %{}) do
-    fn -> build(module, factory_name, attrs) end
+    %ExMachina.Factory{module: module, name: factory_name, attrs: attrs}
   end
 
   @doc false
@@ -220,7 +220,7 @@ defmodule ExMachina do
 
   defp evaluate_lazy_factories(attrs) do
     Enum.map(attrs, fn
-      {k, v} when is_function(v) -> {k, v.()}
+      {k, %ExMachina.Factory{} = v} -> {k, ExMachina.Factory.build(v)}
       {_, _} = tuple -> tuple
     end)
   end
