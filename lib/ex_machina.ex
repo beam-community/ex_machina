@@ -42,6 +42,10 @@ defmodule ExMachina do
         ExMachina.build(__MODULE__, factory_name, attrs)
       end
 
+      def build_lazy(factory_name, attrs \\ %{}) do
+        ExMachina.build_lazy(__MODULE__, factory_name, attrs)
+      end
+
       def build_pair(factory_name, attrs \\ %{}) do
         ExMachina.build_pair(__MODULE__, factory_name, attrs)
       end
@@ -191,7 +195,11 @@ defmodule ExMachina do
 
   @doc false
   def build(module, factory_name, attrs \\ %{}) do
-    attrs = Enum.into(attrs, %{})
+    attrs =
+      attrs
+      |> evaluate_lazy_factories()
+      |> Enum.into(%{})
+
     function_name = build_function_name(factory_name)
 
     cond do
@@ -204,6 +212,26 @@ defmodule ExMachina do
       true ->
         raise UndefinedFactoryError, factory_name
     end
+  end
+
+  defp evaluate_lazy_factories(attrs) do
+    Enum.map(attrs, fn
+      {k, %ExMachina.Instance{} = v} ->
+        {k, ExMachina.Instance.build(v)}
+
+      {k, list} when is_list(list) ->
+        {k, evaluate_lazy_factories_in_list(list)}
+
+      {_, _} = tuple ->
+        tuple
+    end)
+  end
+
+  defp evaluate_lazy_factories_in_list(list) do
+    Enum.map(list, fn
+      %ExMachina.Instance{} = instance -> ExMachina.Instance.build(instance)
+      item -> item
+    end)
   end
 
   defp build_function_name(factory_name) do
@@ -219,6 +247,39 @@ defmodule ExMachina do
 
   defp factory_without_attributes_defined?(module, function_name) do
     Code.ensure_loaded?(module) && function_exported?(module, function_name, 0)
+  end
+
+  @doc """
+  Builds a factory that will be evaluated when building another factory's
+  attributes.
+
+  This is particularly useful when using it with `build_pair/2` or
+  `build_list/3`.
+
+  For example, people might want to build a separate user per account.
+
+  ## Example
+
+      def user_factory do
+        %{name: "John Doe", username: sequence("johndoe")}
+      end
+
+      # build/2 is eager
+      build_pair(:account, user: build(:user))
+
+      # so it's equivalent to this
+      user = build(:user)
+      build_pair(:account, user: user) # same user for both accounts
+
+      # to get a separate user struct per account, use build_lazy/3
+      build_pair(:account, user: build_lazy(:user))
+  """
+  @callback build_lazy(factory_name :: atom) :: any
+  @callback build_lazy(factory_name :: atom, attrs :: keyword | map) :: any
+
+  @doc false
+  def build_lazy(module, factory_name, attrs \\ %{}) do
+    %ExMachina.Instance{module: module, name: factory_name, attrs: attrs}
   end
 
   @doc """

@@ -1,6 +1,8 @@
 defmodule ExMachina.EctoTest do
   use ExMachina.EctoCase
 
+  alias ExMachina.Article
+  alias ExMachina.Publisher
   alias ExMachina.TestFactory
   alias ExMachina.User
 
@@ -64,6 +66,23 @@ defmodule ExMachina.EctoTest do
 
     test "insert_list/3 handles the number 0" do
       assert [] = TestFactory.insert_list(0, :user)
+    end
+
+    test "build_lazy records get evaluated with insert/2 and insert_* functions" do
+      assert %Article{publisher: %Publisher{}} =
+               TestFactory.insert(:article, publisher: TestFactory.build_lazy(:publisher))
+
+      [%Article{publisher: publisher1}, %Article{publisher: publisher2}] =
+        TestFactory.insert_pair(:article, publisher: TestFactory.build_lazy(:publisher))
+
+      assert publisher1 != publisher2
+
+      [publisher1, publisher2, publisher3] =
+        TestFactory.insert_list(3, :article, publisher: TestFactory.build_lazy(:publisher))
+
+      assert publisher1.author != publisher2.author
+      assert publisher2.author != publisher3.author
+      assert publisher3.author != publisher1.author
     end
   end
 
