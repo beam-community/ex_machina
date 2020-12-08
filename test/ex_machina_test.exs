@@ -16,6 +16,27 @@ defmodule ExMachinaTest do
       }
     end
 
+    def profile_factory do
+      %{
+        username: sequence("username"),
+        user: build(:user)
+      }
+    end
+
+    def account_factory do
+      %{
+        private: true,
+        profile: fn -> build(:profile) end
+      }
+    end
+
+    def admin_account_factory do
+      %{
+        admin: true,
+        profile: fn account -> build(:profile, admin: account.admin) end
+      }
+    end
+
     def email_factory do
       %{
         email: sequence(:email, &"me-#{&1}@foo.com")
@@ -101,16 +122,56 @@ defmodule ExMachinaTest do
     end
 
     test "build/2 allows factories to have full control of provided arguments" do
-      assert Factory.build(:comment, name: "James") == %{
-               author: "James Doe",
-               username: "James-0",
-               name: "James"
-             }
+      comment = Factory.build(:comment, name: "James")
+
+      assert %{author: "James Doe", name: "James"} = comment
+      assert String.starts_with?(comment[:username], "James-")
     end
 
     test "build/2 allows custom (non-map) factories to be built" do
       assert Factory.build(:room_number, floor: 5) == "500"
       assert Factory.build(:room_number, floor: 5) == "501"
+    end
+
+    test "build/2 accepts anonymous functions for a factory's attributes" do
+      account = Factory.build(:account)
+
+      assert %{username: _} = account.profile
+    end
+
+    test "build/2 accepts anonymous functions that use parent record in factory's definition" do
+      assert %{profile: %{admin: true}} = Factory.build(:admin_account, admin: true)
+      assert %{profile: %{admin: false}} = Factory.build(:admin_account, admin: false)
+    end
+
+    test "build/2 can take anonymous functions for attributes" do
+      user = Factory.build(:user, foo_bar: fn -> Factory.build(:foo_bar) end)
+
+      assert %FooBar{} = user.foo_bar
+    end
+
+    test "build/2 does not evaluate lazy attributes when factory definition has full control" do
+      comment = Factory.build(:comment, name: "James", user: fn -> Factory.build(:user) end)
+
+      assert is_function(comment.user)
+      assert %{id: 3, name: "John Doe", admin: false} = comment.user.()
+    end
+
+    test "build/2 recursively builds nested lazy attributes" do
+      lazy_profile = fn -> Factory.build(:profile, user: fn -> Factory.build(:user) end) end
+      account = Factory.build(:account, profile: lazy_profile)
+
+      assert %{username: _} = account.profile
+      assert %{name: "John Doe", admin: false} = account.profile.user
+    end
+
+    test "build/2 lazily evaluates an attribute that is a list" do
+      user = Factory.build(:user, profiles: fn -> [Factory.build(:profile)] end)
+
+      profile = hd(user.profiles)
+
+      assert Map.has_key?(profile, :username)
+      assert Map.has_key?(profile, :user)
     end
   end
 
@@ -125,6 +186,13 @@ defmodule ExMachinaTest do
       }
 
       assert records == [expected_record, expected_record]
+    end
+
+    test "build_pair/2 recursively builds many nested lazy attributes" do
+      lazy_profile = fn -> Factory.build(:profile, user: fn -> Factory.build(:user) end) end
+      [account1, account2] = Factory.build_pair(:account, profile: lazy_profile)
+
+      assert account1.profile.username != account2.profile.username
     end
   end
 
