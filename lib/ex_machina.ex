@@ -151,7 +151,7 @@ defmodule ExMachina do
   This will defer to the `[factory_name]_factory/0` callback defined in the
   factory module in which it is `use`d.
 
-  ## Example
+  ### Example
 
       def user_factory do
         %{name: "John Doe", admin: false}
@@ -163,12 +163,22 @@ defmodule ExMachina do
       # Returns %{name: "John Doe", admin: true}
       build(:user, admin: true)
 
+  ## Full control of a factory's attributes
 
   If you want full control over the factory attributes, you can define the
-  factory with `[factory_name]_factory/1`. Note that you will need to merge the
-  attributes passed if you want to emulate ExMachina's default behavior.
+  factory with `[factory_name]_factory/1`, taking in the attributes as the first
+  argument.
 
-  ## Example
+  Caveats:
+
+  - ExMachina will no longer merge the attributes for your factory. If you want
+  to do that, you can merge the attributes with the `merge_attributes/2` helper.
+
+  - ExMachina will no longer evaluate lazy attributes. If you want to do that,
+  you can evaluate the lazy attributes with the `evaluate_lazy_attributes/1`
+  helper.
+
+  ### Example
 
       def article_factory(attrs) do
         title = Map.get(attrs, :title, "default title")
@@ -176,8 +186,11 @@ defmodule ExMachina do
 
         article = %Article{title: title, slug: slug}
 
+        article
         # merge attributes on your own
-        merge_attributes(article, attrs)
+        |> merge_attributes(attrs)
+        # evaluate any lazy attributes
+        |> evaluate_lazy_attributes()
       end
 
       # Returns %Article{title: "default title", slug: "default-title"}
@@ -192,6 +205,7 @@ defmodule ExMachina do
   @doc false
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
+
     function_name = build_function_name(factory_name)
 
     cond do
@@ -199,7 +213,9 @@ defmodule ExMachina do
         apply(module, function_name, [attrs])
 
       factory_without_attributes_defined?(module, function_name) ->
-        apply(module, function_name, []) |> merge_attributes(attrs)
+        apply(module, function_name, [])
+        |> merge_attributes(attrs)
+        |> evaluate_lazy_attributes()
 
       true ->
         raise UndefinedFactoryError, factory_name
@@ -244,6 +260,56 @@ defmodule ExMachina do
   @spec merge_attributes(struct | map, map) :: struct | map | no_return
   def merge_attributes(%{__struct__: _} = record, attrs), do: struct!(record, attrs)
   def merge_attributes(record, attrs), do: Map.merge(record, attrs)
+
+  @doc """
+  Helper function to evaluate lazy attributes that are passed into a factory.
+
+  ## Example
+
+      # custom factory
+      def article_factory(attrs) do
+        %{title: "title"}
+        |> merge_attributes(attrs)
+        |> evaluate_lazy_attributes()
+      end
+
+      def author_factory do
+        %{name: sequence("gandalf")}
+      end
+
+      # => returns [
+      #  %{title: "title", author: %{name: "gandalf0"},
+      #  %{title: "title", author: %{name: "gandalf0"}
+      # ]
+      build_pair(:article, author: build(:author))
+
+      # => returns [
+      #  %{title: "title", author: %{name: "gandalf0"},
+      #  %{title: "title", author: %{name: "gandalf1"}
+      # ]
+      build_pair(:article, author: fn -> build(:author) end)
+  """
+  @spec evaluate_lazy_attributes(struct | map) :: struct | map
+  def evaluate_lazy_attributes(%{__struct__: record} = factory) do
+    struct!(
+      record,
+      factory |> Map.from_struct() |> do_evaluate_lazy_attributes(factory)
+    )
+  end
+
+  def evaluate_lazy_attributes(attrs) when is_map(attrs) do
+    do_evaluate_lazy_attributes(attrs, attrs)
+  end
+
+  defp do_evaluate_lazy_attributes(attrs, parent_factory) do
+    attrs
+    |> Enum.map(fn
+      {k, v} when is_function(v, 1) -> {k, v.(parent_factory)}
+      {k, v} when is_function(v) -> {k, v.()}
+      {_, _} = tuple -> tuple
+    end)
+    |> Enum.into(%{})
+  end
 
   @doc """
   Builds two factories.

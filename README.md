@@ -165,6 +165,46 @@ string_params_for(:comment, attrs)
 string_params_with_assocs(:comment, attrs)
 ```
 
+## Delayed evaluation of attributes
+
+`build/2` is a function call. As such, it gets evaluated immediately. So this
+code:
+
+    insert_pair(:account, user: build(:user))
+
+Is equivalent to this:
+
+    user = build(:user)
+    insert_pair(:account, user: user) # same user for both accounts
+
+Sometimes that presents a problem. Consider the following factory:
+
+    def user_factory do
+      %{name: "Gandalf", email: sequence(:email, "gandalf#{&1}@istari.com")}
+    end
+
+If you want to build a separate `user` per `account`, then calling
+`insert_pair(:account, user: build(:user))` will not give you the desired
+result.
+
+In those cases, you can delay the execution of the factory by passing it as an
+anonymous function:
+
+    insert_pair(:account, user: fn -> build(:user) end)
+
+You can also do that in a factory definition:
+
+    def account_factory do
+      %{user: fn -> build(:user) end}
+    end
+
+You can even accept the parent record as an argument to the function:
+
+    def account_factory do
+      %{user: fn account -> build(:user, vip: account.premium) end}
+    end
+
+
 ## Full control of factory
 
 By default, ExMachina will merge the attributes you pass into build/insert into
@@ -181,13 +221,17 @@ def custom_article_factory(attrs) do
     title: title
   }
 
-  # merge attributes at the end to emulate ExMachina default behavior
-  merge_attributes(article, attrs)
+  # merge attributes and evaluate lazy attributes at the end to emulate
+  # ExMachina's default behavior
+  article
+  |> merge_attributes(attrs)
+  |> evaluate_lazy_attributes()
 end
 ```
 
 **NOTE** that in this case ExMachina will _not_ merge the attributes into your
-factory, and you will have to do this on your own if desired.
+factory, and it will not evaluate lazy attributes. You will have to do this on
+your own if desired.
 
 ### Non-map factories
 

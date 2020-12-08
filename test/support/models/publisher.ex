@@ -1,6 +1,7 @@
 defmodule ExMachina.Publisher do
   use Ecto.Schema
 
-  schema "users" do
+  schema "publishers" do
+    field(:pub_number, :string)
   end
 end
