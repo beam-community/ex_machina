@@ -42,6 +42,10 @@ defmodule ExMachina do
         ExMachina.build(__MODULE__, factory_name, attrs)
       end
 
+      def build_lazy(factory_name, attrs \\ %{}) do
+        ExMachina.build_lazy(__MODULE__, factory_name, attrs)
+      end
+
       def build_pair(factory_name, attrs \\ %{}) do
         ExMachina.build_pair(__MODULE__, factory_name, attrs)
       end
@@ -165,8 +169,16 @@ defmodule ExMachina do
 
 
   If you want full control over the factory attributes, you can define the
-  factory with `[factory_name]_factory/1`. Note that you will need to merge the
-  attributes passed if you want to emulate ExMachina's default behavior.
+  factory with `[factory_name]_factory/1`.
+
+  Caveats:
+
+  - ExMachina will no longer merge the attributes for your factory. If you want
+  to do that, you can merge the attributes with the `merge_attributes/2` helper.
+
+  - You cannot use `c:build_lazy/2` within the factory definition, since ExMachina
+  will no longer perform it's usual evaluation of lazy factories after the
+  factory creation.
 
   ## Example
 
@@ -192,18 +204,51 @@ defmodule ExMachina do
   @doc false
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
+
     function_name = build_function_name(factory_name)
 
     cond do
       factory_accepting_attributes_defined?(module, function_name) ->
+        attrs = evaluate_lazy_factories(attrs)
         apply(module, function_name, [attrs])
 
       factory_without_attributes_defined?(module, function_name) ->
-        apply(module, function_name, []) |> merge_attributes(attrs)
+        apply(module, function_name, [])
+        |> merge_attributes(attrs)
+        |> evaluate_lazy_factories()
 
       true ->
         raise UndefinedFactoryError, factory_name
     end
+  end
+
+  defp evaluate_lazy_factories(%{__struct__: record} = factory) do
+    struct!(
+      record,
+      factory |> Map.from_struct() |> evaluate_lazy_factories()
+    )
+  end
+
+  defp evaluate_lazy_factories(attrs) when is_map(attrs) do
+    attrs
+    |> Enum.map(fn
+      {k, %ExMachina.InstanceTemplate{} = v} ->
+        {k, ExMachina.InstanceTemplate.evaluate(v)}
+
+      {k, list} when is_list(list) ->
+        {k, evaluate_lazy_factories_in_list(list)}
+
+      {_, _} = tuple ->
+        tuple
+    end)
+    |> Enum.into(%{})
+  end
+
+  defp evaluate_lazy_factories_in_list(list) do
+    Enum.map(list, fn
+      %ExMachina.InstanceTemplate{} = instance -> ExMachina.InstanceTemplate.evaluate(instance)
+      item -> item
+    end)
   end
 
   defp build_function_name(factory_name) do
@@ -219,6 +264,41 @@ defmodule ExMachina do
 
   defp factory_without_attributes_defined?(module, function_name) do
     Code.ensure_loaded?(module) && function_exported?(module, function_name, 0)
+  end
+
+  @doc """
+  Builds a factory instance that won't be evaluated immediately. As such, this
+  function should not be used on its own, but should be combined with
+  `c:build/2`, `c:build_pair/2`, `c:build_list/3`, or it should be used in a
+  factory definition.
+
+  `build_lazy/2` is evaluated as part of one of the other functions, and it is
+  particularly useful when using it with `c:build_pair/2` or `c:build_list/3`.
+
+  For example, people might want to build a separate user per account.
+
+  ## Example
+
+      def user_factory do
+        %{name: "John Doe", username: sequence("johndoe")}
+      end
+
+      # build/2 is eager
+      build_pair(:account, user: build(:user))
+
+      # so it's equivalent to this
+      user = build(:user)
+      build_pair(:account, user: user) # same user for both accounts
+
+      # to get a separate user struct per account, use build_lazy/2
+      build_pair(:account, user: build_lazy(:user))
+  """
+  @callback build_lazy(factory_name :: atom) :: any
+  @callback build_lazy(factory_name :: atom, attrs :: keyword | map) :: any
+
+  @doc false
+  def build_lazy(module, factory_name, attrs \\ %{}) do
+    %ExMachina.InstanceTemplate{module: module, name: factory_name, attrs: attrs}
   end
 
   @doc """

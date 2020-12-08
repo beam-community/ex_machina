@@ -18,7 +18,9 @@ defmodule ExMachina.TestFactory do
   end
 
   def publisher_factory do
-    %ExMachina.Publisher{}
+    %ExMachina.Publisher{
+      pub_number: sequence("PUB_23")
+    }
   end
 
   def article_factory do

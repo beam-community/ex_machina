@@ -16,6 +16,20 @@ defmodule ExMachinaTest do
       }
     end
 
+    def profile_factory do
+      %{
+        username: sequence("username"),
+        user: build(:user)
+      }
+    end
+
+    def account_factory do
+      %{
+        private: true,
+        profile: build_lazy(:profile)
+      }
+    end
+
     def email_factory do
       %{
         email: sequence(:email, &"me-#{&1}@foo.com")
@@ -101,16 +115,79 @@ defmodule ExMachinaTest do
     end
 
     test "build/2 allows factories to have full control of provided arguments" do
-      assert Factory.build(:comment, name: "James") == %{
-               author: "James Doe",
-               username: "James-0",
-               name: "James"
-             }
+      comment = Factory.build(:comment, name: "James")
+
+      assert %{author: "James Doe", name: "James"} = comment
+      assert String.starts_with?(comment[:username], "James-")
     end
 
     test "build/2 allows custom (non-map) factories to be built" do
       assert Factory.build(:room_number, floor: 5) == "500"
       assert Factory.build(:room_number, floor: 5) == "501"
+    end
+  end
+
+  describe "build_lazy/2" do
+    test "build_lazy/2 returns a struct presentation of the factory to build" do
+      %ExMachina.InstanceTemplate{} = factory = Factory.build_lazy(:user)
+
+      assert ExMachina.InstanceTemplate.evaluate(factory) == %{
+               id: 3,
+               name: "John Doe",
+               admin: false
+             }
+    end
+
+    test "build_lazy/3 accepts arguments" do
+      %ExMachina.InstanceTemplate{} = factory = Factory.build_lazy(:user, name: "Jane Doe")
+
+      assert ExMachina.InstanceTemplate.evaluate(factory) == %{
+               id: 3,
+               name: "Jane Doe",
+               admin: false
+             }
+    end
+
+    test "build_lazy/2 can be used in a factory definition" do
+      account = Factory.build(:account)
+
+      assert %{username: _} = account.profile
+    end
+
+    test "build_lazy/2 can be used with struct factories" do
+      user = Factory.build(:user, foo_bar: Factory.build_lazy(:foo_bar))
+
+      assert %FooBar{} = user.foo_bar
+    end
+
+    test "build_lazy/2 is evaluated before being passed to factories with full control" do
+      comment = Factory.build(:comment, name: "James", user: Factory.build_lazy(:user))
+
+      assert %{id: 3, name: "John Doe", admin: false} = comment.user
+    end
+
+    test "build/2 recursively builds nested build_lazy/2 factories" do
+      lazy_profile = Factory.build_lazy(:profile, user: Factory.build_lazy(:user))
+      account = Factory.build(:account, profile: lazy_profile)
+
+      assert %{username: _} = account.profile
+      assert %{name: "John Doe", admin: false} = account.profile.user
+    end
+
+    test "build_list/2 recursively builds many nested build_lazy/2 factories" do
+      lazy_profile = Factory.build_lazy(:profile, user: Factory.build_lazy(:user))
+      [account1, account2] = Factory.build_pair(:account, profile: lazy_profile)
+
+      assert account1.profile.username != account2.profile.username
+    end
+
+    test "build_lazy/2 gets evaluated when is part of a list" do
+      user = Factory.build(:user, profiles: [Factory.build_lazy(:profile)])
+
+      profile = hd(user.profiles)
+
+      assert Map.has_key?(profile, :username)
+      assert Map.has_key?(profile, :user)
     end
   end
 
