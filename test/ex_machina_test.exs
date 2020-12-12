@@ -130,15 +130,23 @@ defmodule ExMachinaTest do
 
   describe "build_lazy/2" do
     test "build_lazy/2 returns a struct presentation of the factory to build" do
-      %ExMachina.Instance{} = factory = Factory.build_lazy(:user)
+      %ExMachina.InstanceTemplate{} = factory = Factory.build_lazy(:user)
 
-      assert ExMachina.Instance.build(factory) == %{id: 3, name: "John Doe", admin: false}
+      assert ExMachina.InstanceTemplate.evaluate(factory) == %{
+               id: 3,
+               name: "John Doe",
+               admin: false
+             }
     end
 
     test "build_lazy/3 accepts arguments" do
-      %ExMachina.Instance{} = factory = Factory.build_lazy(:user, name: "Jane Doe")
+      %ExMachina.InstanceTemplate{} = factory = Factory.build_lazy(:user, name: "Jane Doe")
 
-      assert ExMachina.Instance.build(factory) == %{id: 3, name: "Jane Doe", admin: false}
+      assert ExMachina.InstanceTemplate.evaluate(factory) == %{
+               id: 3,
+               name: "Jane Doe",
+               admin: false
+             }
     end
 
     test "build_lazy/2 can be used in a factory definition" do

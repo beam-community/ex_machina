@@ -223,8 +223,8 @@ defmodule ExMachina do
   defp evaluate_lazy_factories(attrs) when is_map(attrs) do
     attrs
     |> Enum.map(fn
-      {k, %ExMachina.Instance{} = v} ->
-        {k, ExMachina.Instance.build(v)}
+      {k, %ExMachina.InstanceTemplate{} = v} ->
+        {k, ExMachina.InstanceTemplate.evaluate(v)}
 
       {k, list} when is_list(list) ->
         {k, evaluate_lazy_factories_in_list(list)}
@@ -237,7 +237,7 @@ defmodule ExMachina do
 
   defp evaluate_lazy_factories_in_list(list) do
     Enum.map(list, fn
-      %ExMachina.Instance{} = instance -> ExMachina.Instance.build(instance)
+      %ExMachina.InstanceTemplate{} = instance -> ExMachina.InstanceTemplate.evaluate(instance)
       item -> item
     end)
   end
@@ -288,7 +288,7 @@ defmodule ExMachina do
 
   @doc false
   def build_lazy(module, factory_name, attrs \\ %{}) do
-    %ExMachina.Instance{module: module, name: factory_name, attrs: attrs}
+    %ExMachina.InstanceTemplate{module: module, name: factory_name, attrs: attrs}
   end
 
   @doc """
