@@ -1,6 +1,10 @@
 defmodule ExMachinaTest do
   use ExUnit.Case
 
+  defmodule FooBar do
+    defstruct [:name]
+  end
+
   defmodule Factory do
     use ExMachina
 
@@ -24,10 +28,8 @@ defmodule ExMachinaTest do
       }
     end
 
-    def struct_factory do
-      %{
-        __struct__: Foo.Bar
-      }
+    def foo_bar_factory do
+      %FooBar{}
     end
 
     def comment_factory(attrs) do
@@ -94,7 +96,7 @@ defmodule ExMachinaTest do
 
     test "build/2 raises if passing invalid keys to a struct factory" do
       assert_raise KeyError, fn ->
-        Factory.build(:struct, doesnt_exist: true)
+        Factory.build(:foo_bar, doesnt_exist: true)
       end
     end
 
