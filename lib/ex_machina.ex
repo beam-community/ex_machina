@@ -169,8 +169,16 @@ defmodule ExMachina do
 
 
   If you want full control over the factory attributes, you can define the
-  factory with `[factory_name]_factory/1`. Note that you will need to merge the
-  attributes passed if you want to emulate ExMachina's default behavior.
+  factory with `[factory_name]_factory/1`.
+
+  Caveats:
+
+  - ExMachina will no longer merge the attributes for your factory. If you want
+  to do that, you can merge the attributes with the `merge_attributes/2` helper.
+
+  - You cannot use `c:build_lazy/2` within the factory definition, since ExMachina
+  will no longer perform it's usual evaluation of lazy factories after the
+  factory creation.
 
   ## Example
 
@@ -201,6 +209,7 @@ defmodule ExMachina do
 
     cond do
       factory_accepting_attributes_defined?(module, function_name) ->
+        attrs = evaluate_lazy_factories(attrs)
         apply(module, function_name, [attrs])
 
       factory_without_attributes_defined?(module, function_name) ->
@@ -259,11 +268,12 @@ defmodule ExMachina do
 
   @doc """
   Builds a factory instance that won't be evaluated immediately. As such, this
-  function should not be used on its own, but should be combined with `build/2`,
-  `build_pair/2`, or `build_list/3`.
+  function should not be used on its own, but should be combined with
+  `c:build/2`, `c:build_pair/2`, `c:build_list/3`, or it should be used in a
+  factory definition.
 
   `build_lazy/2` is evaluated as part of one of the other functions, and it is
-  particularly useful when using it with `build_pair/2` or `build_list/3`.
+  particularly useful when using it with `c:build_pair/2` or `c:build_list/3`.
 
   For example, people might want to build a separate user per account.
 

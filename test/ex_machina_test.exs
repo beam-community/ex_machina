@@ -161,6 +161,12 @@ defmodule ExMachinaTest do
       assert %FooBar{} = user.foo_bar
     end
 
+    test "build_lazy/2 is evaluated before being passed to factories with full control" do
+      comment = Factory.build(:comment, name: "James", user: Factory.build_lazy(:user))
+
+      assert %{id: 3, name: "John Doe", admin: false} = comment.user
+    end
+
     test "build/2 recursively builds nested build_lazy/2 factories" do
       lazy_profile = Factory.build_lazy(:profile, user: Factory.build_lazy(:user))
       account = Factory.build(:account, profile: lazy_profile)
