@@ -26,7 +26,7 @@ defmodule ExMachinaTest do
     def account_factory do
       %{
         private: true,
-        profile: build(:profile)
+        profile: build_lazy(:profile)
       }
     end
 
@@ -141,7 +141,19 @@ defmodule ExMachinaTest do
       assert ExMachina.Instance.build(factory) == %{id: 3, name: "Jane Doe", admin: false}
     end
 
-    test "build/2 recursively builds nested build_lazy/2 structs" do
+    test "build_lazy/2 can be used in a factory definition" do
+      account = Factory.build(:account)
+
+      assert %{username: _} = account.profile
+    end
+
+    test "build_lazy/2 can be used with struct factories" do
+      user = Factory.build(:user, foo_bar: Factory.build_lazy(:foo_bar))
+
+      assert %FooBar{} = user.foo_bar
+    end
+
+    test "build/2 recursively builds nested build_lazy/2 factories" do
       lazy_profile = Factory.build_lazy(:profile, user: Factory.build_lazy(:user))
       account = Factory.build(:account, profile: lazy_profile)
 
@@ -149,7 +161,7 @@ defmodule ExMachinaTest do
       assert %{name: "John Doe", admin: false} = account.profile.user
     end
 
-    test "build_list/2 recursively builds many nested build_lazy/2" do
+    test "build_list/2 recursively builds many nested build_lazy/2 factories" do
       lazy_profile = Factory.build_lazy(:profile, user: Factory.build_lazy(:user))
       [account1, account2] = Factory.build_pair(:account, profile: lazy_profile)
 

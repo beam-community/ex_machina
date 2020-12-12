@@ -195,10 +195,7 @@ defmodule ExMachina do
 
   @doc false
   def build(module, factory_name, attrs \\ %{}) do
-    attrs =
-      attrs
-      |> evaluate_lazy_factories()
-      |> Enum.into(%{})
+    attrs = attrs |> Enum.into(%{})
 
     function_name = build_function_name(factory_name)
 
@@ -207,15 +204,25 @@ defmodule ExMachina do
         apply(module, function_name, [attrs])
 
       factory_without_attributes_defined?(module, function_name) ->
-        apply(module, function_name, []) |> merge_attributes(attrs)
+        apply(module, function_name, [])
+        |> merge_attributes(attrs)
+        |> evaluate_lazy_factories()
 
       true ->
         raise UndefinedFactoryError, factory_name
     end
   end
 
-  defp evaluate_lazy_factories(attrs) do
-    Enum.map(attrs, fn
+  defp evaluate_lazy_factories(%{__struct__: record} = factory) do
+    struct!(
+      record,
+      factory |> Map.from_struct() |> evaluate_lazy_factories()
+    )
+  end
+
+  defp evaluate_lazy_factories(attrs) when is_map(attrs) do
+    attrs
+    |> Enum.map(fn
       {k, %ExMachina.Instance{} = v} ->
         {k, ExMachina.Instance.build(v)}
 
@@ -225,6 +232,7 @@ defmodule ExMachina do
       {_, _} = tuple ->
         tuple
     end)
+    |> Enum.into(%{})
   end
 
   defp evaluate_lazy_factories_in_list(list) do
@@ -250,11 +258,12 @@ defmodule ExMachina do
   end
 
   @doc """
-  Builds a factory that will be evaluated when building another factory's
-  attributes.
+  Builds a factory instance that won't be evaluated immediately. As such, this
+  function should not be used on its own, but should be combined with `build/2`,
+  `build_pair/2`, or `build_list/3`.
 
-  This is particularly useful when using it with `build_pair/2` or
-  `build_list/3`.
+  `build_lazy/2` is evaluated as part of one of the other functions, and it is
+  particularly useful when using it with `build_pair/2` or `build_list/3`.
 
   For example, people might want to build a separate user per account.
 
@@ -271,7 +280,7 @@ defmodule ExMachina do
       user = build(:user)
       build_pair(:account, user: user) # same user for both accounts
 
-      # to get a separate user struct per account, use build_lazy/3
+      # to get a separate user struct per account, use build_lazy/2
       build_pair(:account, user: build_lazy(:user))
   """
   @callback build_lazy(factory_name :: atom) :: any
