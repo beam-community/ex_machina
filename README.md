@@ -170,18 +170,24 @@ string_params_with_assocs(:comment, attrs)
 `build/2` is a function call. As such, it gets evaluated immediately. So this
 code:
 
-    insert_pair(:account, user: build(:user))
+```elixir
+insert_pair(:account, user: build(:user))
+```
 
 Is equivalent to this:
 
-    user = build(:user)
-    insert_pair(:account, user: user) # same user for both accounts
+```elixir
+user = build(:user)
+insert_pair(:account, user: user) # same user for both accounts
+```
 
 Sometimes that presents a problem. Consider the following factory:
 
-    def user_factory do
-      %{name: "Gandalf", email: sequence(:email, "gandalf#{&1}@istari.com")}
-    end
+```elixir
+def user_factory do
+  %{name: "Gandalf", email: sequence(:email, "gandalf#{&1}@istari.com")}
+end
+```
 
 If you want to build a separate `user` per `account`, then calling
 `insert_pair(:account, user: build(:user))` will not give you the desired
@@ -190,20 +196,29 @@ result.
 In those cases, you can delay the execution of the factory by passing it as an
 anonymous function:
 
-    insert_pair(:account, user: fn -> build(:user) end)
+```elixir
+insert_pair(:account, user: fn -> build(:user) end)
+```
 
 You can also do that in a factory definition:
 
-    def account_factory do
-      %{user: fn -> build(:user) end}
-    end
+```elixir
+def account_factory do
+  %{user: fn -> build(:user) end}
+end
+```
 
 You can even accept the parent record as an argument to the function:
 
-    def account_factory do
-      %{user: fn account -> build(:user, vip: account.premium) end}
-    end
+```elixir
+def account_factory do
+  %{user: fn account -> build(:user, vip: account.premium) end}
+end
+```
 
+Note that the `account` passed to the anonymous function is only the struct
+after it's built. It's not an inserted record. Thus, it does not have data that
+is only accessible after being inserted into the database (e.g. `id`).
 
 ## Full control of factory
 
