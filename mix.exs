@@ -2,7 +2,7 @@ defmodule ExMachina.Mixfile do
   use Mix.Project
 
   @project_url "https://github.com/thoughtbot/ex_machina"
-  @version "2.4.0"
+  @version "2.5.0"
 
   def project() do
     [
