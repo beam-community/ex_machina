@@ -7,6 +7,30 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.5.0]
+
+[2.5.0]: https://github.com/thoughtbot/ex_machina/compare/v2.4.0...v2.5.0
+
+### Added
+
+- Allow delayed evaluation of attributes ([#408])
+
+### Fixes
+
+- Fix Elixir 1.11 compiler warnings ([#399])
+- Fix Elixir 1.11 warning by using extra_applications ([#400])
+
+### Docs
+
+- Update references to prior art ([#384])
+- Bump version number in Readme ([#376])
+
+[#376]: https://github.com/thoughtbot/ex_machina/pull/376
+[#384]: https://github.com/thoughtbot/ex_machina/pull/384
+[#399]: https://github.com/thoughtbot/ex_machina/pull/399
+[#400]: https://github.com/thoughtbot/ex_machina/pull/400
+[#408]: https://github.com/thoughtbot/ex_machina/pull/408
+
 ## [2.4.0]
 
 ### Added
