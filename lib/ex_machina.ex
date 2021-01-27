@@ -36,7 +36,7 @@ defmodule ExMachina do
     quote do
       @before_compile unquote(__MODULE__)
 
-      import ExMachina, only: [sequence: 1, sequence: 2, merge_attributes: 2]
+      import ExMachina, only: [sequence: 1, sequence: 2, merge_attributes: 2, evaluate_lazy_attributes: 1]
 
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
