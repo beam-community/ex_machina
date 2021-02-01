@@ -22,7 +22,9 @@ defmodule ExMachina.EctoStrategyTest do
     model = TestFactory.insert(%User{name: "John"})
 
     new_user = ExMachina.TestRepo.one!(User)
-    assert model == new_user
+
+    assert model.id
+    assert model.name == new_user.name
   end
 
   test "insert/1 raises if a map is passed" do
@@ -143,6 +145,47 @@ defmodule ExMachina.EctoStrategyTest do
     article = TestFactory.insert(:article, author: my_user)
 
     assert article.author == my_user
+  end
+
+  test "insert/3 allows options to be passed to the repo" do
+    with_args = TestFactory.insert(:user, [name: "Jane"], returning: true)
+    assert with_args.id
+    assert with_args.name == "Jane"
+    assert with_args.db_value
+
+    without_args = TestFactory.insert(:user, [], returning: true)
+    assert without_args.id
+    assert without_args.db_value
+
+    with_struct = TestFactory.build(:user) |> TestFactory.insert(returning: true)
+    assert with_struct.id
+    assert with_struct.db_value
+
+    without_opts = TestFactory.build(:user) |> TestFactory.insert()
+    assert without_opts.id
+    refute without_opts.db_value
+  end
+
+  test "insert_pair/3 allows options to be passed to the repo" do
+    [with_args | _] = TestFactory.insert_pair(:user, [name: "Jane"], returning: true)
+    assert with_args.id
+    assert with_args.name == "Jane"
+    assert with_args.db_value
+
+    [without_args | _] = TestFactory.insert_pair(:user, [], returning: true)
+    assert without_args.id
+    assert without_args.db_value
+  end
+
+  test "insert_list/4 allows options to be passed to the repo" do
+    [with_args | _] = TestFactory.insert_list(2, :user, [name: "Jane"], returning: true)
+    assert with_args.id
+    assert with_args.name == "Jane"
+    assert with_args.db_value
+
+    [without_args | _] = TestFactory.insert_list(2, :user, [], returning: true)
+    assert without_args.id
+    assert without_args.db_value
   end
 
   test "insert/1 raises a friendly error when casting invalid types" do

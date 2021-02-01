@@ -22,8 +22,8 @@ defmodule ExMachina.EctoStrategy do
 
   def handle_insert(%{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record, %{repo: repo}) do
     record
-    |> cast
-    |> repo.insert!
+    |> cast()
+    |> repo.insert!()
   end
 
   def handle_insert(record, %{repo: _repo}) do
@@ -32,6 +32,16 @@ defmodule ExMachina.EctoStrategy do
 
   def handle_insert(_record, _opts) do
     raise "expected :repo to be given to ExMachina.EctoStrategy"
+  end
+
+  def handle_insert(
+        %{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record,
+        %{repo: repo},
+        insert_options
+      ) do
+    record
+    |> cast()
+    |> repo.insert!(insert_options)
   end
 
   defp cast(record) do

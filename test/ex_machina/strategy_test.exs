@@ -7,6 +7,10 @@ defmodule ExMachina.StrategyTest do
     def handle_json_encode(record, opts) do
       send(self(), {:handle_json_encode, record, opts})
     end
+
+    def handle_json_encode(record, opts, function_opts) do
+      send(self(), {:handle_json_encode, record, opts, function_opts})
+    end
   end
 
   defmodule JsonFactory do
@@ -28,6 +32,7 @@ defmodule ExMachina.StrategyTest do
 
   test "defines functions based on the strategy name" do
     strategy_options = %{foo: :bar, factory_module: JsonFactory}
+    function_options = [encode: true]
 
     JsonFactory.build(:user) |> JsonFactory.json_encode()
     built_user = JsonFactory.build(:user)
@@ -42,6 +47,11 @@ defmodule ExMachina.StrategyTest do
     JsonFactory.json_encode(:user, name: "Jane")
     built_user = JsonFactory.build(:user, name: "Jane")
     assert_received {:handle_json_encode, ^built_user, ^strategy_options}
+    refute_received {:handle_json_encode, _, _}
+
+    JsonFactory.json_encode(:user, [name: "Jane"], function_options)
+    built_user = JsonFactory.build(:user, name: "Jane")
+    assert_received {:handle_json_encode, ^built_user, ^strategy_options, ^function_options}
     refute_received {:handle_json_encode, _, _}
 
     JsonFactory.json_encode_pair(:user)
