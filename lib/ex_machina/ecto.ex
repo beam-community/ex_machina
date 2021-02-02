@@ -56,7 +56,7 @@ defmodule ExMachina.Ecto do
   Builds a factory and inserts it into the database.
 
   The first two arguments are the same as `c:ExMachina.build/2`. The last
-  argument is a set of options that can be passed to Ecto's
+  argument is a set of options that will be passed to Ecto's
   [`Repo.insert!/2`](https://hexdocs.pm/ecto/Ecto.Repo.html#c:insert!/2).
 
   ## Examples
