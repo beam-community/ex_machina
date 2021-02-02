@@ -6,7 +6,7 @@ jobs:
       - image: circleci/elixir:1.7.4
         environment:
           MIX_ENV: test
-      - image: circleci/postgres:9.5
+      - image: circleci/postgres:13
         environment:
           POSTGRES_USER: postgres
           POSTGRES_DB: ex_machina_test
