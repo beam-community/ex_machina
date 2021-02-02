@@ -61,7 +61,7 @@ defmodule ExMachina.Ecto do
 
   ## Examples
 
-      # return values from the database
+      # return all values from the database
       insert(:user, [name: "Jane"], returning: true)
       build(:user, name: "Jane") |> insert(returning: true)
 
