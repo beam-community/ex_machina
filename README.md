@@ -75,8 +75,8 @@ end
 
 # This makes sure your factory and any other modules in test/support are compiled
 # when in the test environment.
-defp elixirc_paths(:test), do: ["lib", "web", "test/support"]
-defp elixirc_paths(_), do: ["lib", "web"]
+defp elixirc_paths(:test), do: ["lib", "test/support"]
+defp elixirc_paths(_), do: ["lib"]
 ```
 
 ## Overview
@@ -446,7 +446,7 @@ change this line in `mix.exs`:
 
 ```elixir
 # Add the folder to the end of the list. In this case we're adding `test/factories`.
-defp elixirc_paths(:test), do: ["lib", "web", "test/support", "test/factories"]
+defp elixirc_paths(:test), do: ["lib", "test/support", "test/factories"]
 ```
 
 ## Custom Strategies
