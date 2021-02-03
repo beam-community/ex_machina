@@ -6,19 +6,26 @@ defmodule ExMachina.Strategy do
 
       defmodule MyApp.JsonEncodeStrategy do
         # The function_name will be used to generate functions in your factory
-        # This example adds json_encode/1, json_encode/2, json_encode_pair/2 and json_encode_list/3
+        # This example adds json_encode/1, json_encode/2, json_encode/3,
+        # json_encode_pair/2 and json_encode_list/3
         use ExMachina.Strategy, function_name: :json_encode
 
         # Define a function for handling the records.
         # Takes the form of "handle_#{function_name}"
-        def handle_json_encode(record, _opts) do
-          Poison.encode!(record)
+        def handle_json_encode(record, %{encoder: encoder}) do
+          encoder.encode!(record)
+        end
+
+        # Optionally, define a function for handling records and taking in
+        # options at the function level
+        def handle_json_encode(record, %{encoder: encoder}, encoding_opts) do
+          encoder.encode!(record, encoding_opts)
         end
       end
 
       defmodule MyApp.JsonFactory do
         use ExMachina
-        use MyApp.JsonEncodeStrategy
+        use MyApp.JsonEncodeStrategy, encoder: Poison
 
         def user_factory do
           %User{name: "John"}
@@ -30,8 +37,9 @@ defmodule ExMachina.Strategy do
 
   The arguments sent to the handling function are
 
-    1) The built record
-    2) The options passed to the strategy
+    1. The built record
+    2. The options passed to the strategy
+    3. The options passed to the function as a third argument
 
   The options sent as the second argument are always converted to a map. The
   options are anything you passed when you `use` your strategy in your factory,
@@ -42,6 +50,13 @@ defmodule ExMachina.Strategy do
 
   See `ExMachina.EctoStrategy` in the ExMachina repo, and the docs for
   `name_from_struct/1` for more examples.
+
+  The options sent as the third argument come directly from the options passed
+  to the function being called. These could be function-level overrides of the
+  options passed when you `use` the strategy, or they could be other
+  customizations needed at the level of the function.
+
+  See `c:ExMachina.Ecto.insert/3` for an example.
   """
 
   @doc false
@@ -56,6 +71,19 @@ defmodule ExMachina.Strategy do
         handle_response_function_name = :"handle_#{function_name}"
 
         quote do
+          def unquote(function_name)(already_built_record, function_opts)
+              when is_map(already_built_record) do
+            opts =
+              Map.new(unquote(opts))
+              |> Map.merge(%{factory_module: __MODULE__})
+
+            apply(
+              unquote(custom_strategy_module),
+              unquote(handle_response_function_name),
+              [already_built_record, opts, function_opts]
+            )
+          end
+
           def unquote(function_name)(already_built_record) when is_map(already_built_record) do
             opts = Map.new(unquote(opts)) |> Map.merge(%{factory_module: __MODULE__})
 
@@ -66,14 +94,37 @@ defmodule ExMachina.Strategy do
             )
           end
 
-          def unquote(function_name)(factory_name, attrs \\ %{}) do
+          def unquote(function_name)(factory_name, attrs, opts) do
+            record = ExMachina.build(__MODULE__, factory_name, attrs)
+
+            unquote(function_name)(record, opts)
+          end
+
+          def unquote(function_name)(factory_name, attrs) do
             record = ExMachina.build(__MODULE__, factory_name, attrs)
 
             unquote(function_name)(record)
           end
 
+          def unquote(function_name)(factory_name) do
+            record = ExMachina.build(__MODULE__, factory_name, %{})
+
+            unquote(function_name)(record)
+          end
+
+          def unquote(:"#{function_name}_pair")(factory_name, attrs, opts) do
+            unquote(:"#{function_name}_list")(2, factory_name, attrs, opts)
+          end
+
           def unquote(:"#{function_name}_pair")(factory_name, attrs \\ %{}) do
             unquote(:"#{function_name}_list")(2, factory_name, attrs)
+          end
+
+          def unquote(:"#{function_name}_list")(number_of_records, factory_name, attrs, opts) do
+            Stream.repeatedly(fn ->
+              unquote(function_name)(factory_name, attrs, opts)
+            end)
+            |> Enum.take(number_of_records)
           end
 
           def unquote(:"#{function_name}_list")(number_of_records, factory_name, attrs \\ %{}) do

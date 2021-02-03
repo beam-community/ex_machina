@@ -6,7 +6,7 @@ defmodule ExMachina.Ecto do
   nice things that make working with Ecto easier.
 
   * It uses `ExMachina.EctoStrategy`, which adds `insert/1`, `insert/2`,
-    `insert_pair/2`, `insert_list/3`.
+  `insert/3` `insert_pair/2`, `insert_list/3`.
   * Adds a `params_for` function that is useful for working with changesets or
     sending params to API endpoints.
 
@@ -51,6 +51,25 @@ defmodule ExMachina.Ecto do
   """
   @callback insert(factory_name :: atom) :: any
   @callback insert(factory_name :: atom, attrs :: keyword | map) :: any
+
+  @doc """
+  Builds a factory and inserts it into the database.
+
+  The first two arguments are the same as `c:ExMachina.build/2`. The last
+  argument is a set of options that will be passed to Ecto's
+  [`Repo.insert!/2`](https://hexdocs.pm/ecto/Ecto.Repo.html#c:insert!/2).
+
+  ## Examples
+
+      # return all values from the database
+      insert(:user, [name: "Jane"], returning: true)
+      build(:user, name: "Jane") |> insert(returning: true)
+
+      # use a different prefix
+      insert(:user, [name: "Jane"], prefix: "other_tenant")
+      build(:user, name: "Jane") |> insert(prefix: "other_tenant")
+  """
+  @callback insert(factory_name :: atom, attrs :: keyword | map, opts :: keyword | map) :: any
 
   @doc """
   Builds two factories and inserts them into the database.
