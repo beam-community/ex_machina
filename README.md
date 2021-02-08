@@ -81,7 +81,7 @@ defp elixirc_paths(_), do: ["lib"]
 
 ## Overview
 
-[Check out the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details.
+[Check out the docs](https://hexdocs.pm/ex_machina/ExMachina.html) for more details.
 
 Define factories:
 
@@ -132,7 +132,7 @@ defmodule MyApp.Factory do
 end
 ```
 
-Using factories ([check out the docs](http://hexdocs.pm/ex_machina/ExMachina.html) for more details):
+Using factories ([check out the docs](https://hexdocs.pm/ex_machina/ExMachina.html) for more details):
 
 ```elixir
 # `attrs` are automatically merged in for all build/insert functions.
@@ -513,5 +513,5 @@ to design, develop, and grow your product.
 
 ## Inspiration
 
-* [Fixtures for Ecto](http://blog.danielberkompas.com/elixir/2015/07/16/fixtures-for-ecto.html)
+* [Fixtures for Ecto](https://blog.danielberkompas.com/elixir/2015/07/16/fixtures-for-ecto.html)
 * [Factory Bot](https://github.com/thoughtbot/factory_bot)
