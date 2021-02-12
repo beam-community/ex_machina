@@ -8,6 +8,7 @@ release_version="${2}"
 sed -i '' "s/$previous_version/$release_version/" README.md
 sed -i '' "s/$previous_version/$release_version/" mix.exs
 
+git add .
 git commit -m "Release version $release_version"
 git tag "v$release_version"
 git push origin "v$release_version"
