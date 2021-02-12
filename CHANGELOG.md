@@ -7,6 +7,28 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.6.0]
+
+[2.6.0]: https://github.com/thoughtbot/ex_machina/compare/v2.5.0...v2.6.0
+
+### Added
+
+- Pass opts to Repo.insert! (add function-level opts to strategies) ([#411])
+
+### Fixes/Improvements
+
+- Import evaluate_lazy_attributes for ExMachina ([#410])
+
+### Docs
+
+- Use HTTPS for links in README ([#413])
+- Remove "web" dir from README.md ([#412])
+
+[#413]: https://github.com/thoughtbot/ex_machina/pull/413
+[#412]: https://github.com/thoughtbot/ex_machina/pull/412
+[#411]: https://github.com/thoughtbot/ex_machina/pull/411
+[#410]: https://github.com/thoughtbot/ex_machina/pull/410
+
 ## [2.5.0]
 
 [2.5.0]: https://github.com/thoughtbot/ex_machina/compare/v2.4.0...v2.5.0
