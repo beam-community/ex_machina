@@ -70,6 +70,12 @@ defmodule ExMachinaTest do
       %{floor: floor_number} = attrs
       sequence(:room_number, &"#{floor_number}0#{&1}")
     end
+
+    def money_factory do
+      %{
+        cents: sequence(:cents, &"#{&1}", start_at: 600)
+      }
+    end
   end
 
   describe "sequence" do
@@ -81,6 +87,11 @@ defmodule ExMachinaTest do
     test "sequence/1 shortcut for creating sequences" do
       assert "Post Title0" == Factory.build(:article).title
       assert "Post Title1" == Factory.build(:article).title
+    end
+
+    test "sequence/3 allows for setting a starting value" do
+      assert "600" == Factory.build(:money).cents
+      assert "601" == Factory.build(:money).cents
     end
   end
 

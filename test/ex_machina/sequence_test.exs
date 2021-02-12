@@ -26,6 +26,11 @@ defmodule ExMachina.SequenceTest do
     assert 1 == Sequence.next(:month, & &1)
   end
 
+  test "can optionally set starting integer" do
+    assert "100" == Sequence.next(:dollars_in_cents, &"#{&1}", start_at: 100)
+    assert "101" == Sequence.next(:dollars_in_cents, &"#{&1}")
+  end
+
   test "let's you quickly create sequences" do
     assert "Comment Body0" == Sequence.next("Comment Body")
     assert "Comment Body1" == Sequence.next("Comment Body")
