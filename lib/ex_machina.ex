@@ -37,7 +37,13 @@ defmodule ExMachina do
       @before_compile unquote(__MODULE__)
 
       import ExMachina,
-        only: [sequence: 1, sequence: 2, merge_attributes: 2, evaluate_lazy_attributes: 1]
+        only: [
+          sequence: 1,
+          sequence: 2,
+          sequence: 3,
+          merge_attributes: 2,
+          evaluate_lazy_attributes: 1
+        ]
 
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
@@ -142,9 +148,24 @@ defmodule ExMachina do
         }
       end
   """
-
   @spec sequence(any, (integer -> any) | nonempty_list) :: any
   def sequence(name, formatter), do: ExMachina.Sequence.next(name, formatter)
+
+  @doc """
+  Similar to `sequence/2` but it allows for passing a `start_at` option
+  to the sequence generation.
+
+  ## Examples
+
+      def user_factory do
+        %{
+          # Will generate "me-100@foo.com" then "me-101@foo.com", etc.
+          email: sequence(:email, &"me-\#{&1}@foo.com", start_at: 100),
+        }
+      end
+  """
+  @spec sequence(any, (integer -> any) | nonempty_list, start_at: non_neg_integer) :: any
+  def sequence(name, formatter, opts), do: ExMachina.Sequence.next(name, formatter, opts)
 
   @doc """
   Builds a single factory.

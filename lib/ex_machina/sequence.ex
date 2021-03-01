@@ -116,9 +116,11 @@ defmodule ExMachina.Sequence do
   end
 
   @doc false
-  def next(sequence_name, formatter) do
+  def next(sequence_name, formatter, opts \\ []) do
+    start_at = Keyword.get(opts, :start_at, 0)
+
     Agent.get_and_update(__MODULE__, fn sequences ->
-      current_value = Map.get(sequences, sequence_name, 0)
+      current_value = Map.get(sequences, sequence_name, start_at)
       new_sequences = Map.put(sequences, sequence_name, current_value + 1)
       {formatter.(current_value), new_sequences}
     end)
