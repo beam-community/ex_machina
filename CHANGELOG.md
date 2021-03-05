@@ -7,6 +7,16 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.7.0]
+
+[2.7.0]: https://github.com/thoughtbot/ex_machina/compare/v2.6.0...v2.7.0
+
+### Added
+
+- Allow setting sequence starting point (#414)
+
+[#414]: https://github.com/thoughtbot/ex_machina/pull/414
+
 ## [2.6.0]
 
 [2.6.0]: https://github.com/thoughtbot/ex_machina/compare/v2.5.0...v2.6.0
