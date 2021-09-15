@@ -261,6 +261,18 @@ defmodule ExMachina.EctoTest do
                %{"url" => "https://github.com", "rating" => 4}
              ]
     end
+
+    test "string_params_for/2 converts map with datetime as expected" do
+      published_at = DateTime.utc_now();
+      article_params = TestFactory.string_params_for(:article, published_at: published_at)
+      assert article_params["published_at"] == published_at
+    end
+
+    test "string_params_for/2 converts map with naive datetime as expected" do
+      published_at = ~N[2000-01-01 23:00:07]
+      article_params = TestFactory.string_params_for(:article, published_at: published_at)
+      assert article_params["published_at"] == published_at
+    end
   end
 
   describe "params_with_assocs/2" do

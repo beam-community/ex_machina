@@ -2,6 +2,15 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
+# By default, ExMachina will convert datetime values to a map with string
+# keys such as
+# %{ "calendar" => Calendar.ISO, "day" => 4, "hour" => 17, "microsecond" => {657863, 6}, "minute" => 25, "month" => 8, "second" => 42, "std_offset" => 0, "time_zone" => "Etc/UTC", "utc_offset" => 0, "year" => 2019, "zone_abbr" => "UTC" }
+# If you would like the date values to be preserved, you can set the following
+# config value. This may be made the default in the future but is a breaking change.
+#
+# config :ex_machina, preserve_dates: true
+#
+#
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,

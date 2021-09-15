@@ -1,5 +1,7 @@
 use Mix.Config
 
+config :ex_machina, preserve_dates: true
+
 config :ex_machina, ExMachina.TestRepo,
   hostname: "localhost",
   database: "ex_machina_test",
