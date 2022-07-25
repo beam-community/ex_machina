@@ -30,7 +30,7 @@ defmodule ExMachina.Sequence do
 
       ExMachina.Sequence.reset()
 
-      ExMachina.Sequence.next("alphabet_sequence"["A", "B"]) # resets so the return value is "A"
+      ExMachina.Sequence.next("alphabet_sequence", ["A", "B"]) # resets so the return value is "A"
 
   If you want to reset sequences at the beginning of every test, put it in a
   `setup` block in your test.
