@@ -40,6 +40,7 @@ defmodule ExMachina.TestRepo.Migrations.MigrateAll do
       add(:editor_id, :integer)
       add(:publisher_id, :integer)
       add(:visits, :decimal)
+      add(:published_at, :utc_datetime)
     end
 
     create table(:comments) do

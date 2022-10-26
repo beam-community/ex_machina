@@ -4,6 +4,7 @@ defmodule ExMachina.Article do
   schema "articles" do
     field(:title, :string)
     field(:visits, :decimal)
+    field(:published_at, :utc_datetime)
 
     belongs_to(:author, ExMachina.User)
     belongs_to(:editor, ExMachina.User)
