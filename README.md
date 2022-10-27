@@ -1,5 +1,8 @@
 # ExMachina
 
+[![Package](https://img.shields.io/hexpm/v/ex_machina.svg)](https://hex.pm/packages/ex_machina)
+[![Documentation](http://img.shields.io/badge/hex.pm-docs-green.svg?style=flat)](https://hexdocs.pm/ex_machina)
+[![Total Downloads](https://img.shields.io/hexpm/dt/ex_machina.svg)](https://hex.pm/packages/ex_machina)
 [![Circle CI](https://circleci.com/gh/thoughtbot/ex_machina.svg?style=svg&circle-token=fea4685d4951936734e764796c4b37c3686cdab3)](https://circleci.com/gh/thoughtbot/ex_machina)
 
 **ExMachina is part of the [thoughtbot Elixir family][elixir-phoenix] of projects.**
