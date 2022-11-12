@@ -263,7 +263,7 @@ defmodule ExMachina.EctoTest do
     end
 
     test "string_params_for/2 converts map with datetime as expected" do
-      published_at = DateTime.utc_now();
+      published_at = DateTime.utc_now()
       article_params = TestFactory.string_params_for(:article, published_at: published_at)
       assert article_params["published_at"] == published_at
     end
