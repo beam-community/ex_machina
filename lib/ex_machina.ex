@@ -231,11 +231,19 @@ defmodule ExMachina do
     function_name = build_function_name(factory_name)
 
     cond do
-      factory_accepting_attributes_defined?(module, function_name) ->
+      function_defined?(module: module, name: function_name, arity: 1) ->
         apply(module, function_name, [attrs])
 
-      factory_without_attributes_defined?(module, function_name) ->
+      function_defined?(module: module, name: function_name, arity: 0) ->
         apply(module, function_name, [])
+        |> merge_attributes(attrs)
+        |> evaluate_lazy_attributes()
+
+      function_defined?(module: module, name: :construct, arity: 2) ->
+        apply(module, :construct, [factory_name, attrs])
+
+      function_defined?(module: module, name: :construct, arity: 1) ->
+        apply(module, :construct, [factory_name])
         |> merge_attributes(attrs)
         |> evaluate_lazy_attributes()
 
@@ -251,12 +259,8 @@ defmodule ExMachina do
     |> String.to_atom()
   end
 
-  defp factory_accepting_attributes_defined?(module, function_name) do
-    Code.ensure_loaded?(module) && function_exported?(module, function_name, 1)
-  end
-
-  defp factory_without_attributes_defined?(module, function_name) do
-    Code.ensure_loaded?(module) && function_exported?(module, function_name, 0)
+  defp function_defined?(module: module, name: function_name, arity: arity) do
+    Code.ensure_loaded?(module) && function_exported?(module, function_name, arity)
   end
 
   @doc """
