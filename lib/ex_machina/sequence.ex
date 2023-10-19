@@ -6,8 +6,10 @@ defmodule ExMachina.Sequence do
   sequential values instead of calling this module directly.
   """
 
+  use Agent
+
   @doc false
-  def start_link do
+  def start_link(_) do
     Agent.start_link(fn -> Map.new() end, name: __MODULE__)
   end
 
