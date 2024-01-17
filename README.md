@@ -382,6 +382,15 @@ defmodule MyApp.VideoFactory do
 end
 ```
 
+If you place your factories outside of `test/support` make sure they will compile by adding that directory to the compilation paths in your `mix.exs` file. For example for the `test/factories` files above you would modify your file like so:
+
+```elixir
+# ./mix.exs
+...
+  defp elixirc_paths(:test), do: ["lib", "test/factories", "test/support"]
+...
+```
+
 ## Ecto
 
 ### Ecto Associations
