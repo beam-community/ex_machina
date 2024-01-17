@@ -36,12 +36,11 @@ defmodule ExMachina.Mixfile do
       {:ecto_sql, "~> 3.0", optional: true},
 
       # Dev and Test dependencies
-      {:credo, "~> 1.6", only: :test, runtime: false},
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:doctor, "~> 0.21.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.17.1", only: :test},
       {:ex_doc, "~> 0.28", only: [:dev, :test], runtime: false},
-      {:jason, "~> 1.0", only: :test},
       {:postgrex, "~> 0.17", only: :test}
     ]
   end
