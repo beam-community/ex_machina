@@ -8,4 +8,4 @@ config :ex_machina, ExMachina.TestRepo,
   pool: Ecto.Adapters.SQL.Sandbox,
   username: "postgres"
 
-config :logger, level: :warn
+config :logger, level: :warning
