@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :ex_machina, preserve_dates: true
 
