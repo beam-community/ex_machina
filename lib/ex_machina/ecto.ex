@@ -354,11 +354,15 @@ defmodule ExMachina.Ecto do
   end
 
   defp convert_atom_keys_to_strings(%NaiveDateTime{} = value) do
-    if Application.get_env(:ex_machina, :preserve_dates, false), do: value, else: Map.from_struct(value) |> convert_atom_keys_to_strings()
+    if Application.get_env(:ex_machina, :preserve_dates, false),
+      do: value,
+      else: Map.from_struct(value) |> convert_atom_keys_to_strings()
   end
 
   defp convert_atom_keys_to_strings(%DateTime{} = value) do
-    if Application.get_env(:ex_machina, :preserve_dates, false), do: value, else: Map.from_struct(value) |> convert_atom_keys_to_strings()
+    if Application.get_env(:ex_machina, :preserve_dates, false),
+      do: value,
+      else: Map.from_struct(value) |> convert_atom_keys_to_strings()
   end
 
   defp convert_atom_keys_to_strings(%{__struct__: _} = record) when is_map(record) do
