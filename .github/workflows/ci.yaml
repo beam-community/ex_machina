@@ -1,0 +1,106 @@
+# This file is synced with beam-community/common-config. Any changes will be overwritten.
+
+name: CI
+
+on:
+  merge_group:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  push:
+    branches:
+      - main
+  workflow_call:
+    secrets:
+      GH_PERSONAL_ACCESS_TOKEN:
+        required: true
+  workflow_dispatch:
+
+concurrency:
+  group: CI ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  Credo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: stordco/actions-elixir/setup@v1
+        with:
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+
+      - name: Credo
+        run: mix credo --strict
+
+  Dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: stordco/actions-elixir/setup@v1
+        with:
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+
+      - name: Unused
+        run: mix deps.unlock --check-unused
+
+  Dialyzer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: stordco/actions-elixir/setup@v1
+        with:
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+
+      - name: Dialyzer
+        run: mix dialyzer --format github
+
+  Format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: stordco/actions-elixir/setup@v1
+        with:
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+
+      - name: Format
+        run: mix format --check-formatted
+
+  Test:
+    runs-on: ubuntu-latest
+
+    env:
+      MIX_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: stordco/actions-elixir/setup@v1
+        with:
+          github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+
+      - name: Compile
+        run: mix compile --warnings-as-errors
+
+      - name: Test
+        run: mix test
+
