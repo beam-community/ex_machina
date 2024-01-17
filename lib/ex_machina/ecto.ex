@@ -211,7 +211,7 @@ defmodule ExMachina.Ecto do
     |> convert_atom_keys_to_strings
   end
 
-  defp recursively_strip(record = %{__struct__: _}) do
+  defp recursively_strip(%{__struct__: _} = record) do
     record
     |> set_persisted_belongs_to_ids
     |> handle_assocs
@@ -222,7 +222,7 @@ defmodule ExMachina.Ecto do
 
   defp recursively_strip(record), do: record
 
-  defp handle_assocs(record = %{__struct__: struct}) do
+  defp handle_assocs(%{__struct__: struct} = record) do
     Enum.reduce(struct.__schema__(:associations), record, fn association_name, record ->
       case struct.__schema__(:association, association_name) do
         %{__struct__: Ecto.Association.BelongsTo} ->
@@ -254,7 +254,7 @@ defmodule ExMachina.Ecto do
     end
   end
 
-  defp handle_embeds(record = %{__struct__: struct}) do
+  defp handle_embeds(%{__struct__: struct} = record) do
     Enum.reduce(struct.__schema__(:embeds), record, fn embed_name, record ->
       record
       |> Map.get(embed_name)
@@ -277,7 +277,7 @@ defmodule ExMachina.Ecto do
     end
   end
 
-  defp set_persisted_belongs_to_ids(record = %{__struct__: struct}) do
+  defp set_persisted_belongs_to_ids(%{__struct__: struct} = record) do
     Enum.reduce(struct.__schema__(:associations), record, fn association_name, record ->
       association = struct.__schema__(:association, association_name)
 
@@ -302,7 +302,7 @@ defmodule ExMachina.Ecto do
     Map.put(record, association.owner_key, primary_key)
   end
 
-  defp insert_belongs_to_assocs(record = %{__struct__: struct}, module) do
+  defp insert_belongs_to_assocs(%{__struct__: struct} = record, module) do
     Enum.reduce(struct.__schema__(:associations), record, fn association_name, record ->
       case struct.__schema__(:association, association_name) do
         association = %{__struct__: Ecto.Association.BelongsTo} ->
@@ -326,7 +326,7 @@ defmodule ExMachina.Ecto do
   end
 
   @doc false
-  def drop_ecto_fields(record = %{__struct__: struct}) do
+  def drop_ecto_fields(%{__struct__: struct} = record) do
     record
     |> Map.from_struct()
     |> Map.delete(:__meta__)
