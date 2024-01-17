@@ -1,56 +1,70 @@
 defmodule ExMachina.Mixfile do
   use Mix.Project
 
-  @project_url "https://github.com/thoughtbot/ex_machina"
-  @version "2.7.0"
-
-  def project() do
+  def project do
     [
       app: :ex_machina,
-      version: @version,
-      elixir: ">= 1.4.0",
       description: "A factory library by the creators of FactoryBot (née FactoryGirl)",
-      source_url: @project_url,
-      homepage_url: @project_url,
+      version: "2.7.0",
+      elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
-      build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      docs: docs(),
       package: package(),
-      docs: [main: "readme", extras: ["README.md"]],
-      deps: deps()
+      source_url: "https://github.com/beam-community/ex_machina",
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.html": :test,
+        "coveralls.circle": :test
+      ]
     ]
   end
 
-  def application() do
+  def application do
     [
       extra_applications: [:logger],
       mod: {ExMachina, []}
     ]
   end
 
-  defp deps() do
+  defp deps do
     [
-      {:ex_doc, "~> 0.14", only: :dev},
-      {:earmark, ">= 0.0.0", only: :dev},
       {:ecto, "~> 2.2 or ~> 3.0", optional: true},
       {:ecto_sql, "~> 3.0", optional: true},
+
+      # Dev and Test dependencies
+      {:credo, "~> 1.6", only: :test, runtime: false},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:doctor, "~> 0.21.0", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.17.1", only: :test},
+      {:ex_doc, "~> 0.28", only: [:dev, :test], runtime: false},
       {:jason, "~> 1.0", only: :test},
-      {:postgrex, "~> 0.14.0", only: :test}
+      {:postgrex, "~> 0.17", only: :test}
     ]
   end
 
-  defp package() do
+  defp docs do
     [
-      maintainers: ["German Velasco"],
+      extras: ["README.md", "CHANGELOG.md", "LICENSE.md"],
+      main: "readme"
+    ]
+  end
+
+  defp package do
+    [
+      maintainers: ["BEAM Community"],
+      files: ~w(lib mix.exs .formatter.exs README.md CHANGELOG.md LICENSE.md),
       licenses: ["MIT"],
       links: %{
-        "GitHub" => @project_url,
-        "Made by thoughtbot" => "https://thoughtbot.com/services/elixir-phoenix"
+        Changelog: "https://github.com/beam-community/ex_machina/releases",
+        GitHub: "https://github.com/beam-community/ex_machina"
       }
     ]
   end
 
-  defp elixirc_paths(:test), do: elixirc_paths() ++ ["test/support"]
-  defp elixirc_paths(_), do: elixirc_paths()
-  defp elixirc_paths(), do: ["lib"]
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end
