@@ -1,0 +1,39 @@
+{
+  "$comment": "This file is synced with beam-community/common-config. Any changes will be overwritten.",
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "changelog-sections": [
+    {
+      "type": "feat",
+      "section": "Features",
+      "hidden": false
+    },
+    {
+      "type": "fix",
+      "section": "Bug Fixes",
+      "hidden": false
+    },
+    {
+      "type": "chore",
+      "section": "Miscellaneous",
+      "hidden": false
+    }
+  ],
+  "draft": false,
+  "draft-pull-request": false,
+  "packages": {
+    ".": {
+      "extra-files": [
+        "README.md"
+      ],
+      "release-type": "elixir"
+    }
+  },
+  "plugins": [
+    {
+      "type": "sentence-case"
+    }
+  ],
+  "prerelease": false,
+  "pull-request-header": "An automated release has been created for you.",
+  "separate-pull-requests": true
+}

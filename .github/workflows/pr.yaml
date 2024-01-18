@@ -1,0 +1,35 @@
+# This file is synced with beam-community/common-config. Any changes will be overwritten.
+
+name: PR
+
+on:
+  merge_group:
+  pull_request:
+    types:
+      - edited
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  Title:
+    if: ${{ github.event_name == 'pull_request' }}
+    name: Check Title
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check
+        uses: stordco/actions-pr-title@v1.0.0
+        with:
+          regex: '^(feat!|fix!|fix|feat|chore)(\(\w+\))?:\s(\[#\d{1,5}\])?.*$'
+          hint: |
+            Your PR title does not match the Conventional Commits convention. Please rename your PR to match one of the following formats:
+
+            fix: [#123] some title of the PR
+            fix(scope): [#123] some title of the PR
+            feat: [#1234] some title of the PR
+            chore: update some action
+
+            Note: Adding ! (i.e. `feat!:`) represents a breaking change and will result in a SemVer major release.
+
+            See https://www.conventionalcommits.org/en/v1.0.0/ for more information.

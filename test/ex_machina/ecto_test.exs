@@ -53,7 +53,7 @@ defmodule ExMachina.EctoTest do
 
   describe "insert/2 insert_pair/2 insert_list/3" do
     test "insert, insert_pair and insert_list inserts records" do
-      assert %User{} = TestFactory.build(:user) |> TestFactory.insert()
+      assert %User{} = :user |> TestFactory.build() |> TestFactory.insert()
       assert %User{} = TestFactory.insert(:user)
       assert %User{} = TestFactory.insert(:user, admin: true)
 
@@ -324,6 +324,6 @@ defmodule ExMachina.EctoTest do
   end
 
   defp has_association_in_schema?(model, association_name) do
-    Enum.member?(model.__schema__(:associations), association_name)
+    :associations |> model.__schema__() |> Enum.member?(association_name)
   end
 end

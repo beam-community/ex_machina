@@ -1,0 +1,15 @@
+# This file is synced with beam-community/common-config. Any changes will be overwritten.
+
+name: Production
+
+on:
+  release:
+    types:
+      - released
+      - prereleased
+  workflow_dispatch:
+
+concurrency:
+  group: Production
+
+jobs:
