@@ -1,3 +1,4 @@
+# credo:disable-for-this-file Credo.Check.Warning.UnsafeToAtom
 defmodule ExMachina.Strategy do
   @moduledoc ~S"""
   Module for making new strategies for working with factories
@@ -74,7 +75,8 @@ defmodule ExMachina.Strategy do
           def unquote(function_name)(already_built_record, function_opts)
               when is_map(already_built_record) do
             opts =
-              Map.new(unquote(opts))
+              unquote(opts)
+              |> Map.new()
               |> Map.merge(%{factory_module: __MODULE__})
 
             apply(
@@ -85,7 +87,7 @@ defmodule ExMachina.Strategy do
           end
 
           def unquote(function_name)(already_built_record) when is_map(already_built_record) do
-            opts = Map.new(unquote(opts)) |> Map.merge(%{factory_module: __MODULE__})
+            opts = unquote(opts) |> Map.new() |> Map.merge(%{factory_module: __MODULE__})
 
             apply(
               unquote(custom_strategy_module),
@@ -121,17 +123,21 @@ defmodule ExMachina.Strategy do
           end
 
           def unquote(:"#{function_name}_list")(number_of_records, factory_name, attrs, opts) do
-            Stream.repeatedly(fn ->
-              unquote(function_name)(factory_name, attrs, opts)
-            end)
-            |> Enum.take(number_of_records)
+            stream =
+              Stream.repeatedly(fn ->
+                unquote(function_name)(factory_name, attrs, opts)
+              end)
+
+            Enum.take(stream, number_of_records)
           end
 
           def unquote(:"#{function_name}_list")(number_of_records, factory_name, attrs \\ %{}) do
-            Stream.repeatedly(fn ->
-              unquote(function_name)(factory_name, attrs)
-            end)
-            |> Enum.take(number_of_records)
+            stream =
+              Stream.repeatedly(fn ->
+                unquote(function_name)(factory_name, attrs)
+              end)
+
+            Enum.take(stream, number_of_records)
           end
         end
       end
