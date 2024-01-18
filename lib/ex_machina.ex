@@ -16,7 +16,12 @@ defmodule ExMachina do
   @callback build_pair(factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc false
-  def start(_type, _args), do: ExMachina.Sequence.start_link()
+  def start(_type, _args) do
+    Supervisor.start_link([ExMachina.Sequence],
+      strategy: :one_for_one,
+      name: __MODULE__.Supervisor
+    )
+  end
 
   defmacro __using__(_opts) do
     quote do
