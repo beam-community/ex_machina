@@ -84,6 +84,8 @@ jobs:
         run: mix format --check-formatted
 
   Test:
+    name: Test (Elixir ${{ matrix.versions.elixir }} OTP ${{ matrix.versions.otp }})
+
     runs-on: ubuntu-latest
 
     env:
@@ -106,11 +108,24 @@ jobs:
       - name: Setup Elixir
         uses: stordco/actions-elixir/setup@v1
         with:
+          elixir-version: ${{ matrix.versions.elixir }}
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          otp-version: ${{ matrix.versions.otp }}
 
       - name: Compile
         run: mix compile --warnings-as-errors
 
       - name: Test
         run: mix test
+
+    strategy:
+      fail-fast: false
+      matrix:
+        versions:
+          - elixir: 1.13
+            otp: 25
+          - elixir: 1.14
+            otp: 25
+          - elixir: 1.15
+            otp: 26
 
