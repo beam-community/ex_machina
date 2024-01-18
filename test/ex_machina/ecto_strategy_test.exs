@@ -157,11 +157,11 @@ defmodule ExMachina.EctoStrategyTest do
     assert without_args.id
     assert without_args.db_value
 
-    with_struct = TestFactory.build(:user) |> TestFactory.insert(returning: true)
+    with_struct = :user |> TestFactory.build() |> TestFactory.insert(returning: true)
     assert with_struct.id
     assert with_struct.db_value
 
-    without_opts = TestFactory.build(:user) |> TestFactory.insert()
+    without_opts = :user |> TestFactory.build() |> TestFactory.insert()
     assert without_opts.id
     refute without_opts.db_value
   end
@@ -200,7 +200,7 @@ defmodule ExMachina.EctoStrategyTest do
     message = ~r/You called `insert` on a record that has already been inserted./
 
     assert_raise RuntimeError, message, fn ->
-      TestFactory.insert(:user, name: "Maximus") |> TestFactory.insert()
+      :user |> TestFactory.insert(name: "Maximus") |> TestFactory.insert()
     end
   end
 end

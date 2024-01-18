@@ -235,7 +235,8 @@ defmodule ExMachina do
         apply(module, function_name, [attrs])
 
       factory_without_attributes_defined?(module, function_name) ->
-        apply(module, function_name, [])
+        module
+        |> apply(function_name, [])
         |> merge_attributes(attrs)
         |> evaluate_lazy_attributes()
 
@@ -248,6 +249,7 @@ defmodule ExMachina do
     factory_name
     |> Atom.to_string()
     |> Kernel.<>("_factory")
+    # credo:disable-for-next-line Credo.Check.Warning.UnsafeToAtom
     |> String.to_atom()
   end
 
@@ -365,10 +367,12 @@ defmodule ExMachina do
 
   @doc false
   def build_list(module, number_of_records, factory_name, attrs \\ %{}) do
-    Stream.repeatedly(fn ->
-      ExMachina.build(module, factory_name, attrs)
-    end)
-    |> Enum.take(number_of_records)
+    stream =
+      Stream.repeatedly(fn ->
+        ExMachina.build(module, factory_name, attrs)
+      end)
+
+    Enum.take(stream, number_of_records)
   end
 
   defmacro __before_compile__(_env) do
