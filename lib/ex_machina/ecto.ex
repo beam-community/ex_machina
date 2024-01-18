@@ -275,18 +275,10 @@ defmodule ExMachina.Ecto do
     Enum.reduce(associations, record, fn association_name, record ->
       association = struct.__schema__(:association, association_name)
 
-      case association do
-        %{__struct__: Ecto.Association.BelongsTo} ->
-          case Map.get(record, association_name) do
-            belongs_to = %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :loaded}} ->
-              set_belongs_to_primary_key(record, belongs_to, association)
-
-            _ ->
-              record
-          end
-
-        _ ->
-          record
+      with %{__struct__: Ecto.Association.BelongsTo} <- association,
+           %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :loaded}} = belongs_to <-
+             Map.get(record, association_name) do
+        set_belongs_to_primary_key(record, belongs_to, association)
       end
     end)
   end
