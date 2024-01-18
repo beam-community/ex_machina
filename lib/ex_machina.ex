@@ -4,30 +4,16 @@ defmodule ExMachina do
 
   In depth examples are in the [README](readme.html)
   """
-
-  defmodule UndefinedFactoryError do
-    @moduledoc """
-    Error raised when trying to build or create a factory that is undefined.
-    """
-
-    defexception [:message]
-
-    def exception(factory_name) do
-      message = """
-      No factory defined for #{inspect(factory_name)}.
-
-      Please check for typos or define your factory:
-
-          def #{factory_name}_factory do
-            ...
-          end
-      """
-
-      %UndefinedFactoryError{message: message}
-    end
-  end
-
   use Application
+
+  alias ExMachina.UndefinedFactoryError
+
+  @callback build(factory_name :: atom) :: any
+  @callback build(factory_name :: atom, attrs :: keyword | map) :: any
+  @callback build_list(number_of_records :: integer, factory_name :: atom) :: list
+  @callback build_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) :: list
+  @callback build_pair(factory_name :: atom) :: list
+  @callback build_pair(factory_name :: atom, attrs :: keyword | map) :: list
 
   @doc false
   def start(_type, _args), do: ExMachina.Sequence.start_link()
@@ -44,6 +30,8 @@ defmodule ExMachina do
           merge_attributes: 2,
           evaluate_lazy_attributes: 1
         ]
+
+      alias ExMachina.UndefinedFactoryError
 
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
@@ -221,10 +209,6 @@ defmodule ExMachina do
       # Returns %Article{title: "hello world", slug: "hello-world"}
       build(:article, title: "hello world")
   """
-  @callback build(factory_name :: atom) :: any
-  @callback build(factory_name :: atom, attrs :: keyword | map) :: any
-
-  @doc false
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
 
@@ -345,10 +329,6 @@ defmodule ExMachina do
       # Returns a list of 2 users
       build_pair(:user)
   """
-  @callback build_pair(factory_name :: atom) :: list
-  @callback build_pair(factory_name :: atom, attrs :: keyword | map) :: list
-
-  @doc false
   def build_pair(module, factory_name, attrs \\ %{}) do
     ExMachina.build_list(module, 2, factory_name, attrs)
   end
@@ -361,11 +341,6 @@ defmodule ExMachina do
       # Returns a list of 3 users
       build_list(3, :user)
   """
-  @callback build_list(number_of_records :: integer, factory_name :: atom) :: list
-  @callback build_list(number_of_records :: integer, factory_name :: atom, attrs :: keyword | map) ::
-              list
-
-  @doc false
   def build_list(module, number_of_records, factory_name, attrs \\ %{}) do
     stream =
       Stream.repeatedly(fn ->

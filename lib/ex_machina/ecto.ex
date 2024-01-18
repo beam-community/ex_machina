@@ -12,43 +12,7 @@ defmodule ExMachina.Ecto do
 
   More in-depth examples are in the [README](readme.html).
   """
-  defmacro __using__(opts) do
-    verify_ecto_dep()
 
-    quote do
-      use ExMachina
-      use ExMachina.EctoStrategy, repo: unquote(Keyword.get(opts, :repo))
-
-      def params_for(factory_name, attrs \\ %{}) do
-        ExMachina.Ecto.params_for(__MODULE__, factory_name, attrs)
-      end
-
-      def string_params_for(factory_name, attrs \\ %{}) do
-        ExMachina.Ecto.string_params_for(__MODULE__, factory_name, attrs)
-      end
-
-      def params_with_assocs(factory_name, attrs \\ %{}) do
-        ExMachina.Ecto.params_with_assocs(__MODULE__, factory_name, attrs)
-      end
-
-      def string_params_with_assocs(factory_name, attrs \\ %{}) do
-        ExMachina.Ecto.string_params_with_assocs(__MODULE__, factory_name, attrs)
-      end
-    end
-  end
-
-  defp verify_ecto_dep do
-    unless Code.ensure_loaded?(Ecto) do
-      raise "You tried to use ExMachina.Ecto, but the Ecto module is not loaded. " <>
-              "Please add ecto to your dependencies."
-    end
-  end
-
-  @doc """
-  Builds a factory and inserts it into the database.
-
-  The arguments are the same as `c:ExMachina.build/2`.
-  """
   @callback insert(factory_name :: atom) :: any
   @callback insert(factory_name :: atom, attrs :: keyword | map) :: any
 
@@ -121,13 +85,6 @@ defmodule ExMachina.Ecto do
   @callback params_for(factory_name :: atom) :: %{optional(atom) => any}
   @callback params_for(factory_name :: atom, attrs :: keyword | map) :: %{optional(atom) => any}
 
-  @doc false
-  def params_for(module, factory_name, attrs \\ %{}) do
-    factory_name
-    |> module.build(attrs)
-    |> recursively_strip
-  end
-
   @doc """
   Similar to `c:params_for/2` but converts atom keys to strings in returned map.
 
@@ -148,13 +105,6 @@ defmodule ExMachina.Ecto do
               optional(String.t()) => any
             }
 
-  @doc false
-  def string_params_for(module, factory_name, attrs \\ %{}) do
-    module
-    |> params_for(factory_name, attrs)
-    |> convert_atom_keys_to_strings
-  end
-
   @doc """
   Similar to `c:params_for/2` but inserts all `belongs_to` associations and
   sets the foreign keys.
@@ -174,15 +124,6 @@ defmodule ExMachina.Ecto do
   @callback params_with_assocs(factory_name :: atom, attrs :: keyword | map) :: %{
               optional(atom) => any
             }
-
-  @doc false
-  def params_with_assocs(module, factory_name, attrs \\ %{}) do
-    factory_name
-    |> module.build(attrs)
-    |> insert_belongs_to_assocs(module)
-    |> recursively_strip
-  end
-
   @doc """
   Similar to `c:params_with_assocs/2` but converts atom keys to strings in
   returned map.
@@ -204,6 +145,53 @@ defmodule ExMachina.Ecto do
               optional(String.t()) => any
             }
 
+  defmacro __using__(opts) do
+    verify_ecto_dep()
+
+    quote do
+      use ExMachina
+      use ExMachina.EctoStrategy, repo: unquote(Keyword.get(opts, :repo))
+
+      def params_for(factory_name, attrs \\ %{}) do
+        ExMachina.Ecto.params_for(__MODULE__, factory_name, attrs)
+      end
+
+      def string_params_for(factory_name, attrs \\ %{}) do
+        ExMachina.Ecto.string_params_for(__MODULE__, factory_name, attrs)
+      end
+
+      def params_with_assocs(factory_name, attrs \\ %{}) do
+        ExMachina.Ecto.params_with_assocs(__MODULE__, factory_name, attrs)
+      end
+
+      def string_params_with_assocs(factory_name, attrs \\ %{}) do
+        ExMachina.Ecto.string_params_with_assocs(__MODULE__, factory_name, attrs)
+      end
+    end
+  end
+
+  @doc false
+  def params_for(module, factory_name, attrs \\ %{}) do
+    factory_name
+    |> module.build(attrs)
+    |> recursively_strip
+  end
+
+  @doc false
+  def string_params_for(module, factory_name, attrs \\ %{}) do
+    module
+    |> params_for(factory_name, attrs)
+    |> convert_atom_keys_to_strings
+  end
+
+  @doc false
+  def params_with_assocs(module, factory_name, attrs \\ %{}) do
+    factory_name
+    |> module.build(attrs)
+    |> insert_belongs_to_assocs(module)
+    |> recursively_strip
+  end
+
   @doc false
   def string_params_with_assocs(module, factory_name, attrs \\ %{}) do
     module
@@ -223,7 +211,9 @@ defmodule ExMachina.Ecto do
   defp recursively_strip(record), do: record
 
   defp handle_assocs(%{__struct__: struct} = record) do
-    Enum.reduce(struct.__schema__(:associations), record, fn association_name, record ->
+    associations = struct.__schema__(:associations)
+
+    Enum.reduce(associations, record, fn association_name, record ->
       case struct.__schema__(:association, association_name) do
         %{__struct__: Ecto.Association.BelongsTo} ->
           Map.delete(record, association_name)
@@ -255,7 +245,9 @@ defmodule ExMachina.Ecto do
   end
 
   defp handle_embeds(%{__struct__: struct} = record) do
-    Enum.reduce(struct.__schema__(:embeds), record, fn embed_name, record ->
+    embeds = struct.__schema__(:embeds)
+
+    Enum.reduce(embeds, record, fn embed_name, record ->
       record
       |> Map.get(embed_name)
       |> handle_embed(record, embed_name)
@@ -278,7 +270,9 @@ defmodule ExMachina.Ecto do
   end
 
   defp set_persisted_belongs_to_ids(%{__struct__: struct} = record) do
-    Enum.reduce(struct.__schema__(:associations), record, fn association_name, record ->
+    associations = struct.__schema__(:associations)
+
+    Enum.reduce(associations, record, fn association_name, record ->
       association = struct.__schema__(:association, association_name)
 
       case association do
@@ -303,7 +297,9 @@ defmodule ExMachina.Ecto do
   end
 
   defp insert_belongs_to_assocs(%{__struct__: struct} = record, module) do
-    Enum.reduce(struct.__schema__(:associations), record, fn association_name, record ->
+    assocations = struct.__schema__(:associations)
+
+    Enum.reduce(assocations, record, fn association_name, record ->
       case struct.__schema__(:association, association_name) do
         association = %{__struct__: Ecto.Association.BelongsTo} ->
           insert_built_belongs_to_assoc(module, association, record)
@@ -380,4 +376,11 @@ defmodule ExMachina.Ecto do
   end
 
   defp convert_atom_keys_to_strings(value), do: value
+
+  defp verify_ecto_dep do
+    unless Code.ensure_loaded?(Ecto) do
+      raise "You tried to use ExMachina.Ecto, but the Ecto module is not loaded. " <>
+              "Please add ecto to your dependencies."
+    end
+  end
 end

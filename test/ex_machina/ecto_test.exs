@@ -324,6 +324,6 @@ defmodule ExMachina.EctoTest do
   end
 
   defp has_association_in_schema?(model, association_name) do
-    Enum.member?(model.__schema__(:associations), association_name)
+    :associations |> model.__schema__() |> Enum.member?(association_name)
   end
 end
