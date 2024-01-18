@@ -78,6 +78,14 @@ defmodule ExMachinaTest do
     end
   end
 
+  defmodule ConstructFactory do
+    use ExMachina
+
+    def construct(:jack) do
+      %{name: "jack", age: 60}
+    end
+  end
+
   describe "sequence" do
     test "sequence/2 sequences a value" do
       assert "me-0@foo.com" == Factory.build(:email).email
@@ -108,6 +116,8 @@ defmodule ExMachinaTest do
                name: "John Doe",
                admin: false
              }
+
+      assert ConstructFactory.build(:jack, age: 50) == %{name: "jack", age: 50}
     end
 
     test "build/2 merges passed in options as keyword list" do
