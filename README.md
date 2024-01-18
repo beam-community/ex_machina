@@ -1,8 +1,11 @@
 # ExMachina
 
-[![Circle CI](https://circleci.com/gh/thoughtbot/ex_machina.svg?style=svg&circle-token=fea4685d4951936734e764796c4b37c3686cdab3)](https://circleci.com/gh/thoughtbot/ex_machina)
-
-**ExMachina is part of the [thoughtbot Elixir family][elixir-phoenix] of projects.**
+[![Continuous Integration](https://github.com/beam-community/ex_machina/actions/workflows/ci.yml/badge.svg)](https://github.com/beam-community/ex_machina/actions/workflows/ci.yml)
+[![Module Version](https://img.shields.io/hexpm/v/ex_machina.svg)](https://hex.pm/packages/ex_machina)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_machina/)
+[![Total Download](https://img.shields.io/hexpm/dt/ex_machina.svg)](https://hex.pm/packages/ex_machina)
+[![License](https://img.shields.io/hexpm/l/ex_machina.svg)](https://github.com/beam-community/ex_machina/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/beam-community/ex_machina.svg)](https://github.com/beam-community/ex_machina/commits/master)
 
 ExMachina makes it easy to create test data and associations. It works great
 with Ecto, but is configurable to work with any persistence library.
@@ -22,17 +25,6 @@ def deps do
   [
     {:ex_machina, "~> 2.7.0"},
   ]
-end
-```
-
-And start the ExMachina application. For most projects (such as
-Phoenix apps) this will mean adding `:ex_machina` to the list of applications in
-`mix.exs`. You can skip this step if you are using Elixir 1.4 or later.
-
-```elixir
-def application do
-  [mod: {MyApp, []},
-   applications: [:ex_machina, :other_apps...]]
 end
 ```
 
@@ -445,7 +437,7 @@ def with_article(user) do
   user
 end
 
-build(:user) |> make_admin |> insert |> with_article
+build(:user) |> make_admin() |> insert() |> with_article()
 ```
 
 ## Using with Phoenix
@@ -500,25 +492,6 @@ Before opening a pull request, please open an issue first.
     $ mix test
 
 Once you've made your additions and `mix test` passes, go ahead and open a PR!
-
-## License
-
-ExMachina is Copyright © 2015 thoughtbot. It is free software, and may be
-redistributed under the terms specified in the [LICENSE](/LICENSE) file.
-
-## About thoughtbot
-
-![thoughtbot](https://thoughtbot.com/logo.png)
-
-ExMachina is maintained and funded by thoughtbot, inc.
-The names and logos for thoughtbot are trademarks of thoughtbot, inc.
-
-We love open source software, Elixir, and Phoenix. See [our other Elixir
-projects][elixir-phoenix], or [hire our Elixir Phoenix development team][hire]
-to design, develop, and grow your product.
-
-[elixir-phoenix]: https://thoughtbot.com/services/elixir-phoenix?utm_source=github
-[hire]: https://thoughtbot.com?utm_source=github
 
 ## Inspiration
 
