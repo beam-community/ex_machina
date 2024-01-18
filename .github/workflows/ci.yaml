@@ -89,6 +89,16 @@ jobs:
     env:
       MIX_ENV: test
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_INITDB_ARGS: "--nosync"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
