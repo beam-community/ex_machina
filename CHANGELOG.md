@@ -7,6 +7,30 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.8.0](https://github.com/beam-community/ex_machina/compare/v2.7.0...v2.8.0) (2024-01-19)
+
+
+### Features
+
+* ExMachina.start/2: return a supervisor from Application callback ([#434](https://github.com/beam-community/ex_machina/issues/434)) ([c9ebb47](https://github.com/beam-community/ex_machina/commit/c9ebb47d7ffecdae3acf22f71c257de8bcdcffdc))
+
+
+### Miscellaneous
+
+* Add release please manifest file ([ae31578](https://github.com/beam-community/ex_machina/commit/ae31578057b682b6bf7d51d3bb29229e4cbb16c3))
+* Clear up log level warning ([821a61a](https://github.com/beam-community/ex_machina/commit/821a61a351676c2fee717451d8881059dc04730d))
+* Fix missing , in configuration file ([cf74a91](https://github.com/beam-community/ex_machina/commit/cf74a91a4f0b913b6b96a233692419a030be4cff))
+* Remove circleci, update tools-version ([#438](https://github.com/beam-community/ex_machina/issues/438)) ([b06f4b6](https://github.com/beam-community/ex_machina/commit/b06f4b6ebe323b8c0b4edcc961fbf4abb5a68bcd))
+* Remove extra character from test configuration file ([e8edf47](https://github.com/beam-community/ex_machina/commit/e8edf473c84ba414c5c07c267abac773cb64be6d))
+* Resolve config warning ([#440](https://github.com/beam-community/ex_machina/issues/440)) ([a327830](https://github.com/beam-community/ex_machina/commit/a32783031b21cd91bced561d4a30e9031f8a77e9))
+* Satisfy Credo consistency check ([5aa4f01](https://github.com/beam-community/ex_machina/commit/5aa4f01c8234a76cb3a41fa43e6da7cbd668ba03))
+* Support common-config ([#436](https://github.com/beam-community/ex_machina/issues/436)) ([2c2a309](https://github.com/beam-community/ex_machina/commit/2c2a309532f418083dac0df7bc74bf675056ad28))
+* Sync files with beam-community/common-config ([#437](https://github.com/beam-community/ex_machina/issues/437)) ([72e4038](https://github.com/beam-community/ex_machina/commit/72e40389a273a38be5f8dd96aef02976258212aa))
+* Sync files with beam-community/common-config ([#441](https://github.com/beam-community/ex_machina/issues/441)) ([c809bce](https://github.com/beam-community/ex_machina/commit/c809bce0db914604b431be8d47d922aae9fe8e3e))
+* Update and run formatter ([#439](https://github.com/beam-community/ex_machina/issues/439)) ([8bb6057](https://github.com/beam-community/ex_machina/commit/8bb605725658a9dc36bd6e1f1579736f4b6514f4))
+* Update mix.exs and deps ([c6c76f0](https://github.com/beam-community/ex_machina/commit/c6c76f044d4fe8f57d82daed50800f8d43bd15b2))
+* Update test postgres configuration ([6aab2c8](https://github.com/beam-community/ex_machina/commit/6aab2c80cf17a66a0f087e6402b74e5477510884))
+
 ## [2.7.0]
 
 [2.7.0]: https://github.com/thoughtbot/ex_machina/compare/v2.6.0...v2.7.0
