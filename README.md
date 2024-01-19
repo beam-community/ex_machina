@@ -1,8 +1,11 @@
 # ExMachina
 
-[![Circle CI](https://circleci.com/gh/thoughtbot/ex_machina.svg?style=svg&circle-token=fea4685d4951936734e764796c4b37c3686cdab3)](https://circleci.com/gh/thoughtbot/ex_machina)
-
-**ExMachina is part of the [thoughtbot Elixir family][elixir-phoenix] of projects.**
+[![Continuous Integration](https://github.com/beam-community/ex_machina/actions/workflows/ci.yaml/badge.svg)](https://github.com/beam-community/ex_machina/actions/workflows/ci.yaml)
+[![Module Version](https://img.shields.io/hexpm/v/ex_machina.svg)](https://hex.pm/packages/ex_machina)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_machina/)
+[![Total Download](https://img.shields.io/hexpm/dt/ex_machina.svg)](https://hex.pm/packages/ex_machina)
+[![License](https://img.shields.io/hexpm/l/ex_machina.svg)](https://github.com/beam-community/ex_machina/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/beam-community/ex_machina.svg)](https://github.com/beam-community/ex_machina/commits/master)
 
 ExMachina makes it easy to create test data and associations. It works great
 with Ecto, but is configurable to work with any persistence library.
@@ -11,32 +14,6 @@ with Ecto, but is configurable to work with any persistence library.
 [docs for the latest published version of ExMachina](https://hexdocs.pm/ex_machina/readme.html).
 
 ## Installation
-
-#### To install in all environments (useful for generating seed data in dev/prod):
-
-In `mix.exs`, add the ExMachina dependency:
-
-```elixir
-def deps do
-  # Get the latest from hex.pm. Works with Ecto 3.0
-  [
-    {:ex_machina, "~> 2.7.0"},
-  ]
-end
-```
-
-And start the ExMachina application. For most projects (such as
-Phoenix apps) this will mean adding `:ex_machina` to the list of applications in
-`mix.exs`. You can skip this step if you are using Elixir 1.4 or later.
-
-```elixir
-def application do
-  [mod: {MyApp, []},
-   applications: [:ex_machina, :other_apps...]]
-end
-```
-
-#### Install in just the test environment with Phoenix:
 
 In `mix.exs`, add the ExMachina dependency:
 
@@ -58,7 +35,7 @@ ExUnit.start:
 {:ok, _} = Application.ensure_all_started(:ex_machina)
 ```
 
-#### Install in just the test environment for non-Phoenix projects:
+#### Install in just the test environment for non-Phoenix projects
 
 You will follow the same instructions as above, but you will also need to add
 `test/support` to your compilation paths (elixirc_paths) if you have not done
@@ -494,10 +471,10 @@ MyApp.Factory.json_encode(:user)
 
 Before opening a pull request, please open an issue first.
 
-    $ git clone https://github.com/thoughtbot/ex_machina.git
-    $ cd ex_machina
-    $ mix deps.get
-    $ mix test
+    git clone https://github.com/thoughtbot/ex_machina.git
+    cd ex_machina
+    mix deps.get
+    mix test
 
 Once you've made your additions and `mix test` passes, go ahead and open a PR!
 
