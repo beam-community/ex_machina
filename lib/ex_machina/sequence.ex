@@ -77,14 +77,13 @@ defmodule ExMachina.Sequence do
       ExMachina.Sequence.next("joe") # "joe0"
   """
 
-  @spec reset(list()) :: :ok
+  @spec reset(any()) :: :ok
   def reset(sequence_names) when is_list(sequence_names) do
     Agent.update(__MODULE__, fn sequences ->
       Enum.reduce(sequence_names, sequences, &Map.put(&2, &1, 0))
     end)
   end
 
-  @spec reset(any()) :: :ok
   def reset(sequence_name) do
     Agent.update(__MODULE__, fn sequences ->
       Map.put(sequences, sequence_name, 0)
