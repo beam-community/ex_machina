@@ -17,6 +17,7 @@ with Ecto, but is configurable to work with any persistence library.
 
 In `mix.exs`, add the ExMachina dependency:
 
+<!-- {x-release-please-start-version} -->
 ```elixir
 def deps do
   [
@@ -24,6 +25,7 @@ def deps do
   ]
 end
 ```
+<!-- {x-release-please-end} -->
 
 Add your factory module inside `test/support` so that it is only compiled in the
 test environment.
