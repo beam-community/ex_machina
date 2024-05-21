@@ -276,9 +276,11 @@ defmodule ExMachina.Ecto do
       association = struct.__schema__(:association, association_name)
 
       with %{__struct__: Ecto.Association.BelongsTo} <- association,
-           %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :loaded}} = belongs_to <-
-             Map.get(record, association_name) do
+           belongs_to <- Map.get(record, association_name),
+           %{__meta__: %{__struct__: Ecto.Schema.Metadata, state: :loaded}} <- belongs_to do
         set_belongs_to_primary_key(record, belongs_to, association)
+      else
+        _ -> record
       end
     end)
   end
