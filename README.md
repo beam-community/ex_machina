@@ -87,8 +87,16 @@ defmodule MyApp.Factory do
     %MyApp.Article{
       title: title,
       slug: slug,
+      # another way to build derived attributes
+      tags: fn article ->
+        if String.contains?(article.title, "Silly") do
+          ["silly"]
+        else
+          []
+        end
+      end,
       # associations are inserted when you call `insert`
-      author: build(:user),
+      author: build(:user)
     }
   end
 
