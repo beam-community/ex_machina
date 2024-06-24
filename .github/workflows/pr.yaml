@@ -21,7 +21,7 @@ jobs:
       - name: Check
         uses: stordco/actions-pr-title@v1.0.0
         with:
-          regex: '^(feat!|fix!|fix|feat|chore)(\(\w+\))?:\s(\[#\d{1,5}\])?.*$'
+          regex: '^(refactor!|feat!|fix!|refactor|fix|feat|chore)(\(\w+\))?:\s(\[#\d{1,5}\])?.*$'
           hint: |
             Your PR title does not match the Conventional Commits convention. Please rename your PR to match one of the following formats:
 
@@ -31,5 +31,13 @@ jobs:
             chore: update some action
 
             Note: Adding ! (i.e. `feat!:`) represents a breaking change and will result in a SemVer major release.
+
+            Please use one of the following types:
+
+            - **feat:** A new feature, resulting in a MINOR version bump."
+            - **fix:** A bug fix, resulting in a PATCH version bump."
+            - **refactor:** A code change that neither fixes a bug nor adds a feature, resulting in a PATCH version bump."
+            - **chore:** Changes unrelated to the release code, resulting in no version bump."
+            - **revert:** Reverts a previous commit."
 
             See https://www.conventionalcommits.org/en/v1.0.0/ for more information.
