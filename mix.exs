@@ -39,7 +39,7 @@ defmodule ExMachina.Mixfile do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
       {:doctor, "~> 0.21.0", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.17.1", only: :test},
+      {:excoveralls, "~> 0.18.1", only: :test},
       {:ex_doc, "~> 0.32", only: [:dev, :test], runtime: false},
       {:postgrex, "~> 0.17", only: :test}
     ]
