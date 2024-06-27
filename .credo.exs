@@ -114,7 +114,8 @@
          [
            order:
              ~w(moduledoc behaviour use import require alias module_attribute defstruct callback macrocallback optional_callback)a,
-           ignore: [:type]
+           ignore: [:type],
+           ignore_module_attributes: [:tag, :trace]
          ]},
         {Credo.Check.Readability.StringSigils, []},
         {Credo.Check.Readability.TrailingBlankLine, []},
@@ -158,7 +159,7 @@
         {Credo.Check.Warning.MapGetUnsafePass, []},
         # disabling this check by default, as if not included, it will be
         # run on version 1.7.0 and above
-        {Credo.Check.Warning.MissedMetadataKeyInLoggerConfig, false},
+        {Credo.Check.Warning.MissedMetadataKeyInLoggerConfig, []},
         {Credo.Check.Warning.MixEnv, []},
         {Credo.Check.Warning.OperationOnSameValues, []},
         {Credo.Check.Warning.OperationWithConstantResult, []},
