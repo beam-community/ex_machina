@@ -291,9 +291,9 @@ defmodule ExMachina.Ecto do
   end
 
   defp insert_belongs_to_assocs(%{__struct__: struct} = record, module) do
-    assocations = struct.__schema__(:associations)
+    associations = struct.__schema__(:associations)
 
-    Enum.reduce(assocations, record, fn association_name, record ->
+    Enum.reduce(associations, record, fn association_name, record ->
       case struct.__schema__(:association, association_name) do
         association = %{__struct__: Ecto.Association.BelongsTo} ->
           insert_built_belongs_to_assoc(module, association, record)
