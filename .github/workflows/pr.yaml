@@ -13,6 +13,9 @@ on:
 
 jobs:
   Title:
+    permissions:
+      pull-requests: read
+
     if: ${{ github.event_name == 'pull_request' }}
     name: Check Title
     runs-on: ubuntu-latest
