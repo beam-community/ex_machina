@@ -38,7 +38,7 @@ jobs:
         uses: stordco/actions-elixir/setup@v1
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          elixir-version: "1.15"
+          elixir-version: "1.16"
           otp-version: "26.0"
 
       - name: Sync
