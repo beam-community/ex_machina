@@ -172,7 +172,7 @@ Sometimes that presents a problem. Consider the following factory:
 
 ```elixir
 def user_factory do
-  %{name: "Gandalf", email: sequence(:email, "gandalf#{&1}@istari.com")}
+  %{name: "Gandalf", email: sequence(:email, &"gandalf#{&1}@istari.com")}
 end
 ```
 
