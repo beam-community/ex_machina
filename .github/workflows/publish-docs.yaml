@@ -1,21 +1,18 @@
 # This file is synced with beam-community/common-config. Any changes will be overwritten.
 
-name: Production
+name: Publish Docs
 
 on:
-  release:
-    types:
-      - released
-      - prereleased
   workflow_dispatch:
 
 concurrency:
-  group: Production
+  group: hex-publish-docs
+  cancel-in-progress: true
 
 jobs:
   Hex:
     runs-on: ubuntu-latest
-
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,10 +22,7 @@ jobs:
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
 
-      - name: Compile
-        run: mix compile --docs
-
-      - name: Publish
-        run: mix hex.publish --yes
+      - name: Publish Docs
+        run: mix hex.publish docs --yes
         env:
           HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
