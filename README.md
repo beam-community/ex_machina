@@ -481,7 +481,7 @@ MyApp.Factory.json_encode(:user)
 
 Before opening a pull request, please open an issue first.
 
-    git clone https://github.com/thoughtbot/ex_machina.git
+    git clone https://github.com/beam-community/ex_machina.git
     cd ex_machina
     mix deps.get
     mix test
@@ -490,22 +490,8 @@ Once you've made your additions and `mix test` passes, go ahead and open a PR!
 
 ## License
 
-ExMachina is Copyright © 2015 thoughtbot. It is free software, and may be
+ExMachina is Copyright © 2025 BEAM Community. It is free software, and may be
 redistributed under the terms specified in the [LICENSE](/LICENSE) file.
-
-## About thoughtbot
-
-![thoughtbot](https://thoughtbot.com/logo.png)
-
-ExMachina is maintained and funded by thoughtbot, inc.
-The names and logos for thoughtbot are trademarks of thoughtbot, inc.
-
-We love open source software, Elixir, and Phoenix. See [our other Elixir
-projects][elixir-phoenix], or [hire our Elixir Phoenix development team][hire]
-to design, develop, and grow your product.
-
-[elixir-phoenix]: https://thoughtbot.com/services/elixir-phoenix?utm_source=github
-[hire]: https://thoughtbot.com?utm_source=github
 
 ## Inspiration
 
