@@ -50,5 +50,5 @@ jobs:
           pr-title: "chore: sync files with beam-community/common-config"
           pr-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           sync-auth: doomspork:${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          sync-branch: latest
+          sync-tree: latest
           sync-repository: github.com/beam-community/common-config.git
