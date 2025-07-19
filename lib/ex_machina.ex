@@ -7,7 +7,10 @@ defmodule ExMachina do
   use Application
 
   alias ExMachina.UndefinedFactoryError
+  alias ExMachina.UndefinedGeneratorError
 
+  @callback generate(generator_name :: atom) :: any
+  @callback generate(generator_name :: atom, attrs :: keyword | map) :: any
   @callback build(factory_name :: atom) :: any
   @callback build(factory_name :: atom, attrs :: keyword | map) :: any
   @callback build_list(number_of_records :: integer, factory_name :: atom) :: list
@@ -37,6 +40,12 @@ defmodule ExMachina do
         ]
 
       alias ExMachina.UndefinedFactoryError
+
+      if Code.ensure_loaded?(StreamData) do
+        def generate(generator_name, attrs \\ %{}) do
+          ExMachina.generate(__MODULE__, generator_name, attrs)
+        end
+      end
 
       def build(factory_name, attrs \\ %{}) do
         ExMachina.build(__MODULE__, factory_name, attrs)
@@ -217,7 +226,8 @@ defmodule ExMachina do
   def build(module, factory_name, attrs \\ %{}) do
     attrs = Enum.into(attrs, %{})
 
-    function_name = build_function_name(factory_name)
+    function_name = build_factory_name(factory_name)
+    generator_name = build_generator_name(factory_name)
 
     cond do
       factory_accepting_attributes_defined?(module, function_name) ->
@@ -229,17 +239,47 @@ defmodule ExMachina do
         |> merge_attributes(attrs)
         |> evaluate_lazy_attributes()
 
+      Code.ensure_loaded?(StreamData) and
+          (generator_accepting_attributes_defined?(module, generator_name) or
+             generator_without_attributes_defined?(module, generator_name)) ->
+        module |> generate(factory_name, attrs) |> Enum.take(1) |> hd
+
       true ->
         raise UndefinedFactoryError, factory_name
     end
   end
 
-  defp build_function_name(factory_name) do
-    factory_name
+  if Code.ensure_loaded?(StreamData) do
+    def generate(module, generator_name, attrs \\ %{}) do
+      attrs = Enum.into(attrs, %{})
+
+      function_name = build_generator_name(generator_name)
+
+      cond do
+        generator_accepting_attributes_defined?(module, function_name) ->
+          apply(module, function_name, [attrs])
+
+        generator_without_attributes_defined?(module, function_name) ->
+          module
+          |> apply(function_name, [])
+          |> StreamData.map(&merge_attributes(&1, attrs))
+
+        true ->
+          raise UndefinedGeneratorError, generator_name
+      end
+    end
+  end
+
+  defp build_function_name(name, postfix) do
+    name
     |> Atom.to_string()
-    |> Kernel.<>("_factory")
+    |> then(&"#{&1}_#{postfix}")
     # credo:disable-for-next-line Credo.Check.Warning.UnsafeToAtom
     |> String.to_atom()
+  end
+
+  defp build_factory_name(factory_name) do
+    build_function_name(factory_name, "factory")
   end
 
   defp factory_accepting_attributes_defined?(module, function_name) do
@@ -248,6 +288,20 @@ defmodule ExMachina do
 
   defp factory_without_attributes_defined?(module, function_name) do
     Code.ensure_loaded?(module) && function_exported?(module, function_name, 0)
+  end
+
+  if Code.ensure_loaded?(StreamData) do
+    defp build_generator_name(factory_name) do
+      build_function_name(factory_name, "generator")
+    end
+
+    defp generator_accepting_attributes_defined?(module, function_name) do
+      Code.ensure_loaded?(module) && function_exported?(module, function_name, 1)
+    end
+
+    defp generator_without_attributes_defined?(module, function_name) do
+      Code.ensure_loaded?(module) && function_exported?(module, function_name, 0)
+    end
   end
 
   @doc """
@@ -347,12 +401,23 @@ defmodule ExMachina do
       build_list(3, :user)
   """
   def build_list(module, number_of_records, factory_name, attrs \\ %{}) do
-    stream =
-      Stream.repeatedly(fn ->
-        ExMachina.build(module, factory_name, attrs)
-      end)
+    function_name = build_factory_name(factory_name)
+    generator_name = build_generator_name(factory_name)
 
-    Enum.take(stream, number_of_records)
+    if not factory_accepting_attributes_defined?(module, function_name) and
+         not factory_without_attributes_defined?(module, function_name) and
+         Code.ensure_loaded?(StreamData) and
+         (generator_accepting_attributes_defined?(module, generator_name) or
+            generator_without_attributes_defined?(module, generator_name)) do
+      module |> generate(factory_name, attrs) |> Enum.take(number_of_records)
+    else
+      stream =
+        Stream.repeatedly(fn ->
+          ExMachina.build(module, factory_name, attrs)
+        end)
+
+      Enum.take(stream, number_of_records)
+    end
   end
 
   defmacro __before_compile__(_env) do

@@ -34,6 +34,7 @@ defmodule ExMachina.Mixfile do
     [
       {:ecto, "~> 2.2 or ~> 3.0", optional: true},
       {:ecto_sql, "~> 3.0", optional: true},
+      {:stream_data, "~> 1.2", optional: true},
 
       # Dev and Test dependencies
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
