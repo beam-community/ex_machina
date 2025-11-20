@@ -71,6 +71,9 @@ defmodule ExMachina.EctoStrategy do
   defp cast_value(field_type, value, struct) do
     if polymorphic_embed_type?(field_type) do
       # Skip casting for PolymorphicEmbed types - they must be handled by the changeset
+      # PolymorphicEmbed fields raise an error if casted with Ecto.Type.cast/2
+      # Instead, they should be processed via PolymorphicEmbed.cast_polymorphic_embed/2
+      # in the schema's changeset function
       value
     else
       case Ecto.Type.cast(field_type, value) do
@@ -83,6 +86,9 @@ defmodule ExMachina.EctoStrategy do
     end
   end
 
+  # Detects if a field type is a PolymorphicEmbed type
+  # PolymorphicEmbed types are modules that start with "Elixir.PolymorphicEmbed"
+  # These types require special handling via cast_polymorphic_embed/2 in changesets
   defp polymorphic_embed_type?(field_type) when is_atom(field_type) do
     # Check if the type module is PolymorphicEmbed or a submodule
     field_type_string = Atom.to_string(field_type)
