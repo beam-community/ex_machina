@@ -1,5 +1,38 @@
 defmodule ExMachina.EctoStrategy do
-  @moduledoc false
+  @moduledoc """
+  Strategy for inserting Ecto records into a database.
+
+  ## Custom cast_value function
+
+  You can provide a custom `cast_value` function to override the default type casting behavior.
+  This is useful when working with custom Ecto types that don't support standard casting.
+
+  ### Example
+
+      defmodule MyApp.Factory do
+        use ExMachina.Ecto,
+          repo: MyApp.Repo,
+          cast_value: &MyApp.Factory.custom_cast/3
+
+        def custom_cast(field_type, value, _struct) do
+          # Custom casting logic
+          # Return the casted value or the original value if no casting needed
+          value
+        end
+
+        def user_factory do
+          %User{name: "John"}
+        end
+      end
+
+  The `cast_value` function receives:
+  - `field_type`: The Ecto type of the field
+  - `value`: The current value
+  - `struct`: The struct being casted
+
+  If no custom function is provided, the default behavior includes special handling
+  for PolymorphicEmbed types and standard Ecto type casting for all other types.
+  """
 
   use ExMachina.Strategy, function_name: :insert
 
@@ -20,9 +53,9 @@ defmodule ExMachina.EctoStrategy do
     """
   end
 
-  def handle_insert(%{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record, %{repo: repo}) do
+  def handle_insert(%{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record, %{repo: repo} = opts) do
     record
-    |> cast()
+    |> cast(opts)
     |> repo.insert!()
   end
 
@@ -36,53 +69,61 @@ defmodule ExMachina.EctoStrategy do
 
   def handle_insert(
         %{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record,
-        %{repo: repo},
+        %{repo: repo} = opts,
         insert_options
       ) do
     record
-    |> cast()
+    |> cast(opts)
     |> repo.insert!(insert_options)
   end
 
-  defp cast(record) do
+  defp cast(record, opts \\ %{}) do
     record
-    |> cast_all_fields
+    |> cast_all_fields(opts)
     |> cast_all_embeds
     |> cast_all_assocs
   end
 
-  defp cast_all_fields(%{__struct__: schema} = struct) do
+  defp cast_all_fields(%{__struct__: schema} = struct, opts) do
     schema
     |> schema_fields()
     |> Enum.reduce(struct, fn field_key, struct ->
-      casted_value = cast_field(field_key, struct)
+      casted_value = cast_field(field_key, struct, opts)
 
       Map.put(struct, field_key, casted_value)
     end)
   end
 
-  defp cast_field(field_key, %{__struct__: schema} = struct) do
+  defp cast_field(field_key, %{__struct__: schema} = struct, opts) do
     field_type = schema.__schema__(:type, field_key)
     value = Map.get(struct, field_key)
 
-    cast_value(field_type, value, struct)
+    cast_value(field_type, value, struct, opts)
   end
 
-  defp cast_value(field_type, value, struct) do
-    if polymorphic_embed_type?(field_type) do
-      # Skip casting for PolymorphicEmbed types - they must be handled by the changeset
-      # PolymorphicEmbed fields raise an error if casted with Ecto.Type.cast/2
-      # Instead, they should be processed via PolymorphicEmbed.cast_polymorphic_embed/2
-      # in the schema's changeset function
-      value
-    else
-      case Ecto.Type.cast(field_type, value) do
-        {:ok, value} ->
-          value
+  defp cast_value(field_type, value, struct, opts) do
+    # Allow custom cast_value function via opts
+    custom_cast = Map.get(opts, :cast_value)
 
-        _ ->
-          raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{inspect(struct)}."
-      end
+    cond do
+      custom_cast && is_function(custom_cast, 3) ->
+        custom_cast.(field_type, value, struct)
+
+      polymorphic_embed_type?(field_type) ->
+        # Skip casting for PolymorphicEmbed types - they must be handled by the changeset
+        # PolymorphicEmbed fields raise an error if casted with Ecto.Type.cast/2
+        # Instead, they should be processed via PolymorphicEmbed.cast_polymorphic_embed/2
+        # in the schema's changeset function
+        value
+
+      true ->
+        case Ecto.Type.cast(field_type, value) do
+          {:ok, value} ->
+            value
+
+          _ ->
+            raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{inspect(struct)}."
+        end
     end
   end
 
