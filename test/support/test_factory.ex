@@ -1,7 +1,7 @@
 defmodule ExMachina.TestFactory do
   use ExMachina.Ecto,
     repo: ExMachina.TestRepo,
-    cast_value: &ExMachina.TestFactory.custom_cast/3
+    cast: &ExMachina.TestFactory.custom_cast/3
 
   def custom_cast(field_type, value, _struct) do
     # Skip casting for PolymorphicEmbed types - they're handled by the changeset

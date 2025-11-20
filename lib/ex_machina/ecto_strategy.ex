@@ -2,9 +2,9 @@ defmodule ExMachina.EctoStrategy do
   @moduledoc """
   Strategy for inserting Ecto records into a database.
 
-  ## Custom cast_value function
+  ## Custom cast function
 
-  You can provide a custom `cast_value` function to override the default type casting behavior.
+  You can provide a custom `cast` function to override the default type casting behavior.
   This is useful when working with custom Ecto types that don't support standard casting.
 
   ### Example with PolymorphicEmbed
@@ -12,7 +12,7 @@ defmodule ExMachina.EctoStrategy do
       defmodule MyApp.Factory do
         use ExMachina.Ecto,
           repo: MyApp.Repo,
-          cast_value: &MyApp.Factory.custom_cast/3
+          cast: &MyApp.Factory.custom_cast/3
 
         def custom_cast(field_type, value, _struct) do
           # Skip casting for PolymorphicEmbed types (from polymorphic_embed library)
@@ -39,7 +39,7 @@ defmodule ExMachina.EctoStrategy do
         end
       end
 
-  The `cast_value` function receives:
+  The custom `cast` function receives:
   - `field_type`: The Ecto type of the field
   - `value`: The current value
   - `struct`: The struct being casted
@@ -115,8 +115,8 @@ defmodule ExMachina.EctoStrategy do
   end
 
   defp cast_value(field_type, value, struct, opts) do
-    # Allow custom cast_value function via opts
-    custom_cast = Map.get(opts, :cast_value)
+    # Allow custom cast function via opts
+    custom_cast = Map.get(opts, :cast)
 
     if custom_cast && is_function(custom_cast, 3) do
       custom_cast.(field_type, value, struct)
