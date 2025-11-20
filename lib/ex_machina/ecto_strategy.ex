@@ -89,10 +89,15 @@ defmodule ExMachina.EctoStrategy do
   # Detects if a field type is a PolymorphicEmbed type
   # PolymorphicEmbed types are modules that start with "Elixir.PolymorphicEmbed"
   # These types require special handling via cast_polymorphic_embed/2 in changesets
+  defp polymorphic_embed_type?(PolymorphicEmbed), do: true
+
   defp polymorphic_embed_type?(field_type) when is_atom(field_type) do
-    # Check if the type module is PolymorphicEmbed or a submodule
-    field_type_string = Atom.to_string(field_type)
-    String.starts_with?(field_type_string, "Elixir.PolymorphicEmbed")
+    # Check if it's a PolymorphicEmbed submodule (e.g., PolymorphicEmbed.Phoenix)
+    # String conversion is needed because atoms don't support prefix matching natively
+    case Atom.to_string(field_type) do
+      "Elixir.PolymorphicEmbed." <> _ -> true
+      _ -> false
+    end
   end
 
   defp polymorphic_embed_type?(_field_type), do: false
