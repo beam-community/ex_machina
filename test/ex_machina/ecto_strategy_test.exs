@@ -203,4 +203,36 @@ defmodule ExMachina.EctoStrategyTest do
       :user |> TestFactory.insert(name: "Maximus") |> TestFactory.insert()
     end
   end
+
+  test "insert/1 works with PolymorphicEmbed fields" do
+    # This should not raise the PolymorphicEmbed error
+    document = TestFactory.insert(:document)
+
+    assert document.id
+    assert document.title == "Test Document"
+    assert document.content.body == "Sample text content"
+  end
+
+  test "insert/1 works with multiple PolymorphicEmbed types" do
+    # Test with a different polymorphic type
+    document = TestFactory.insert(:document_with_image)
+
+    assert document.id
+    assert document.title == "Image Document"
+    assert document.content.url == "https://example.com/image.jpg"
+  end
+
+  test "insert/1 allows overriding PolymorphicEmbed fields" do
+    custom_content = %{
+      __type__: "video",
+      url: "https://example.com/video.mp4",
+      duration: 120
+    }
+
+    document = TestFactory.insert(:document, content: custom_content)
+
+    assert document.id
+    assert document.content.url == "https://example.com/video.mp4"
+    assert document.content.duration == 120
+  end
 end

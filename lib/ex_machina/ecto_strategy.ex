@@ -69,14 +69,27 @@ defmodule ExMachina.EctoStrategy do
   end
 
   defp cast_value(field_type, value, struct) do
-    case Ecto.Type.cast(field_type, value) do
-      {:ok, value} ->
-        value
+    if polymorphic_embed_type?(field_type) do
+      # Skip casting for PolymorphicEmbed types - they must be handled by the changeset
+      value
+    else
+      case Ecto.Type.cast(field_type, value) do
+        {:ok, value} ->
+          value
 
-      _ ->
-        raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{inspect(struct)}."
+        _ ->
+          raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{inspect(struct)}."
+      end
     end
   end
+
+  defp polymorphic_embed_type?(field_type) when is_atom(field_type) do
+    # Check if the type module is PolymorphicEmbed or a submodule
+    field_type_string = Atom.to_string(field_type)
+    String.starts_with?(field_type_string, "Elixir.PolymorphicEmbed")
+  end
+
+  defp polymorphic_embed_type?(_field_type), do: false
 
   defp cast_all_embeds(%{__struct__: schema} = struct) do
     schema

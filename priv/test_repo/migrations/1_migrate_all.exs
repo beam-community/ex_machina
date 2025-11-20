@@ -48,5 +48,11 @@ defmodule ExMachina.TestRepo.Migrations.MigrateAll do
       add(:author, :map)
       add(:links, {:array, :map}, default: [])
     end
+
+    create table(:documents) do
+      add(:title, :string)
+      add(:content, :map)
+      add(:metadata, :map)
+    end
   end
 end

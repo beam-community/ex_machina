@@ -45,4 +45,29 @@ defmodule ExMachina.TestFactory do
       admin: false
     }
   end
+
+  def document_factory do
+    %ExMachina.Document{
+      title: "Test Document",
+      content: %{
+        __type__: "text",
+        body: "Sample text content"
+      },
+      metadata: %{
+        author: "Test Author",
+        created_at: "2024-01-01"
+      }
+    }
+  end
+
+  def document_with_image_factory do
+    %ExMachina.Document{
+      title: "Image Document",
+      content: %{
+        __type__: "image",
+        url: "https://example.com/image.jpg",
+        alt_text: "Test image"
+      }
+    }
+  end
 end
