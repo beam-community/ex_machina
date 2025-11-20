@@ -107,19 +107,21 @@ defmodule ExMachina.EctoStrategy do
   end
 
   defp cast_value(field_type, value, struct, opts) do
-    # Allow custom cast function via opts
     custom_cast = Map.get(opts, :cast)
+    do_cast_value(custom_cast, field_type, value, struct)
+  end
 
-    if custom_cast && is_function(custom_cast, 3) do
-      custom_cast.(field_type, value, struct)
-    else
-      case Ecto.Type.cast(field_type, value) do
-        {:ok, value} ->
-          value
+  defp do_cast_value(custom_cast, field_type, value, struct) when is_function(custom_cast, 3) do
+    custom_cast.(field_type, value, struct)
+  end
 
-        _ ->
-          raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{inspect(struct)}."
-      end
+  defp do_cast_value(_custom_cast, field_type, value, struct) do
+    case Ecto.Type.cast(field_type, value) do
+      {:ok, value} ->
+        value
+
+      _ ->
+        raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{inspect(struct)}."
     end
   end
 
