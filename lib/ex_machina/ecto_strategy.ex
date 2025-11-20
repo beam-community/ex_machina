@@ -7,7 +7,7 @@ defmodule ExMachina.EctoStrategy do
   You can provide a custom `cast_value` function to override the default type casting behavior.
   This is useful when working with custom Ecto types that don't support standard casting.
 
-  ### Example
+  ### Example with PolymorphicEmbed
 
       defmodule MyApp.Factory do
         use ExMachina.Ecto,
@@ -15,13 +15,31 @@ defmodule ExMachina.EctoStrategy do
           cast_value: &MyApp.Factory.custom_cast/3
 
         def custom_cast(field_type, value, _struct) do
-          # Custom casting logic
-          # Return the casted value or the original value if no casting needed
-          value
+          # Skip casting for PolymorphicEmbed types
+          if polymorphic_embed_type?(field_type) do
+            value
+          else
+            case Ecto.Type.cast(field_type, value) do
+              {:ok, value} -> value
+              _ -> value
+            end
+          end
         end
 
-        def user_factory do
-          %User{name: "John"}
+        defp polymorphic_embed_type?(PolymorphicEmbed), do: true
+        defp polymorphic_embed_type?(field_type) when is_atom(field_type) do
+          case Atom.to_string(field_type) do
+            "Elixir.PolymorphicEmbed." <> _ -> true
+            _ -> false
+          end
+        end
+        defp polymorphic_embed_type?(_), do: false
+
+        def document_factory do
+          %Document{
+            title: "Test",
+            content: %{__type__: :text, body: "Sample"}
+          }
         end
       end
 
@@ -30,8 +48,7 @@ defmodule ExMachina.EctoStrategy do
   - `value`: The current value
   - `struct`: The struct being casted
 
-  If no custom function is provided, the default behavior includes special handling
-  for PolymorphicEmbed types and standard Ecto type casting for all other types.
+  If no custom function is provided, the default behavior uses standard Ecto type casting.
   """
 
   use ExMachina.Strategy, function_name: :insert
@@ -105,43 +122,18 @@ defmodule ExMachina.EctoStrategy do
     # Allow custom cast_value function via opts
     custom_cast = Map.get(opts, :cast_value)
 
-    cond do
-      custom_cast && is_function(custom_cast, 3) ->
-        custom_cast.(field_type, value, struct)
+    if custom_cast && is_function(custom_cast, 3) do
+      custom_cast.(field_type, value, struct)
+    else
+      case Ecto.Type.cast(field_type, value) do
+        {:ok, value} ->
+          value
 
-      polymorphic_embed_type?(field_type) ->
-        # Skip casting for PolymorphicEmbed types - they must be handled by the changeset
-        # PolymorphicEmbed fields raise an error if casted with Ecto.Type.cast/2
-        # Instead, they should be processed via PolymorphicEmbed.cast_polymorphic_embed/2
-        # in the schema's changeset function
-        value
-
-      true ->
-        case Ecto.Type.cast(field_type, value) do
-          {:ok, value} ->
-            value
-
-          _ ->
-            raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{inspect(struct)}."
-        end
+        _ ->
+          raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{inspect(struct)}."
+      end
     end
   end
-
-  # Detects if a field type is a PolymorphicEmbed type
-  # PolymorphicEmbed types are modules that start with "Elixir.PolymorphicEmbed"
-  # These types require special handling via cast_polymorphic_embed/2 in changesets
-  defp polymorphic_embed_type?(PolymorphicEmbed), do: true
-
-  defp polymorphic_embed_type?(field_type) when is_atom(field_type) do
-    # Check if it's a PolymorphicEmbed submodule (e.g., PolymorphicEmbed.Phoenix)
-    # String conversion is needed because atoms don't support prefix matching natively
-    case Atom.to_string(field_type) do
-      "Elixir.PolymorphicEmbed." <> _ -> true
-      _ -> false
-    end
-  end
-
-  defp polymorphic_embed_type?(_field_type), do: false
 
   defp cast_all_embeds(%{__struct__: schema} = struct) do
     schema

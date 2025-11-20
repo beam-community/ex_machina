@@ -1,5 +1,30 @@
 defmodule ExMachina.TestFactory do
-  use ExMachina.Ecto, repo: ExMachina.TestRepo
+  use ExMachina.Ecto,
+    repo: ExMachina.TestRepo,
+    cast_value: &ExMachina.TestFactory.custom_cast/3
+
+  def custom_cast(field_type, value, _struct) do
+    # Skip casting for PolymorphicEmbed types
+    if polymorphic_embed_type?(field_type) do
+      value
+    else
+      case Ecto.Type.cast(field_type, value) do
+        {:ok, value} -> value
+        _ -> raise "Failed to cast value"
+      end
+    end
+  end
+
+  defp polymorphic_embed_type?(PolymorphicEmbed), do: true
+
+  defp polymorphic_embed_type?(field_type) when is_atom(field_type) do
+    case Atom.to_string(field_type) do
+      "Elixir.PolymorphicEmbed." <> _ -> true
+      _ -> false
+    end
+  end
+
+  defp polymorphic_embed_type?(_), do: false
 
   def custom_factory do
     %ExMachina.Custom{
