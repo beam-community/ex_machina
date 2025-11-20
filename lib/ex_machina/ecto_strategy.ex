@@ -15,21 +15,13 @@ defmodule ExMachina.EctoStrategy do
           cast: &MyApp.Factory.custom_cast/3
 
         def custom_cast(field_type, value, _struct) do
-          # Skip casting for PolymorphicEmbed types (from polymorphic_embed library)
-          # PolymorphicEmbed uses parameterized types
-          if polymorphic_embed_type?(field_type) do
-            value
-          else
-            case Ecto.Type.cast(field_type, value) do
-              {:ok, value} -> value
-              _ -> value
-            end
+          # For PolymorphicEmbed types (parameterized types), use Ecto.Type.cast
+          # which will call the PolymorphicEmbed's cast implementation
+          case Ecto.Type.cast(field_type, value) do
+            {:ok, value} -> value
+            _ -> value  # Return original value if cast fails
           end
         end
-
-        # PolymorphicEmbed fields are represented as {:parameterized, PolymorphicEmbed, _}
-        defp polymorphic_embed_type?({:parameterized, PolymorphicEmbed, _}), do: true
-        defp polymorphic_embed_type?(_), do: false
 
         def document_factory do
           %Document{

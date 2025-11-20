@@ -4,9 +4,12 @@ defmodule ExMachina.TestFactory do
     cast: &ExMachina.TestFactory.custom_cast/3
 
   def custom_cast(field_type, value, _struct) do
-    # Skip casting for PolymorphicEmbed types - they're handled by the changeset
+    # For PolymorphicEmbed types, use the parameterized type's cast function
     if polymorphic_embed_type?(field_type) do
-      value
+      case Ecto.Type.cast(field_type, value) do
+        {:ok, value} -> value
+        _ -> value  # If cast fails, return original value
+      end
     else
       case Ecto.Type.cast(field_type, value) do
         {:ok, value} -> value
