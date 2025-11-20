@@ -223,8 +223,7 @@ defmodule ExMachina.EctoStrategyTest do
   end
 
   test "insert/1 allows overriding PolymorphicEmbed fields" do
-    custom_content = %{
-      __type__: "video",
+    custom_content = %ExMachina.VideoContent{
       url: "https://example.com/video.mp4",
       duration: 120
     }

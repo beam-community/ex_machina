@@ -4,7 +4,7 @@ defmodule ExMachina.TestFactory do
     cast_value: &ExMachina.TestFactory.custom_cast/3
 
   def custom_cast(field_type, value, _struct) do
-    # Skip casting for PolymorphicEmbed types
+    # Skip casting for PolymorphicEmbed types - they're handled by the changeset
     if polymorphic_embed_type?(field_type) do
       value
     else
@@ -15,15 +15,8 @@ defmodule ExMachina.TestFactory do
     end
   end
 
-  defp polymorphic_embed_type?(PolymorphicEmbed), do: true
-
-  defp polymorphic_embed_type?(field_type) when is_atom(field_type) do
-    case Atom.to_string(field_type) do
-      "Elixir.PolymorphicEmbed." <> _ -> true
-      _ -> false
-    end
-  end
-
+  # Check if field type is from polymorphic_embed library
+  defp polymorphic_embed_type?({:parameterized, PolymorphicEmbed, _}), do: true
   defp polymorphic_embed_type?(_), do: false
 
   def custom_factory do
@@ -74,13 +67,8 @@ defmodule ExMachina.TestFactory do
   def document_factory do
     %ExMachina.Document{
       title: "Test Document",
-      content: %{
-        __type__: "text",
+      content: %ExMachina.TextContent{
         body: "Sample text content"
-      },
-      metadata: %{
-        author: "Test Author",
-        created_at: "2024-01-01"
       }
     }
   end
@@ -88,8 +76,7 @@ defmodule ExMachina.TestFactory do
   def document_with_image_factory do
     %ExMachina.Document{
       title: "Image Document",
-      content: %{
-        __type__: "image",
+      content: %ExMachina.ImageContent{
         url: "https://example.com/image.jpg",
         alt_text: "Test image"
       }

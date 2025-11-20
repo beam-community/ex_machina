@@ -51,8 +51,7 @@ defmodule ExMachina.TestRepo.Migrations.MigrateAll do
 
     create table(:documents) do
       add(:title, :string)
-      add(:content, :map)
-      add(:metadata, :map)
+      add(:content, :jsonb)
     end
   end
 end

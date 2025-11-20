@@ -15,7 +15,8 @@ defmodule ExMachina.EctoStrategy do
           cast_value: &MyApp.Factory.custom_cast/3
 
         def custom_cast(field_type, value, _struct) do
-          # Skip casting for PolymorphicEmbed types
+          # Skip casting for PolymorphicEmbed types (from polymorphic_embed library)
+          # PolymorphicEmbed uses parameterized types
           if polymorphic_embed_type?(field_type) do
             value
           else
@@ -26,19 +27,14 @@ defmodule ExMachina.EctoStrategy do
           end
         end
 
-        defp polymorphic_embed_type?(PolymorphicEmbed), do: true
-        defp polymorphic_embed_type?(field_type) when is_atom(field_type) do
-          case Atom.to_string(field_type) do
-            "Elixir.PolymorphicEmbed." <> _ -> true
-            _ -> false
-          end
-        end
+        # PolymorphicEmbed fields are represented as {:parameterized, PolymorphicEmbed, _}
+        defp polymorphic_embed_type?({:parameterized, PolymorphicEmbed, _}), do: true
         defp polymorphic_embed_type?(_), do: false
 
         def document_factory do
           %Document{
             title: "Test",
-            content: %{__type__: :text, body: "Sample"}
+            content: %TextContent{body: "Sample"}
           }
         end
       end
