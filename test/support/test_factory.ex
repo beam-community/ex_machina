@@ -5,14 +5,10 @@ defmodule ExMachina.TestFactory do
 
   def custom_cast(field_type, value, _struct) do
     case Ecto.Type.cast(field_type, value) do
-      {:ok, value} -> value
-      :error -> raise_cast_error(field_type, value)
-      {:error, _} -> raise_cast_error(field_type, value)
+      {:ok, value} -> {:ok, value}
+      :error -> :error
+      {:error, reason} -> {:error, reason}
     end
-  end
-
-  defp raise_cast_error(field_type, value) do
-    raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)}"
   end
 
   def custom_factory do

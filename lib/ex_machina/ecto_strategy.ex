@@ -17,10 +17,7 @@ defmodule ExMachina.EctoStrategy do
         def custom_cast(field_type, value, _struct) do
           # For PolymorphicEmbed types (parameterized types), use Ecto.Type.cast
           # which will call the PolymorphicEmbed's cast implementation
-          case Ecto.Type.cast(field_type, value) do
-            {:ok, value} -> value
-            _ -> value  # Return original value if cast fails
-          end
+          Ecto.Type.cast(field_type, value)
         end
 
         def document_factory do
@@ -35,6 +32,10 @@ defmodule ExMachina.EctoStrategy do
   - `field_type`: The Ecto type of the field
   - `value`: The current value
   - `struct`: The struct being casted
+
+  The custom `cast` function must return:
+  - `{:ok, value}` on success
+  - `:error` or `{:error, reason}` on failure
 
   If no custom function is provided, the default behavior uses standard Ecto type casting.
   """
@@ -112,7 +113,13 @@ defmodule ExMachina.EctoStrategy do
   end
 
   defp do_cast_value(custom_cast, field_type, value, struct) when is_function(custom_cast, 3) do
-    custom_cast.(field_type, value, struct)
+    case custom_cast.(field_type, value, struct) do
+      {:ok, value} ->
+        value
+
+      other ->
+        raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{inspect(struct)}. Custom cast returned: #{inspect(other)}"
+    end
   end
 
   defp do_cast_value(_custom_cast, field_type, value, struct) do
