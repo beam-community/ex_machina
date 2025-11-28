@@ -317,7 +317,7 @@ The main factory includes `MyApp.ArticleFactory`, so let's create it next. It mi
 # test/factories/article_factory.ex
 defmodule MyApp.ArticleFactory do
   defmacro __using__(_opts) do
-    quote do
+    quote location: :keep do
       def article_factory do
         %MyApp.Article{
           title: "My awesome article!",
@@ -335,7 +335,7 @@ This way you can split your giant factory file into many small files. But what a
 # test/factories/post_factory.ex
 defmodule MyApp.PostFactory do
   defmacro __using__(_opts) do
-    quote do
+    quote location: :keep do
       def post_factory do
         %MyApp.Post{
           body: "Example body"
@@ -353,7 +353,7 @@ end
 # test/factories/video_factory.ex
 defmodule MyApp.VideoFactory do
   defmacro __using__(_opts) do
-    quote do
+    quote location: :keep do
       def video_factory do
         %MyApp.Video{
           url: "example_url"
