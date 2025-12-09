@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           persist-credentials: true
