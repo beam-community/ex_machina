@@ -6,6 +6,8 @@ updates:
       interval: weekly
     commit-message:
       prefix: "chore(deps)"
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: mix
     directory: "/"
@@ -18,3 +20,5 @@ updates:
         dependency-type: production
       dev:
         dependency-type: development
+    cooldown:
+      default-days: 7
