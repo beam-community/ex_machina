@@ -150,7 +150,7 @@ defmodule ExMachina.Ecto do
 
     quote do
       use ExMachina
-      use ExMachina.EctoStrategy, repo: unquote(Keyword.get(opts, :repo))
+      use ExMachina.EctoStrategy, unquote(opts)
 
       def params_for(factory_name, attrs \\ %{}) do
         ExMachina.Ecto.params_for(__MODULE__, factory_name, attrs)
