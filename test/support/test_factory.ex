@@ -1,5 +1,15 @@
 defmodule ExMachina.TestFactory do
-  use ExMachina.Ecto, repo: ExMachina.TestRepo
+  use ExMachina.Ecto,
+    repo: ExMachina.TestRepo,
+    cast: &ExMachina.TestFactory.custom_cast/3
+
+  def custom_cast(field_type, value, _struct) do
+    case Ecto.Type.cast(field_type, value) do
+      {:ok, value} -> {:ok, value}
+      :error -> :error
+      {:error, reason} -> {:error, reason}
+    end
+  end
 
   def custom_factory do
     %ExMachina.Custom{
@@ -43,6 +53,25 @@ defmodule ExMachina.TestFactory do
       id: 3,
       name: "John Doe",
       admin: false
+    }
+  end
+
+  def document_factory do
+    %ExMachina.Document{
+      title: "Test Document",
+      content: %ExMachina.TextContent{
+        body: "Sample text content"
+      }
+    }
+  end
+
+  def document_with_image_factory do
+    %ExMachina.Document{
+      title: "Image Document",
+      content: %ExMachina.ImageContent{
+        url: "https://example.com/image.jpg",
+        alt_text: "Test image"
+      }
     }
   end
 end
