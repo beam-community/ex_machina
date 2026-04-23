@@ -21,9 +21,13 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Elixir
-        uses: stordco/actions-elixir/setup@v1
+        uses: erlef/setup-beam@v1
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          elixir-version: "1.19"
+          otp-version: "27.0"
+
+      - run: mix deps.get
 
       - name: Compile
         run: mix compile --docs
