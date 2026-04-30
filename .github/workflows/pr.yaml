@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Check
-        uses: stordco/actions-pr-title@v1.0.0
+        uses: beam-community/actions-pr-title@v1.0.0
         with:
           regex: '^(refactor!|feat!|fix!|refactor|fix|feat|chore)(\(\w+\))?:\s(\[#\d{1,5}\])?.*$'
           hint: |
