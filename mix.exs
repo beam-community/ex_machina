@@ -41,6 +41,7 @@ defmodule ExMachina.Mixfile do
       {:doctor, "~> 0.22.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.18.1", only: :test},
       {:ex_doc, "~> 0.32", only: [:dev, :test], runtime: false},
+      {:polymorphic_embed, "~> 5.0", only: :test},
       {:postgrex, "~> 0.17", only: :test}
     ]
   end
