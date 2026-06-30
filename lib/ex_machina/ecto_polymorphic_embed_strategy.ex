@@ -1,6 +1,6 @@
 defmodule ExMachina.EctoPolymorphicEmbedStrategy do
   @moduledoc false
-  
+
   # Borrows liberally from https://github.com/thoughtbot/ex_machina/blob/b2f47a36b84fded6c37434bbf9041b33b30387e9/lib/ex_machina/ecto_strategy.ex
 
   use ExMachina.Strategy, function_name: :insert
@@ -34,6 +34,14 @@ defmodule ExMachina.EctoPolymorphicEmbedStrategy do
 
   def handle_insert(_record, _opts) do
     raise "expected :repo to be given to ExMachina.EctoPolymorphicEmbedStrategy"
+  end
+
+  def handle_insert(_, %{repo: nil}, _insert_options) do
+    raise """
+    insert/1 is not available unless you provide the :repo option. Example:
+
+    use ExMachina.EctoPolymorphicEmbed, repo: MyApp.Repo
+    """
   end
 
   def handle_insert(

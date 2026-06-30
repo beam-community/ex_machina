@@ -62,6 +62,18 @@ defmodule ExMachina.EctoPolymorphicEmbedTestFactory do
   end
 end
 
+defmodule ExMachina.EctoPolymorphicEmbedFactoryWithNoRepo do
+  use ExMachina.EctoPolymorphicEmbed
+
+  def current_polymorphic_embed_factory do
+    %ExMachina.CurrentPolymorphicEmbedSchema{
+      amount: 300,
+      payload: %{type: "one"},
+      payloads: [%{type: "many"}]
+    }
+  end
+end
+
 defmodule ExMachina.EctoPolymorphicEmbedStrategyTest do
   use ExUnit.Case, async: true
 
@@ -92,5 +104,15 @@ defmodule ExMachina.EctoPolymorphicEmbedStrategyTest do
              )
 
     assert model.amount == Decimal.new(300)
+  end
+
+  test "insert/3 raises helpful error message if no repo is provided" do
+    assert_raise RuntimeError, ~r/insert\/1 is not available unless you provide the :repo option/, fn ->
+      ExMachina.EctoPolymorphicEmbedFactoryWithNoRepo.insert(
+        :current_polymorphic_embed,
+        %{},
+        returning: true
+      )
+    end
   end
 end
