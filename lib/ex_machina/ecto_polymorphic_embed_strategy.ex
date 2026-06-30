@@ -1,27 +1,56 @@
 defmodule ExMachina.EctoPolymorphicEmbedStrategy do
   @moduledoc false
-
-  # Copied from https://github.com/thoughtbot/ex_machina/blob/b2f47a36b84fded6c37434bbf9041b33b30387e9/lib/ex_machina/ecto_strategy.ex
+  
+  # Borrows liberally from https://github.com/thoughtbot/ex_machina/blob/b2f47a36b84fded6c37434bbf9041b33b30387e9/lib/ex_machina/ecto_strategy.ex
 
   use ExMachina.Strategy, function_name: :insert
 
-  def handle_insert(%{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record, %{repo: repo}) do
-    record
-    |> cast
-    |> repo.insert!
+  def handle_insert(%{__meta__: %{state: :loaded}} = record, _) do
+    raise "You called `insert` on a record that has already been inserted.
+     Make sure that you have not accidentally called insert twice.
+
+     The record you attempted to insert:
+
+     #{inspect(record, limit: :infinity)}"
   end
 
-  def handle_insert(resource, options),
-    do: ExMachina.EctoStrategy.handle_insert(resource, options)
+  def handle_insert(_, %{repo: nil}) do
+    raise """
+    insert/1 is not available unless you provide the :repo option. Example:
+
+    use ExMachina.EctoPolymorphicEmbed, repo: MyApp.Repo
+    """
+  end
+
+  def handle_insert(%{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record, %{repo: repo}) do
+    record
+    |> cast()
+    |> repo.insert!()
+  end
+
+  def handle_insert(record, %{repo: _repo}) do
+    raise ArgumentError, "#{inspect(record)} is not an Ecto model. Use `build` instead"
+  end
+
+  def handle_insert(_record, _opts) do
+    raise "expected :repo to be given to ExMachina.EctoPolymorphicEmbedStrategy"
+  end
+
+  def handle_insert(
+        %{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record,
+        %{repo: repo},
+        insert_options
+      ) do
+    record
+    |> cast()
+    |> repo.insert!(insert_options)
+  end
 
   defp cast(record) do
     record
-    |> cast_all_fields
-    |> cast_all_embeds
-    ## Change Start
-    |> cast_polymorphic_embeds
-    ## Change End
-    |> cast_all_assocs
+    |> cast_all_fields()
+    |> cast_all_embeds()
+    |> cast_all_assocs()
   end
 
   defp cast_all_fields(%{__struct__: schema} = struct) do
@@ -47,9 +76,7 @@ defmodule ExMachina.EctoPolymorphicEmbedStrategy do
         value
 
       _ ->
-        raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{
-                inspect(struct)
-              }."
+        raise "Failed to cast `#{inspect(value)}` of type #{inspect(field_type)} in #{inspect(struct)}."
     end
   end
 
@@ -74,19 +101,6 @@ defmodule ExMachina.EctoPolymorphicEmbedStrategy do
       embed_type |> struct() |> Map.merge(embed) |> cast()
     end
   end
-
-  ## Change Start
-  defp cast_polymorphic_embeds(%{__struct__: schema} = struct) do
-    schema
-    |> schema_polymorphic_embeds()
-    |> Enum.reduce(struct, fn embed_key, struct ->
-      casted_value = struct |> Map.get(embed_key)
-
-      Map.put(struct, embed_key, casted_value)
-    end)
-  end
-
-  ## Change End
 
   defp cast_all_assocs(%{__struct__: schema} = struct) do
     assoc_keys = schema_associations(schema)
@@ -124,26 +138,25 @@ defmodule ExMachina.EctoPolymorphicEmbedStrategy do
   end
 
   defp schema_fields(schema) do
-    ## Change Start
     (schema_non_virtual_fields(schema) -- schema_embeds(schema)) --
       schema_polymorphic_embeds(schema)
-
-    ## Change End
   end
 
   defp schema_non_virtual_fields(schema) do
     schema.__schema__(:fields)
   end
 
-  ## Change Start
   defp schema_polymorphic_embeds(schema) do
-    Enum.filter(
-      schema.__schema__(:fields),
-      &match?({:parameterized, PolymorphicEmbed, _options}, schema.__schema__(:type, &1))
-    )
+    Enum.filter(schema.__schema__(:fields), fn field ->
+      schema.__schema__(:type, field)
+      |> polymorphic_embed_type?()
+    end)
   end
 
-  ## Change End
+  defp polymorphic_embed_type?({:array, type}), do: polymorphic_embed_type?(type)
+  defp polymorphic_embed_type?({:parameterized, {PolymorphicEmbed, _options}}), do: true
+  defp polymorphic_embed_type?({:parameterized, PolymorphicEmbed, _options}), do: true
+  defp polymorphic_embed_type?(_type), do: false
 
   defp schema_embeds(schema) do
     schema.__schema__(:embeds)
