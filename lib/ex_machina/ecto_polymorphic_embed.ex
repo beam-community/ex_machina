@@ -6,7 +6,7 @@ defmodule ExMachina.EctoPolymorphicEmbed do
   nice things that make working with Ecto easier.
 
   * It uses `ExMachina.EctoPolymorphicEmbedStrategy`, which adds `insert/1`, `insert/2`,
-  `insert/3` `insert_pair/2`, `insert_list/3`.
+  `insert/3`, `insert_pair/2`, `insert_list/3`.
   * Adds a `params_for` function that is useful for working with changesets or
     sending params to API endpoints.
 

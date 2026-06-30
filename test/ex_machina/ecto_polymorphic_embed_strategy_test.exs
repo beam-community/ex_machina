@@ -107,12 +107,14 @@ defmodule ExMachina.EctoPolymorphicEmbedStrategyTest do
   end
 
   test "insert/3 raises helpful error message if no repo is provided" do
-    assert_raise RuntimeError, ~r/insert\/1 is not available unless you provide the :repo option/, fn ->
-      ExMachina.EctoPolymorphicEmbedFactoryWithNoRepo.insert(
-        :current_polymorphic_embed,
-        %{},
-        returning: true
-      )
-    end
+    assert_raise RuntimeError,
+                 ~r/insert is not available unless you provide the :repo option/,
+                 fn ->
+                   ExMachina.EctoPolymorphicEmbedFactoryWithNoRepo.insert(
+                     :current_polymorphic_embed,
+                     %{},
+                     returning: true
+                   )
+                 end
   end
 end

@@ -16,7 +16,7 @@ defmodule ExMachina.EctoPolymorphicEmbedStrategy do
 
   def handle_insert(_, %{repo: nil}) do
     raise """
-    insert/1 is not available unless you provide the :repo option. Example:
+    insert is not available unless you provide the :repo option. Example:
 
     use ExMachina.EctoPolymorphicEmbed, repo: MyApp.Repo
     """
@@ -38,7 +38,7 @@ defmodule ExMachina.EctoPolymorphicEmbedStrategy do
 
   def handle_insert(_, %{repo: nil}, _insert_options) do
     raise """
-    insert/1 is not available unless you provide the :repo option. Example:
+    insert is not available unless you provide the :repo option. Example:
 
     use ExMachina.EctoPolymorphicEmbed, repo: MyApp.Repo
     """
