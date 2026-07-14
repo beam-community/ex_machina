@@ -42,7 +42,7 @@ jobs:
           otp-version: "27.0"
 
       - name: Sync
-        uses: beam-community/actions-sync@b0a801a9d4952d5ba84902e8bf4f54c20062a741 # v1.14.0
+        uses: beam-community/actions-sync@fea49a55e9867e5448fd2822b207177dd8ebba38 # v1.14.1
         with:
           commit-message: "chore: sync files with beam-community/common-config"
           pr-enabled: true
