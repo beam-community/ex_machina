@@ -24,25 +24,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           persist-credentials: true
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup Elixir
-        uses: erlef/setup-beam@v1.24.1
+        uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
           elixir-version: "1.19"
           otp-version: "27.0"
 
       - name: Sync
-        uses: beam-community/actions-sync@v1
+        uses: beam-community/actions-sync@b0a801a9d4952d5ba84902e8bf4f54c20062a741 # v1.14.0
         with:
           commit-message: "chore: sync files with beam-community/common-config"
           pr-enabled: true
