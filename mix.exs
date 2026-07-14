@@ -5,7 +5,7 @@ defmodule ExMachina.Mixfile do
     [
       app: :ex_machina,
       description: "A factory library by the creators of FactoryBot (née FactoryGirl)",
-      version: "2.8.0",
+      version: "2.8.1",
       elixir: "~> 1.11",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,

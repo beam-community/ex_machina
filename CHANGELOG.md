@@ -7,6 +7,13 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.8.1](https://github.com/beam-community/ex_machina/compare/v2.8.0...v2.8.1) (2026-07-14)
+
+
+### Bug Fixes
+
+* Unblock common-config sync, pinned actions-sync release had no build output ([#560](https://github.com/beam-community/ex_machina/issues/560)) ([029d074](https://github.com/beam-community/ex_machina/commit/029d0740742018eb7323bbdbe55f51aa2c2e9561))
+
 ## [2.8.0](https://github.com/beam-community/ex_machina/compare/v2.7.0...v2.8.0) (2024-06-24)
 
 
