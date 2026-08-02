@@ -7,6 +7,13 @@ complete changelog, see the git history for each version via the version links.
 
 [hex package page]: https://hex.pm/packages/ex_machina
 
+## [2.8.2](https://github.com/beam-community/ex_machina/compare/v2.8.1...v2.8.2) (2026-08-02)
+
+
+### Bug Fixes
+
+* Support schemas with PolymorphicEmbed fields ([#521](https://github.com/beam-community/ex_machina/issues/521)) ([8d58431](https://github.com/beam-community/ex_machina/commit/8d58431c9f21273987e4472460945b1e50700029))
+
 ## [2.8.1](https://github.com/beam-community/ex_machina/compare/v2.8.0...v2.8.1) (2026-07-14)
 
 
