@@ -21,7 +21,7 @@ In `mix.exs`, add the ExMachina dependency:
 ```elixir
 def deps do
   [
-    {:ex_machina, "~> 2.8.1", only: :test},
+    {:ex_machina, "~> 2.8.2", only: :test},
   ]
 end
 ```
