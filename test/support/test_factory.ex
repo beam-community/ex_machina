@@ -45,4 +45,23 @@ defmodule ExMachina.TestFactory do
       admin: false
     }
   end
+
+  def document_factory do
+    %ExMachina.Document{
+      title: "Test Document",
+      content: %ExMachina.TextContent{
+        body: "Sample text content"
+      }
+    }
+  end
+
+  def document_with_image_factory do
+    %ExMachina.Document{
+      title: "Image Document",
+      content: %ExMachina.ImageContent{
+        url: "https://example.com/image.jpg",
+        alt_text: "Test image"
+      }
+    }
+  end
 end

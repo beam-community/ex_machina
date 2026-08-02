@@ -13,11 +13,7 @@ defmodule ExMachina.EctoStrategy do
   end
 
   def handle_insert(_, %{repo: nil}) do
-    raise """
-    insert/1 is not available unless you provide the :repo option. Example:
-
-    use ExMachina.Ecto, repo: MyApp.Repo
-    """
+    raise_missing_repo_error()
   end
 
   def handle_insert(%{__meta__: %{__struct__: Ecto.Schema.Metadata}} = record, %{repo: repo}) do
@@ -31,7 +27,15 @@ defmodule ExMachina.EctoStrategy do
   end
 
   def handle_insert(_record, _opts) do
-    raise "expected :repo to be given to ExMachina.EctoStrategy"
+    raise_missing_repo_error()
+  end
+
+  defp raise_missing_repo_error do
+    raise """
+    insert/1 is not available unless you provide the :repo option. Example:
+
+    use ExMachina.Ecto, repo: MyApp.Repo
+    """
   end
 
   def handle_insert(
@@ -67,6 +71,25 @@ defmodule ExMachina.EctoStrategy do
 
     cast_value(field_type, value, struct)
   end
+
+  # Parameterized types (PolymorphicEmbed, Ecto.Enum, ...) may forbid direct
+  # Ecto.Type.cast and resolve struct values at dump time instead, so built
+  # structs and nil are passed through untouched. Both tuple forms are needed:
+  # Ecto < 3.12 uses {:parameterized, module, params}.
+  defp cast_value({:parameterized, _}, value, _struct) when is_struct(value) or is_nil(value),
+    do: value
+
+  defp cast_value({:parameterized, _, _}, value, _struct) when is_struct(value) or is_nil(value),
+    do: value
+
+  # Arrays of parameterized types (polymorphic_embeds_many, arrays of
+  # Ecto.Enum, ...) are casted element by element so built structs pass
+  # through while other values keep their casting behavior.
+  defp cast_value({:array, {:parameterized, _} = type}, values, struct) when is_list(values),
+    do: Enum.map(values, &cast_value(type, &1, struct))
+
+  defp cast_value({:array, {:parameterized, _, _} = type}, values, struct) when is_list(values),
+    do: Enum.map(values, &cast_value(type, &1, struct))
 
   defp cast_value(field_type, value, struct) do
     case Ecto.Type.cast(field_type, value) do

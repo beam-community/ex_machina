@@ -204,9 +204,144 @@ defmodule ExMachina.EctoTest do
       comment_params = TestFactory.params_for(:comment_with_embedded_assocs, links: links)
       assert List.first(comment_params.links).metadata == %{text: "foo"}
     end
+
+    test "params_for/2 dumps PolymorphicEmbed fields with their type discriminator" do
+      params = TestFactory.params_for(:document)
+
+      assert params.content == %{__type__: :text, body: "Sample text content"}
+    end
+
+    test "params_for/2 dumps polymorphic_embeds_many fields with their type discriminators" do
+      attachments = [%ExMachina.ImageContent{url: "https://example.com/a.jpg"}]
+
+      params = TestFactory.params_for(:document, attachments: attachments)
+
+      assert params.attachments == [
+               %{
+                 __type__: :image,
+                 url: "https://example.com/a.jpg",
+                 alt_text: nil,
+                 taken_on: nil,
+                 taken_at: nil
+               }
+             ]
+    end
+
+    test "params_for/2 drops nil PolymorphicEmbed fields" do
+      params = TestFactory.params_for(:document, content: nil)
+
+      refute Map.has_key?(params, :content)
+    end
+
+    test "params_for/2 leaves Ecto.Enum values untouched" do
+      params = TestFactory.params_for(:document, status: :draft, labels: [:internal])
+
+      assert params.status == :draft
+      assert params.labels == [:internal]
+    end
+
+    test "params_for/2 keeps PolymorphicEmbed values whose type cannot dump them" do
+      params = TestFactory.params_for(:document, content: %ExMachina.NoteContent{note: "hi"})
+
+      assert %ExMachina.NoteContent{note: "hi", id: nil} = params.content
+    end
+
+    test "params_for/2 keeps empty polymorphic_embeds_many fields as empty lists" do
+      params = TestFactory.params_for(:document)
+
+      assert params.attachments == []
+    end
+
+    test "params_for/2 dumps PolymorphicEmbed fields nested in regular embeds" do
+      metadata = %ExMachina.DocumentMetadata{
+        source: "cms",
+        banner: %ExMachina.ImageContent{url: "https://example.com/banner.jpg"}
+      }
+
+      params = TestFactory.params_for(:document, metadata: metadata)
+
+      assert params.metadata.source == "cms"
+
+      assert params.metadata.banner == %{
+               __type__: :image,
+               url: "https://example.com/banner.jpg",
+               alt_text: nil,
+               taken_on: nil,
+               taken_at: nil
+             }
+    end
   end
 
   describe "string_params_for/2" do
+    test "string_params_for/2 output for PolymorphicEmbed fields is JSON encodable" do
+      params = TestFactory.string_params_for(:document, status: :draft)
+
+      assert {:ok, _json} = Jason.encode(params)
+    end
+
+    test "string_params_for/2 does not crash on PolymorphicEmbed values that cannot be dumped" do
+      params = TestFactory.string_params_for(:document, content: %ExMachina.NoteContent{note: "hi"})
+
+      assert params["content"]["note"] == "hi"
+    end
+
+    test "string_params_for/2 preserves datetimes in dumped PolymorphicEmbed fields when preserve_dates is set" do
+      published_at = ~U[2024-01-01 10:30:00Z]
+      content = %ExMachina.VideoContent{url: "https://example.com/v.mp4", published_at: published_at}
+
+      params = TestFactory.string_params_for(:document, content: content)
+
+      assert params["content"]["published_at"] == published_at
+      assert {:ok, _json} = Jason.encode(params)
+    end
+
+    test "string_params_for/2 emits ISO8601 datetimes in dumped PolymorphicEmbed fields when dates are not preserved" do
+      Application.put_env(:ex_machina, :preserve_dates, false)
+      on_exit(fn -> Application.put_env(:ex_machina, :preserve_dates, true) end)
+
+      content = %ExMachina.VideoContent{
+        url: "https://example.com/v.mp4",
+        published_at: ~U[2024-01-01 10:30:00Z]
+      }
+
+      params = TestFactory.string_params_for(:document, content: content)
+
+      assert params["content"]["published_at"] == "2024-01-01T10:30:00Z"
+      assert {:ok, _json} = Jason.encode(params)
+    end
+
+    test "string_params_for/2 emits ISO8601 dates and times in dumped PolymorphicEmbed fields when dates are not preserved" do
+      Application.put_env(:ex_machina, :preserve_dates, false)
+      on_exit(fn -> Application.put_env(:ex_machina, :preserve_dates, true) end)
+
+      content = %ExMachina.ImageContent{
+        url: "https://example.com/a.jpg",
+        taken_on: ~D[2024-05-06],
+        taken_at: ~T[09:15:00]
+      }
+
+      params = TestFactory.string_params_for(:document, content: content)
+
+      assert params["content"]["taken_on"] == "2024-05-06"
+      assert params["content"]["taken_at"] == "09:15:00"
+      assert {:ok, _json} = Jason.encode(params)
+    end
+
+    test "string_params_for/2 castable params for PolymorphicEmbed fields" do
+      attachments = [%ExMachina.ImageContent{url: "https://example.com/a.jpg"}]
+
+      params = TestFactory.string_params_for(:document, attachments: attachments)
+
+      assert params["content"] == %{"__type__" => :text, "body" => "Sample text content"}
+
+      changeset = ExMachina.Document.changeset(%ExMachina.Document{}, params)
+
+      assert changeset.valid?
+      document = Ecto.Changeset.apply_changes(changeset)
+      assert %ExMachina.TextContent{body: "Sample text content"} = document.content
+      assert [%ExMachina.ImageContent{url: "https://example.com/a.jpg"}] = document.attachments
+    end
+
     test "string_params_for/2 produces maps similar to ones built with params_for/2, but the keys are strings" do
       assert TestFactory.string_params_for(:user) == %{
                "name" => "John Doe",
@@ -276,6 +411,13 @@ defmodule ExMachina.EctoTest do
   end
 
   describe "params_with_assocs/2" do
+    test "params_with_assocs/2 dumps PolymorphicEmbed fields with their type discriminator" do
+      params = TestFactory.params_with_assocs(:document, author: TestFactory.build(:user))
+
+      assert params.content == %{__type__: :text, body: "Sample text content"}
+      assert params.author_id == ExMachina.TestRepo.one!(User).id
+    end
+
     test "params_with_assocs/2 inserts belongs_tos that are set by the factory" do
       assert has_association_in_schema?(ExMachina.Article, :editor)
 
@@ -313,6 +455,12 @@ defmodule ExMachina.EctoTest do
   end
 
   describe "string_params_with_assocs/2" do
+    test "string_params_with_assocs/2 dumps PolymorphicEmbed fields with their type discriminator" do
+      params = TestFactory.string_params_with_assocs(:document)
+
+      assert params["content"] == %{"__type__" => :text, "body" => "Sample text content"}
+    end
+
     test "string_params_with_assocs/2 behaves like params_with_assocs/2 but the keys of the map are strings" do
       assert has_association_in_schema?(ExMachina.Article, :editor)
 

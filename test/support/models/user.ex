@@ -9,6 +9,7 @@ defmodule ExMachina.User do
     field(:db_value, :string)
 
     has_many(:articles, ExMachina.Article, foreign_key: :author_id)
+    has_many(:documents, ExMachina.Document, foreign_key: :author_id)
     has_many(:editors, through: [:articles, :editor])
     has_one(:best_article, ExMachina.Article, foreign_key: :author_id)
   end
