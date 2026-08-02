@@ -48,5 +48,15 @@ defmodule ExMachina.TestRepo.Migrations.MigrateAll do
       add(:author, :map)
       add(:links, {:array, :map}, default: [])
     end
+
+    create table(:documents) do
+      add(:title, :string)
+      add(:status, :string)
+      add(:labels, {:array, :string}, default: [])
+      add(:author_id, :integer)
+      add(:content, :jsonb)
+      add(:metadata, :jsonb)
+      add(:attachments, {:array, :jsonb}, default: [])
+    end
   end
 end
