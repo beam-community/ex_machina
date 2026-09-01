@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: CI ${{ github.head_ref || github.run_id }}
+  group: CI ${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:

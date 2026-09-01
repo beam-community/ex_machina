@@ -19,20 +19,53 @@ jobs:
     if: github.event.pull_request.user.login == 'dependabot[bot]'
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
       - name: Fetch Metadata
         id: metadata
         uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check for common-config-managed files
+        id: managed
+        if: steps.metadata.outputs.package-ecosystem == 'github_actions'
+        run: |
+          all_managed=true
+
+          while IFS= read -r file; do
+            if [ ! -f "$file" ] || ! grep -q "synced with beam-community/common-config" "$file"; then
+              all_managed=false
+              break
+            fi
+          done < <(gh pr view "$PR_URL" --json files --jq '.files[].path')
+
+          echo "all_managed=$all_managed" >> "$GITHUB_OUTPUT"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Close PR for common-config-managed files
+        if: steps.managed.outputs.all_managed == 'true'
+        run: |
+          gh pr comment "$PR_URL" --body "Every file this PR touches is synced from beam-community/common-config, so this update has to land there and flow down through the regular sync instead. Closing in favor of that."
+          gh pr close "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Approve PR
+        if: steps.managed.outputs.all_managed != 'true'
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Enable auto-merge for patch and minor updates
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.dependency-type == 'direct:production'
+        if: steps.managed.outputs.all_managed != 'true' && (steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.dependency-type == 'direct:production')
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
