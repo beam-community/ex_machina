@@ -34,8 +34,8 @@ jobs:
         uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          elixir-version: "1.19"
-          otp-version: "27.0"
+          elixir-version: "1.20"
+          otp-version: "29"
 
       - run: mix deps.get
 
@@ -53,8 +53,8 @@ jobs:
         uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          elixir-version: "1.19"
-          otp-version: "27.0"
+          elixir-version: "1.20"
+          otp-version: "29"
 
       - run: mix deps.get
 
@@ -72,8 +72,8 @@ jobs:
         uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          elixir-version: "1.19"
-          otp-version: "27.0"
+          elixir-version: "1.20"
+          otp-version: "29"
 
       - run: mix deps.get
 
@@ -91,8 +91,8 @@ jobs:
         uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          elixir-version: "1.19"
-          otp-version: "27.0"
+          elixir-version: "1.20"
+          otp-version: "29"
 
       - run: mix deps.get
 
@@ -140,10 +140,10 @@ jobs:
       fail-fast: false
       matrix:
         versions:
-          - elixir: 1.17
-            otp: 27
-          - elixir: 1.18
-            otp: 27
-          - elixir: 1.19
-            otp: 27
+          - elixir: "1.18"
+            otp: "27"
+          - elixir: "1.19"
+            otp: "28"
+          - elixir: "1.20"
+            otp: "29"
 
