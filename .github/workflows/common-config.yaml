@@ -30,16 +30,16 @@ jobs:
           persist-credentials: true
 
       - name: Setup Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: 24
+          node-version: 26
 
       - name: Setup Elixir
         uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           github-token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          elixir-version: "1.19"
-          otp-version: "27.0"
+          elixir-version: "1.20"
+          otp-version: "29.1.2"
 
       - name: Sync
         uses: beam-community/actions-sync@fea49a55e9867e5448fd2822b207177dd8ebba38 # v1.14.1
